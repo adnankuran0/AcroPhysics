@@ -27,7 +27,7 @@ int main()
     world.addBody(&body4);
     world.addBody(&body5);
 
-    DebugCircle circle1(body.position.x, body.position.y, body.collisionShape->getRadius(), sf::Color::Red);
+    DebugCircle circle1(body.position.x, body.position.y, body.collisionShape->getRadius(), sf::Color::Magenta);
     DebugRect rect1(body2.position.x, body2.position.y, body2.collisionShape->getWidth(), body2.collisionShape->getHeight(), sf::Color::Blue);
     DebugRect rect2(body3.position.x, body3.position.y, body3.collisionShape->getWidth(), body3.collisionShape->getHeight(), sf::Color::Blue);
     DebugRect rect3(body4.position.x, body4.position.y, body4.collisionShape->getWidth(), body4.collisionShape->getHeight(), sf::Color::Blue);
