@@ -9,31 +9,24 @@ int main()
 {
     acro::PhysicsWorld2D world;
 
-    acro::RigidBody2D body(acro::Vec2(200, 200), acro::Vec2(0, 0), 1.0f, false, 0.5);
-    acro::RigidBody2D body2(acro::Vec2(0, 600), acro::Vec2(0, 0), 1.0f, true, 0.0);
-    acro::RigidBody2D body3(acro::Vec2(0, 0), acro::Vec2(0, 0), 1.0f, true, 0.0);
-    acro::RigidBody2D body4(acro::Vec2(1270, 0), acro::Vec2(0, 0), 1.0f, true, 0.0);
-    acro::RigidBody2D body5(acro::Vec2(500, 500), acro::Vec2(0, 0), 1.0f, false, 0.0);
+    acro::RigidBody2D body(acro::Vec2(100, 100), 1.0f, false,0.5f);
+    acro::RigidBody2D body2(acro::Vec2(300, 300), 1.0f, false,0.5f);
 
-    body.setCollisionShape(20);
-    body2.setCollisionShape(1280, 120);
-    body3.setCollisionShape(10, 720);
-    body4.setCollisionShape(10, 720);
-    body5.setCollisionShape(20);
-
-    world.addBody(&body);
-    world.addBody(&body2);
-    world.addBody(&body3);
-    world.addBody(&body4);
-    world.addBody(&body5);
-
-    DebugCircle circle1(body.position.x, body.position.y, body.collisionShape->getRadius(), sf::Color::Magenta);
-    DebugRect rect1(body2.position.x, body2.position.y, body2.collisionShape->getWidth(), body2.collisionShape->getHeight(), sf::Color::Blue);
-    DebugRect rect2(body3.position.x, body3.position.y, body3.collisionShape->getWidth(), body3.collisionShape->getHeight(), sf::Color::Blue);
-    DebugRect rect3(body4.position.x, body4.position.y, body4.collisionShape->getWidth(), body4.collisionShape->getHeight(), sf::Color::Blue);
-    DebugCircle circle2(body5.position.x, body5.position.y, body5.collisionShape->getRadius(), sf::Color::Red);
+    sf::CircleShape vrt(2.0f);
+	vrt.setFillColor(sf::Color::Red);
+    vrt.setOrigin(1.0f, 1.0f);
 
 
+	body.setCollisionShape(50.0f,50.0f);
+	body2.setCollisionShape(50.0f);
+
+
+	world.addBody(&body);
+	world.addBody(&body2);
+
+
+    DebugRect rect(body.position.x, body.position.y, body.collisionShape->getWidth(), body.collisionShape->getHeight(), sf::Color(228,177,240,255));
+    DebugCircle rect2(body2.position.x, body2.position.y, body2.collisionShape->getRadius(), sf::Color(126, 96, 191, 255));
 
     sf::RenderWindow window(sf::VideoMode(1280, 720), "Ecro Physics Demo");
    
@@ -58,31 +51,39 @@ int main()
 
         }
 
-        body.velocity = acro::Vec2(0,0);
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-            body.velocity.x = 30;
+            body.force.x = 50;
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-            body.velocity.x = -30;
+            body.force.x = -50;
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-            body.velocity.y = -30;
+            body.force.y = -50;
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-            body.velocity.y = 30;
+            body.force.y = 50;
 
 
         deltaTime = clock.restart().asSeconds();
         world.step(deltaTime);
 
 
-        window.clear();
-        circle1.setPosition(body.position.x, body.position.y);
-        circle2.setPosition(body5.position.x, body5.position.y);
+        window.clear(sf::Color(50,50,50,255));
+        rect.setPosition(body.position.x, body.position.y);
+        rect2.setPosition(body2.position.x, body2.position.y);
 
-        circle1.draw(window);
-        rect1.draw(window);
+        rect.setRotation(body.rotation);
+
+
+
+        rect.draw(window);
         rect2.draw(window);
-        rect3.draw(window);
-        circle2.draw(window);
+
        
+        for (int i = 0; i < 4;i++)
+        {
+             vrt.setPosition(body.collisionShape->transformedVertices[i].x, body.collisionShape->transformedVertices[i].y);
+             window.draw(vrt);
+        }
+
+ 
 
         window.display();
     }

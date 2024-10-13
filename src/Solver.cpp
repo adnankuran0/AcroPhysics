@@ -27,6 +27,9 @@ namespace acro
         }
     }
 
+
+
+
     void Solver::resolveForCircleAndCircle(RigidBody2D* firstBody, RigidBody2D* secondBody)
     {
         if (!firstBody || !secondBody || !firstBody->collisionShape || !secondBody->collisionShape) return;  // nullptr kontrolü
@@ -68,96 +71,205 @@ namespace acro
 
     void Solver::resolveForCircleAndRect(RigidBody2D* circleBody, RigidBody2D* rectBody)
     {
-        if (!circleBody || !rectBody || !circleBody->collisionShape || !rectBody->collisionShape) return;  // nullptr kontrolü
+        if (!circleBody || !rectBody || !circleBody->collisionShape || !rectBody->collisionShape) return;
 
-        Vec2 circlePos = circleBody->position;
-        Vec2 rectPos = rectBody->position;
+		std::vector<Vec2>& vertices = rectBody->collisionShape->transformedVertices;
 
-        float circleRadius = circleBody->collisionShape->getRadius();
-        float rectHalfWidth = rectBody->collisionShape->getWidth() / 2.0f;
-        float rectHalfHeight = rectBody->collisionShape->getHeight() / 2.0f;
+		Vec2 center = circleBody->position;
+		float radius = circleBody->collisionShape->getRadius();
 
-        Vec2 rectCenter = rectPos + Vec2(rectHalfWidth, rectHalfHeight);
-        Vec2 difference = circlePos - rectCenter;
+        Vec2 normal = Vec2::zero;
+		float depth = FLT_MAX;
 
-        float closestX = std::max(-rectHalfWidth, std::min(difference.x, rectHalfWidth));
-        float closestY = std::max(-rectHalfHeight, std::min(difference.y, rectHalfHeight));
-        Vec2 closestPoint = rectCenter + Vec2(closestX, closestY);
-        Vec2 collisionVector = closestPoint - circlePos;
-        float distance = collisionVector.magnitude();
+		Vec2 axis = Vec2::zero;
+        float axisDepth = 0.0f;
+		float minA, minB, maxA, maxB;
 
-        if (distance < circleRadius) {
-            float overlap = circleRadius - distance;
-            Vec2 collisionNormal = collisionVector.normalized();
-            Vec2 correctionVector = collisionNormal * (overlap / 2);
+        for (int i = 0; i < vertices.size(); i++)
+        {
+			Vec2 p1 = vertices[i];
+			Vec2 p2 = vertices[(i + 1) % vertices.size()];
 
-            Vec2 velocity1 = circleBody->velocity;
-            Vec2 velocity2 = rectBody->velocity;
+			Vec2 edge = p2 - p1;
+			axis = Vec2(-edge.y, edge.x).normalized();
 
-            float v1Normal = velocity1.dot(collisionNormal);
-            float v2Normal = velocity2.dot(collisionNormal);
 
-            float restitution = (circleBody->restitution + rectBody->restitution) / 2.0f;
-            float impulse = (-(1 + restitution) * (v1Normal - v2Normal)) / (1 / circleBody->mass + 1 / rectBody->mass);
+			projectPolygonToAxis(vertices, axis, minA, maxA);
+			projectCircleToAxis(center, radius, axis, minB, maxB);  
 
-            if (!circleBody->isStatic) {
-                circleBody->velocity += collisionNormal * (impulse / circleBody->mass);
-                circleBody->position -= correctionVector;
+
+			if (minA >= maxB || minB >= maxA) return;
+
+            //check later
+			axisDepth = std::min(maxA, maxB) - std::max(minA, minB);
+
+			if (axisDepth < depth)
+			{
+				depth = axisDepth;
+                normal = axis;
             }
-            if (!rectBody->isStatic) {
-                rectBody->velocity -= collisionNormal * (impulse / rectBody->mass);
-                rectBody->position += correctionVector;
-            }
+
+			//finding closest point
+			int cpIndex = findClosetPointOnPolygon(vertices, center);
+			Vec2 cp = vertices[cpIndex];
+
+			axis = cp - center;
+			axis = axis.normalized();
+
+			projectPolygonToAxis(vertices, axis, minA, maxA);
+			projectCircleToAxis(center, radius, axis, minB, maxB);
+
+            if (minA >= maxB || minB >= maxA) return;
+
+			axisDepth = std::min(maxA, maxB) - std::max(minA, minB);
+
+			if (axisDepth < depth)
+			{
+				depth = axisDepth;
+				normal = axis;
+			}
+
+			Vec2 direction = rectBody->position - center;
+
+			if (direction.dot(normal) < 0)
+            {
+				normal = -normal;
+			}
+
+            Vec2 resolution = -normal * (depth / 2);
+            circleBody->move(resolution);
+            rectBody->move(-resolution);
+
         }
+
     }
 
     void Solver::resolveForRectAndRect(RigidBody2D* firstBody, RigidBody2D* secondBody)
     {
         if (!firstBody || !secondBody || !firstBody->collisionShape || !secondBody->collisionShape) return;
 
-        Vec2 pos1 = firstBody->position;
-        Vec2 pos2 = secondBody->position;
+        float minDepth = FLT_MAX;
+        Vec2 bestNormal(0,0);
 
-        float halfWidth1 = firstBody->collisionShape->getWidth() / 2.0f;
-        float halfHeight1 = firstBody->collisionShape->getHeight() / 2.0f;
-        float halfWidth2 = secondBody->collisionShape->getWidth() / 2.0f;
-        float halfHeight2 = secondBody->collisionShape->getHeight() / 2.0f;
+        std::vector<Vec2>& verticesOfFirst = firstBody->collisionShape->transformedVertices;
+        std::vector<Vec2>& verticesOfSecond = secondBody->collisionShape->transformedVertices;
 
-        Vec2 center1 = pos1 + Vec2(halfWidth1, halfHeight1);
-        Vec2 center2 = pos2 + Vec2(halfWidth2, halfHeight2);
+        for (int i = 0; i < verticesOfFirst.size(); i++) {
+            Vec2 p1 = verticesOfFirst[i];
+            Vec2 p2 = verticesOfFirst[(i + 1) % verticesOfFirst.size()];
 
-        if (fabs(center1.x - center2.x) <= halfWidth1 + halfWidth2 &&
-            fabs(center1.y - center2.y) <= halfHeight1 + halfHeight2)
-        {
-            float overlapX = (halfWidth1 + halfWidth2) - fabs(center1.x - center2.x);
-            float overlapY = (halfHeight1 + halfHeight2) - fabs(center1.y - center2.y);
+            Vec2 edge = p2 - p1;
+            Vec2 normal = Vec2(-edge.y, edge.x).normalized();
 
-            Vec2 velocity1 = firstBody->velocity;
-            Vec2 velocity2 = secondBody->velocity;
-
-            Vec2 collisionNormal = (fabs(overlapX) < fabs(overlapY)) ? Vec2(1, 0) : Vec2(0, 1);
-
-            float v1Normal = velocity1.dot(collisionNormal);
-            float v2Normal = velocity2.dot(collisionNormal);
-
-            float restitution = (firstBody->restitution + secondBody->restitution) / 2.0f;
-            float impulse = (-(1 + restitution) * (v1Normal - v2Normal)) / (1 / firstBody->mass + 1 / secondBody->mass);
-
-            if (!firstBody->isStatic) {
-                firstBody->velocity += collisionNormal * (impulse / firstBody->mass);
-            }
-            if (!secondBody->isStatic) {
-                secondBody->velocity -= collisionNormal * (impulse / secondBody->mass);
+            float minA = FLT_MAX, maxA = -FLT_MAX;
+            for (Vec2 vertex : verticesOfFirst) {
+                float projection = vertex.dot(normal);
+                minA = std::min(minA, projection);
+                maxA = std::max(maxA, projection);
             }
 
-            if (overlapX < overlapY) {
-                if (!firstBody->isStatic) pos1.x += (center1.x < center2.x) ? -overlapX / 2 : overlapX / 2;
-                if (!secondBody->isStatic) pos2.x += (center1.x < center2.x) ? overlapX / 2 : -overlapX / 2;
+            float minB = FLT_MAX, maxB = -FLT_MAX;
+            for (Vec2 vertex : verticesOfSecond) {
+                float projection = vertex.dot(normal);
+                minB = std::min(minB, projection);
+                maxB = std::max(maxB, projection);
             }
-            else {
-                if (!firstBody->isStatic) pos1.y += (center1.y < center2.y) ? -overlapY / 2 : overlapY / 2;
-                if (!secondBody->isStatic) pos2.y += (center1.y < center2.y) ? overlapY / 2 : -overlapY / 2;
+
+            if (maxA < minB || maxB < minA) return;
+
+            float overlap = std::min(maxA, maxB) - std::max(minA, minB);
+            if (overlap < minDepth) {
+                minDepth = overlap;
+                bestNormal = (maxA < maxB) ? normal : -normal;
             }
         }
+
+        for (int i = 0; i < verticesOfSecond.size(); i++) {
+            Vec2 p1 = verticesOfSecond[i];
+            Vec2 p2 = verticesOfSecond[(i + 1) % verticesOfSecond.size()];
+
+            Vec2 edge = p2 - p1;
+            Vec2 normal = Vec2(-edge.y, edge.x).normalized();
+
+            float minA = FLT_MAX, maxA = -FLT_MAX;
+            for (Vec2 vertex : verticesOfFirst) {
+                float projection = vertex.dot(normal);
+                minA = std::min(minA, projection);
+                maxA = std::max(maxA, projection);
+            }
+
+            float minB = FLT_MAX, maxB = -FLT_MAX;
+            for (Vec2 vertex : verticesOfSecond) {
+                float projection = vertex.dot(normal);
+                minB = std::min(minB, projection);
+                maxB = std::max(maxB, projection);
+            }
+
+            if (maxA < minB || maxB < minA) return;
+
+            float overlap = std::min(maxA, maxB) - std::max(minA, minB);
+            if (overlap < minDepth) {
+                minDepth = overlap;
+                bestNormal = (maxA < maxB) ? normal : -normal;
+            }
+        }
+
+        Vec2 resolution = -bestNormal * (minDepth / 2);
+        firstBody->move(resolution);
+        secondBody->move(-resolution);
+    }
+
+
+    int Solver::findClosetPointOnPolygon(const std::vector<Vec2>& vertices, const Vec2& circleCenter)
+    {
+		//returns an index of the closest point on the polygon to the circle center
+        int result = -1;
+		float minDistance = FLT_MAX;    
+
+        for (int i = 0; i < vertices.size(); i++)
+        {
+			Vec2 v = vertices[i];
+			float distance = v.distance(circleCenter);  
+
+			if (distance < minDistance)
+			{
+				minDistance = distance;
+				result = i;
+			}
+
+        }
+
+		return result;
+    }
+
+	void Solver::projectPolygonToAxis(const std::vector<Vec2>& vertices, const Vec2& axis, float& min, float& max)
+	{
+		min = FLT_MAX;
+		max = -FLT_MAX;
+
+        for (int i = 0; i < vertices.size(); i++)
+        {
+			Vec2 v = vertices[i];
+			float projection = v.dot(axis);
+
+			if (projection < min) min = projection;
+			if (projection > max) max = projection;
+        }
+
+    }
+
+    void Solver::projectCircleToAxis(const Vec2& center, float radius, const Vec2& axis, float& min, float& max)
+    {
+		Vec2 direction = axis.normalized(); 
+		Vec2 directionAndRadius = direction * radius;
+
+		Vec2 pol1 = center + directionAndRadius;
+		Vec2 pol2 = center - directionAndRadius;
+
+		min = pol1.dot(axis);
+		max = pol2.dot(axis);
+
+		if (min > max) std::swap(min, max);
     }
 }
+

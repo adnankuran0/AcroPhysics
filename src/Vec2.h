@@ -1,9 +1,9 @@
 #pragma once
 #include <cmath>
 #include <stdexcept>
+#include "Math.h"
 
 namespace acro {
-	const float epsilon = 1e-5f;
 
 	class Vec2
 	{
@@ -12,6 +12,8 @@ namespace acro {
 
 		Vec2(float x = 0, float y = 0);
 		Vec2();
+		static Vec2 zero; 
+
 
 		Vec2 operator+(const Vec2& other) const;
 		Vec2& operator+=(const Vec2& other);
@@ -30,11 +32,14 @@ namespace acro {
 		bool operator==(const Vec2& other) const;
 		bool operator!=(const Vec2& other) const;
 		float magnitude() const;
+		float magnitudeSquared() const;
 		float dot(const Vec2& other) const;
 		float cross(const Vec2& other) const;
 		float angleBetween(const Vec2& other) const;
 		float distance(const Vec2& other) const;
 		float* getArray() const;
+		Vec2 clamp(const Vec2& min, const Vec2& max) const;
+
 	};
 }
 

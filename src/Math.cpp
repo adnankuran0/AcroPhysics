@@ -3,6 +3,9 @@
 
 namespace acro
 {
+	const float Math::PI = 3.14159265358979323846f;
+	const float Math::epsilon = 1e-5f;
+		 
 	float Math::clamp(float value, float min, float max)
 	{
 		if (min == max)

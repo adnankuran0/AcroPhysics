@@ -21,7 +21,7 @@ namespace acro {
 		bool isInCollision = false;
 		CollisionShape* collisionShape;
 		ShapeType GetShapeType() const; 		
-		RigidBody2D(Vec2 pos, Vec2 vel, float m,bool isStatic = false, float restitution = 0.5);
+		RigidBody2D(Vec2 pos, float m,bool isStatic = false, float restitution = 0.5);
 		RigidBody2D(const RigidBody2D& other);
 		~RigidBody2D();
 		void applyForce(const Vec2& f);

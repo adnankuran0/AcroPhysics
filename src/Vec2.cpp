@@ -5,6 +5,8 @@ namespace acro {
 	Vec2::Vec2(float x, float y) : x(x), y(y) {}
 	Vec2::Vec2() : x{0}, y{0} {}
 
+	Vec2 Vec2::zero = Vec2(0, 0);
+
 	Vec2 Vec2::operator+(const Vec2& other) const
 	{
 		return Vec2(x + other.x, y + other.y);
@@ -84,7 +86,7 @@ namespace acro {
 	bool Vec2::operator==(const Vec2& other) const
 	{
 		
-		return fabs(x - other.x) < epsilon && fabs(y - other.y) < epsilon;
+		return fabs(x - other.x) < Math::epsilon && fabs(y - other.y) < Math::epsilon;
 	}
 
 	bool Vec2::operator!=(const Vec2& other) const
@@ -100,6 +102,11 @@ namespace acro {
 	float Vec2::magnitude() const
 	{
 		return sqrt(x*x + y*y);
+	}
+
+	float Vec2::magnitudeSquared() const
+	{
+		return x * x + y * y;
 	}
 
 	Vec2 Vec2::normalized() const
@@ -136,5 +143,15 @@ namespace acro {
 		static float arr[2] = { x,y };
 		return arr;
 	}
+
+	Vec2 Vec2::clamp(const Vec2& min, const Vec2& max) const
+	{
+		return Vec2(
+			std::max(min.x, std::min(x, max.x)),
+			std::max(min.y, std::min(y, max.y))
+		);
+	}
+
+
 
 }

@@ -1,7 +1,7 @@
 #include "RigidBody2D.h"
 
 namespace acro {
-	RigidBody2D::RigidBody2D(Vec2 pos, Vec2 vel, float m, bool isStatic,float restitution) : position(pos), velocity(vel), 
+	RigidBody2D::RigidBody2D(Vec2 pos, float m, bool isStatic,float restitution) : position(pos), velocity(Vec2(0,0)), 
 		mass(m), force(0, 0), isStatic(isStatic),restitution(restitution), rotation(0), rotationalVelocity(0){}
 
 	RigidBody2D::RigidBody2D(const RigidBody2D& other) = default;

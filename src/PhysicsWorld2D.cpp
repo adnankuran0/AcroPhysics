@@ -31,9 +31,14 @@ namespace acro {
 
 			body->velocity += acceleration * deltaTime;
 			body->position += body->velocity * deltaTime * timeScale;
+			body->rotation += body->rotationalVelocity * deltaTime * timeScale;
 
 			if (body->collisionShape)
+			{
 				body->collisionShape->setPosition(body->position);
+				body->collisionShape->setRotation(body->rotation);
+			}
+				
 
 			body->force = Vec2(0, 0);
 
