@@ -1,4 +1,2 @@
 ﻿  Test.cpp
-D:\GitHub\AcroPhysics\src\PhysicsWorld2D.h(10,25): warning C4305: 'argument': truncation from 'double' to 'float'
-sfml-window-s-d.lib(JoystickImpl.obj) : warning LNK4099: PDB '' was not found with 'sfml-window-s-d.lib(JoystickImpl.obj)' or at ''; linking object as if no debug info
   AcroPhysics.vcxproj -> D:\GitHub\AcroPhysics\x64\Debug\AcroPhysics.exe

@@ -5,30 +5,32 @@
 #include "DebugCircle.h"
 #include "DebugRect.h"
 
+
+
 int main() 
 {
-    acro::PhysicsWorld2D world;
-
-    acro::RigidBody2D body(acro::Vec2(100, 100), 1.0f, false,0.5f);
-    acro::RigidBody2D body2(acro::Vec2(300, 300), 1.0f, false,0.5f);
-
-    sf::CircleShape vrt(2.0f);
-	vrt.setFillColor(sf::Color::Red);
-    vrt.setOrigin(1.0f, 1.0f);
+    acro::PhysicsWorld world;
 
 
-	body.setCollisionShape(50.0f,50.0f);
-	body2.setCollisionShape(50.0f);
+	acro::RigidBody floor(acro::Vec2(640,710), 0.0f, true, 0.5f);
+    acro::RigidBody body(acro::Vec2(100, 100), 2.0f, false,0.5f);
+    acro::RigidBody body2(acro::Vec2(300, 300), 1.0f, true,0.5f);
 
 
+	floor.setCollider(1280, 20);
+	body.setCollider(50.0f,50.0f);
+	body2.setCollider(25.0f,50.0f);
+
+	world.addBody(&floor);
 	world.addBody(&body);
 	world.addBody(&body2);
+    
 
+    DebugRect rect(body.position.x, body.position.y, body.collider->getWidth(), body.collider->getHeight(), sf::Color(228,177,240,255));
+    DebugRect rect2(body2.position.x, body2.position.y, body2.collider->getWidth(), body2.collider->getHeight(), sf::Color(126, 96, 191, 255));
+	DebugRect floorRect(floor.position.x, floor.position.y, floor.collider->getWidth(), floor.collider->getHeight(), sf::Color(255, 255, 255, 255));
 
-    DebugRect rect(body.position.x, body.position.y, body.collisionShape->getWidth(), body.collisionShape->getHeight(), sf::Color(228,177,240,255));
-    DebugCircle rect2(body2.position.x, body2.position.y, body2.collisionShape->getRadius(), sf::Color(126, 96, 191, 255));
-
-    sf::RenderWindow window(sf::VideoMode(1280, 720), "Ecro Physics Demo");
+    sf::RenderWindow window(sf::VideoMode(1280, 720), "Acro Physics Demo");
    
     sf::Clock clock;
     float deltaTime;
@@ -52,14 +54,15 @@ int main()
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-            body.force.x = 50;
+            body.force.x = 30;
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-            body.force.x = -50;
+            body.force.x = -30;
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-            body.force.y = -50;
+            body.force.y = -30;
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-            body.force.y = 50;
-
+            body.force.y = 30;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+            body.velocity = acro::Vec2::zero;
 
         deltaTime = clock.restart().asSeconds();
         world.step(deltaTime);
@@ -69,21 +72,17 @@ int main()
         rect.setPosition(body.position.x, body.position.y);
         rect2.setPosition(body2.position.x, body2.position.y);
 
-        rect.setRotation(body.rotation);
-
+        //rect.setRotation(body.rotation);
 
 
         rect.draw(window);
         rect2.draw(window);
+		floorRect.draw(window);
+
 
        
-        for (int i = 0; i < 4;i++)
-        {
-             vrt.setPosition(body.collisionShape->transformedVertices[i].x, body.collisionShape->transformedVertices[i].y);
-             window.draw(vrt);
-        }
+       
 
- 
 
         window.display();
     }

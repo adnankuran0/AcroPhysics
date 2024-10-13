@@ -67,6 +67,8 @@ namespace acro {
 		return Vec2(x / other, y / other);
 	}
 
+
+
 	Vec2& Vec2::operator/=(const Vec2& other)
 	{
 		if (other.x == 0 || other.y == 0) throw std::invalid_argument("Division by zero");
@@ -111,9 +113,10 @@ namespace acro {
 
 	Vec2 Vec2::normalized() const
 	{
-		float mag = magnitude();
-		if (mag < 1e-5f) return Vec2(0,0); 
-		return Vec2(x / mag, y / mag);
+		float magSquared = magnitudeSquared();
+		if (magSquared < 1e-10f) return Vec2(0, 0);
+		float invMag = 1.0f / sqrt(magSquared);
+		return Vec2(x * invMag, y * invMag);
 	}
 
 	float Vec2::dot(const Vec2& other) const

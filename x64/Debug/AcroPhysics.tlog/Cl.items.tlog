@@ -1,9 +1,9 @@
 D:\GitHub\AcroPhysics\Test\DebugCircle.cpp;D:\GitHub\AcroPhysics\x64\Debug\DebugCircle.obj
 D:\GitHub\AcroPhysics\Test\DebugRect.cpp;D:\GitHub\AcroPhysics\x64\Debug\DebugRect.obj
 D:\GitHub\AcroPhysics\src\Solver.cpp;D:\GitHub\AcroPhysics\x64\Debug\Solver.obj
-D:\GitHub\AcroPhysics\src\CollisionShape.cpp;D:\GitHub\AcroPhysics\x64\Debug\CollisionShape.obj
+D:\GitHub\AcroPhysics\src\Collider.cpp;D:\GitHub\AcroPhysics\x64\Debug\Collider.obj
 D:\GitHub\AcroPhysics\Test\Test.cpp;D:\GitHub\AcroPhysics\x64\Debug\Test.obj
 D:\GitHub\AcroPhysics\src\Math.cpp;D:\GitHub\AcroPhysics\x64\Debug\Math.obj
-D:\GitHub\AcroPhysics\src\PhysicsWorld2D.cpp;D:\GitHub\AcroPhysics\x64\Debug\PhysicsWorld2D.obj
-D:\GitHub\AcroPhysics\src\RigidBody2D.cpp;D:\GitHub\AcroPhysics\x64\Debug\RigidBody2D.obj
+D:\GitHub\AcroPhysics\src\PhysicsWorld.cpp;D:\GitHub\AcroPhysics\x64\Debug\PhysicsWorld.obj
+D:\GitHub\AcroPhysics\src\RigidBody.cpp;D:\GitHub\AcroPhysics\x64\Debug\RigidBody.obj
 D:\GitHub\AcroPhysics\src\Vec2.cpp;D:\GitHub\AcroPhysics\x64\Debug\Vec2.obj

@@ -136,11 +136,11 @@
     <ClCompile Include="Test\DebugCircle.cpp" />
     <ClCompile Include="Test\DebugRect.cpp" />
     <ClCompile Include="src\Solver.cpp" />
-    <ClCompile Include="src\CollisionShape.cpp" />
+    <ClCompile Include="src\Collider.cpp" />
     <ClCompile Include="Test\Test.cpp" />
     <ClCompile Include="src\Math.cpp" />
-    <ClCompile Include="src\PhysicsWorld2D.cpp" />
-    <ClCompile Include="src\RigidBody2D.cpp" />
+    <ClCompile Include="src\PhysicsWorld.cpp" />
+    <ClCompile Include="src\RigidBody.cpp" />
     <ClCompile Include="src\Vec2.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -149,10 +149,10 @@
     <ClInclude Include="Test\DebugCircle.h" />
     <ClInclude Include="Test\DebugRect.h" />
     <ClInclude Include="src\Solver.h" />
-    <ClInclude Include="src\CollisionShape.h" />
+    <ClInclude Include="src\Collider.h" />
     <ClInclude Include="src\Math.h" />
-    <ClInclude Include="src\PhysicsWorld2D.h" />
-    <ClInclude Include="src\RigidBody2D.h" />
+    <ClInclude Include="src\PhysicsWorld.h" />
+    <ClInclude Include="src\RigidBody.h" />
     <ClInclude Include="src\Vec2.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
