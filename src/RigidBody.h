@@ -30,7 +30,7 @@ namespace acro {
 		void setCollider(float width,float height);
 		void move(const Vec2& displacement);
 		void moveTo(const Vec2& position);
-		void step(float deltaTime, const Vec2& gravity,float timeScale = 1.0f);
+		void step(float deltaTime,int iterations, const Vec2& gravity,float timeScale = 1.0f);
 		
 
 	};

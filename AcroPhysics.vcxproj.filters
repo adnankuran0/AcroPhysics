@@ -42,6 +42,9 @@
     <ClCompile Include="Test\DebugRect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\AABB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\RigidBody.h">
@@ -71,7 +74,10 @@
     <ClInclude Include="Test\DebugRect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Material.h">
+    <ClInclude Include="src\PhysicsMaterial.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AABB.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

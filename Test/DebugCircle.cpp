@@ -1,11 +1,18 @@
 #include "DebugCircle.h"
 
-DebugCircle::DebugCircle(float posX, float posY, float radius, sf::Color color) : m_Radius(radius), m_Color(color)
+DebugCircle::DebugCircle(float posX, float posY, float radius, sf::Color color, acro::PhysicsWorld& world) : m_Radius(radius), m_Color(color)
 {
 	m_Shape = sf::CircleShape(m_Radius);
 	m_Shape.setOrigin(m_Radius, m_Radius);
 	m_Shape.setFillColor(m_Color);
 	m_Shape.setPosition(posX, posY);
+	m_Shape.setOutlineColor(sf::Color::White);
+	m_Shape.setOutlineThickness(1.0f);
+	rb = new acro::RigidBody(acro::Vec2(posX, posY), 1.0f, false, 0.5f);
+	rb->setCollider(radius);
+	world.addBody(rb);
+
+
 }
 
 float DebugCircle::getRadius() const
@@ -35,9 +42,15 @@ void DebugCircle::setPosition(float posX, float posY)
 	m_Shape.setPosition(posX, posY);
 }
 
-void DebugCircle::draw(sf::RenderWindow& window)
+void DebugCircle::update(sf::RenderWindow& window)
 {
+	m_Shape.setPosition(rb->position.x, rb->position.y);
 	window.draw(m_Shape);
 
+}
+
+DebugCircle::~DebugCircle()
+{
+	//delete rb;
 }
 

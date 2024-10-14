@@ -5,30 +5,27 @@
 #include "DebugCircle.h"
 #include "DebugRect.h"
 
-
-
 int main() 
 {
     acro::PhysicsWorld world;
 
 
-	acro::RigidBody floor(acro::Vec2(640,710), 0.0f, true, 0.5f);
     acro::RigidBody body(acro::Vec2(100, 100), 2.0f, false,0.5f);
-    acro::RigidBody body2(acro::Vec2(300, 300), 1.0f, true,0.5f);
+    acro::RigidBody floor(acro::Vec2(640, 710), 1.0f,true,0.5f);
+    acro::RigidBody wall1(acro::Vec2(5, 360), 1.0f,true,0.5f);
+    acro::RigidBody wall2(acro::Vec2(1275,360), 1.0f,true,0.5f);
 
+	floor.setCollider(1280, 10);
+    wall1.setCollider(10, 720);
+    wall2.setCollider(10, 720);
 
-	floor.setCollider(1280, 20);
-	body.setCollider(50.0f,50.0f);
-	body2.setCollider(25.0f,50.0f);
+	std::vector<DebugCircle> circles;
+	std::vector<DebugRect> rects;
+
 
 	world.addBody(&floor);
-	world.addBody(&body);
-	world.addBody(&body2);
-    
-
-    DebugRect rect(body.position.x, body.position.y, body.collider->getWidth(), body.collider->getHeight(), sf::Color(228,177,240,255));
-    DebugRect rect2(body2.position.x, body2.position.y, body2.collider->getWidth(), body2.collider->getHeight(), sf::Color(126, 96, 191, 255));
-	DebugRect floorRect(floor.position.x, floor.position.y, floor.collider->getWidth(), floor.collider->getHeight(), sf::Color(255, 255, 255, 255));
+	world.addBody(&wall1);
+	world.addBody(&wall2);
 
     sf::RenderWindow window(sf::VideoMode(1280, 720), "Acro Physics Demo");
    
@@ -51,43 +48,52 @@ int main()
                 }
             }
 
+            if (event.type == sf::Event::MouseButtonPressed)
+            {
+                if (event.mouseButton.button == sf::Mouse::Button::Left)
+                {
+					circles.emplace_back(event.mouseButton.x, event.mouseButton.y, 20, sf::Color(142,25,60,255), world);
+                }
+				if (event.mouseButton.button == sf::Mouse::Button::Right)
+				{
+					rects.emplace_back(event.mouseButton.x, event.mouseButton.y, 40, 40, sf::Color(25, 65, 142, 255), world);
+                }
+            }
+
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-            body.force.x = 30;
+            body.applyForce(30,0);
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-            body.force.x = -30;
+            body.applyForce(-30, 0);
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-            body.force.y = -30;
+            body.applyForce(0, -30);
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-            body.force.y = 30;
+            body.applyForce(0, 30);
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
             body.velocity = acro::Vec2::zero;
 
         deltaTime = clock.restart().asSeconds();
-        world.step(deltaTime);
+        world.step(deltaTime,4);
 
+        std::cout << "fps: " << 1.0f / deltaTime << " body: " << world.getBodyCount() << std::endl;
 
         window.clear(sf::Color(50,50,50,255));
-        rect.setPosition(body.position.x, body.position.y);
-        rect2.setPosition(body2.position.x, body2.position.y);
-
-        //rect.setRotation(body.rotation);
 
 
-        rect.draw(window);
-        rect2.draw(window);
-		floorRect.draw(window);
+		for (auto& circle : circles)
+        {
+			circle.update(window);
+		}
 
-
-       
-       
+        for (auto& rect : rects)
+        {
+            rect.update(window);
+        }
 
 
         window.display();
     }
-
-
 
     return 0; 
 }

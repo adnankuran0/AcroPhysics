@@ -2,12 +2,26 @@
 
 namespace acro
 {
+    static struct PairHash {
+        template <typename T1, typename T2>
+        std::size_t operator()(const std::pair<T1, T2>& pair) const {
+            return std::hash<T1>()(pair.first) ^ std::hash<T2>()(pair.second);
+        }
+    };
+
+    static struct PairEqual {
+        template <typename T1, typename T2>
+        bool operator()(const std::pair<T1, T2>& lhs, const std::pair<T1, T2>& rhs) const {
+            return lhs.first == rhs.first && lhs.second == rhs.second;
+        }
+    };
+
     void Solver::handleCollision(std::vector<RigidBody*>& bodies)
     {
-        std::set<std::pair<RigidBody*, RigidBody*>> uniquePairs;
+        std::unordered_set<std::pair<RigidBody*, RigidBody*>, PairHash, PairEqual> uniquePairs;
         for (size_t i = 0; i < bodies.size(); ++i) {
             for (size_t j = i + 1; j < bodies.size(); ++j) {
-                if (bodies[i] && bodies[j]) {  
+                if (bodies[i] && bodies[j]) {
                     uniquePairs.insert({ bodies[i], bodies[j] });
                 }
             }
@@ -17,6 +31,7 @@ namespace acro
             if (!pair.first || !pair.second) continue;  
 
 			if (pair.first->isStatic && pair.second->isStatic) continue;
+			if (!intersectAABB(pair.first->collider->aabb , pair.second->collider->aabb)) continue; 
 
             if (pair.first->GetShapeType() == acro::ShapeType::CIRCLE && pair.second->GetShapeType() == acro::ShapeType::CIRCLE)
                 resolveForCircleAndCircle(pair.first, pair.second);
@@ -272,11 +287,17 @@ namespace acro
         }
         else
         {
-			firstBody->move(normal * (depth / 2.0f));
-			secondBody->move(-normal * (depth / 2.0f));
+			firstBody->move(-normal * (depth / 2.0f));
+			secondBody->move(normal * (depth / 2.0f));
 
         }
 
 	}   
+
+	bool Solver::intersectAABB(const AABB& aabb1, const AABB& aabb2)
+	{
+		return (aabb1.m_Left <= aabb2.m_Right && aabb1.m_Right >= aabb2.m_Left &&
+			aabb1.m_Top <= aabb2.m_Bottom && aabb1.m_Bottom >= aabb2.m_Top);
+	}
 }
 

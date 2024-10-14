@@ -133,6 +133,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\AABB.cpp" />
     <ClCompile Include="Test\DebugCircle.cpp" />
     <ClCompile Include="Test\DebugRect.cpp" />
     <ClCompile Include="src\Solver.cpp" />
@@ -144,8 +145,9 @@
     <ClCompile Include="src\Vec2.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\AABB.h" />
     <ClInclude Include="src\AcroPhysics.h" />
-    <ClInclude Include="src\Material.h" />
+    <ClInclude Include="src\PhysicsMaterial.h" />
     <ClInclude Include="Test\DebugCircle.h" />
     <ClInclude Include="Test\DebugRect.h" />
     <ClInclude Include="src\Solver.h" />

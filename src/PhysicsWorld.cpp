@@ -15,17 +15,26 @@ namespace acro {
 
 	}
 
-	void PhysicsWorld::step(float deltaTime)
+	int PhysicsWorld::getBodyCount() { return bodies.size(); }
+
+	void PhysicsWorld::step(float deltaTime,int iterations)
 	{
-		Solver::handleCollision(bodies);
+		int totalIterations = Math::clamp(iterations, minIterations, maxIterations);
 
-		for (RigidBody *body : bodies)
+
+		for (int currentIteration = 0; currentIteration < totalIterations; ++currentIteration)
 		{
-			if (!body) continue;
-			if (body->isStatic) continue;
+			Solver::handleCollision(bodies);
 
-			body->step(deltaTime,gravity,timeScale);
+			for (RigidBody* body : bodies)
+			{
+				if (!body) continue;
+				if (body->isStatic) continue;
+
+				body->step(deltaTime,totalIterations, gravity, timeScale);
+			}
 		}
+
 	}
 
 }

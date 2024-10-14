@@ -14,7 +14,6 @@ namespace acro {
 		Vec2();
 		static Vec2 zero; 
 
-
 		Vec2 operator+(const Vec2& other) const;
 		Vec2& operator+=(const Vec2& other);
 		Vec2 operator-(const Vec2& other) const;

@@ -26,5 +26,8 @@ namespace acro
 
 		static void separateBodies(RigidBody* firstBody, RigidBody* secondBody, const Vec2& normal, float& depth);
 		static void resolveCollision(RigidBody* firstBody, RigidBody* secondBody, const Vec2& normal, float& depth);
+
+		static bool intersectAABB(const AABB& aabb1, const AABB& aabb2);
+
 	};
 }

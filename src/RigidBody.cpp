@@ -14,7 +14,7 @@ namespace acro {
 	
 	RigidBody::~RigidBody()
 	{
-		delete collider;
+		//delete collider;
 		
 	}
 
@@ -57,21 +57,25 @@ namespace acro {
 			collider->setPosition(position);
 	}
 
-	void RigidBody::step(float deltaTime,const Vec2& gravity,float timeScale)
+	void RigidBody::step(float deltaTime,int iterations, const Vec2& gravity,float timeScale)
 	{
+		float dt = deltaTime / (float)iterations;
 
-		Vec2 netForce = (useGravity) ? (gravity * mass) + force : force;
+		force *= iterations;
 
-		Vec2 acceleration = netForce / mass;
+		Vec2 netForce = (useGravity) ? (gravity * mass) + force: force;
 
-		velocity += acceleration * deltaTime;
-		position += velocity * deltaTime * timeScale;
-		rotation += rotationalVelocity * deltaTime * timeScale;
+		Vec2 acceleration = netForce  / mass;
+
+		velocity += acceleration * dt * timeScale;
+		position += velocity * dt * timeScale;
+		rotation += rotationalVelocity * dt * timeScale;
 
 		if (collider)
 		{
 			collider->setPosition(position);
 			collider->setRotation(rotation);
+			collider->updateAABB();
 		}
 		else
 		{
@@ -81,6 +85,5 @@ namespace acro {
 
 		force = Vec2(0, 0);
 	}
-
 
 }
