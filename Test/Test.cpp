@@ -5,16 +5,25 @@
 #include "DebugCircle.h"
 #include "DebugRect.h"
 
+//TODO: Fix Solver::findContactPointForRects function
+
+//TODO: optimizations
+//TODO: Narrow and broad phase
+//TODO: Resolving with rotation and friction
+//TODO: Attaching metarials to bodies
+//TODO: Events
+//TODO: Areas
+
 int main() 
 {
     acro::PhysicsWorld world;
-
 
     acro::RigidBody body(acro::Vec2(100, 100), 2.0f, false,0.5f);
     acro::RigidBody floor(acro::Vec2(640, 710), 1.0f,true,0.5f);
     acro::RigidBody wall1(acro::Vec2(5, 360), 1.0f,true,0.5f);
     acro::RigidBody wall2(acro::Vec2(1275,360), 1.0f,true,0.5f);
 
+	body.setCollider(50.0f,50.0f);
 	floor.setCollider(1280, 10);
     wall1.setCollider(10, 720);
     wall2.setCollider(10, 720);
@@ -22,15 +31,29 @@ int main()
 	std::vector<DebugCircle> circles;
 	std::vector<DebugRect> rects;
 
+	sf::CircleShape circle(4);
+	circle.setFillColor(sf::Color::White);
+	circle.setOrigin(2.0f, 2.0f);
+
 
 	world.addBody(&floor);
+	world.addBody(&body);
 	world.addBody(&wall1);
 	world.addBody(&wall2);
 
+	sf::RectangleShape bodyShape(sf::Vector2f(50, 50));
+
+	bodyShape.setFillColor(sf::Color::Red);
+	bodyShape.setOutlineColor(sf::Color::White);
+	bodyShape.setOrigin(25, 25);
+
+
+
     sf::RenderWindow window(sf::VideoMode(1280, 720), "Acro Physics Demo");
-   
     sf::Clock clock;
     float deltaTime;
+
+    bool debugMode = false;
 
 
     while (window.isOpen())
@@ -44,8 +67,13 @@ int main()
             {
                 if (event.key.code == sf::Keyboard::Space)
                 {
-                    body.velocity.y = -100;
+                    body.setVelocity(body.getVelocity().x, -100);
                 }
+                if (event.key.code == sf::Keyboard::BackSpace)
+                {
+                    debugMode = !debugMode;
+                }
+
             }
 
             if (event.type == sf::Event::MouseButtonPressed)
@@ -71,12 +99,11 @@ int main()
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
             body.applyForce(0, 30);
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-            body.velocity = acro::Vec2::zero;
+            body.setVelocity(0,0);
 
         deltaTime = clock.restart().asSeconds();
         world.step(deltaTime,4);
 
-        std::cout << "fps: " << 1.0f / deltaTime << " body: " << world.getBodyCount() << std::endl;
 
         window.clear(sf::Color(50,50,50,255));
 
@@ -91,6 +118,27 @@ int main()
             rect.update(window);
         }
 
+		bodyShape.setPosition(body.getPosition().x,body.getPosition().y);
+		bodyShape.setRotation(body.getRotation());
+
+
+
+		
+		window.draw(bodyShape);
+
+        /*
+		for (auto& cp : world.getContactPoints())
+        {
+			circle.setFillColor(sf::Color::White);
+            circle.setPosition(cp.x, cp.y);
+			window.draw(circle);
+		}
+        */
+
+
+
+		if (debugMode)
+            std::cout << "fps: " << 1.0f / deltaTime << " body: " << world.getBodyCount() << std::endl;
 
         window.display();
     }

@@ -11,8 +11,6 @@ DebugCircle::DebugCircle(float posX, float posY, float radius, sf::Color color, 
 	rb = new acro::RigidBody(acro::Vec2(posX, posY), 1.0f, false, 0.5f);
 	rb->setCollider(radius);
 	world.addBody(rb);
-
-
 }
 
 float DebugCircle::getRadius() const
@@ -44,7 +42,7 @@ void DebugCircle::setPosition(float posX, float posY)
 
 void DebugCircle::update(sf::RenderWindow& window)
 {
-	m_Shape.setPosition(rb->position.x, rb->position.y);
+	m_Shape.setPosition(rb->getPosition().x, rb->getPosition().y);
 	window.draw(m_Shape);
 
 }

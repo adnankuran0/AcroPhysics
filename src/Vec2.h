@@ -11,7 +11,6 @@ namespace acro {
 		float x, y;
 
 		Vec2(float x = 0, float y = 0);
-		Vec2();
 		static Vec2 zero; 
 
 		Vec2 operator+(const Vec2& other) const;
@@ -38,6 +37,7 @@ namespace acro {
 		float distance(const Vec2& other) const;
 		float* getArray() const;
 		Vec2 clamp(const Vec2& min, const Vec2& max) const;
+		static bool nearlyEquals(const Vec2& a, const Vec2& b);
 
 	};
 }

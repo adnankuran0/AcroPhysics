@@ -9,6 +9,47 @@ namespace acro {
 	class RigidBody
 	{
 	public:
+
+		ShapeType GetShapeType() const; 		
+		RigidBody(Vec2 pos, float m,bool isStatic = false, float restitution = 0.5);
+		RigidBody(const RigidBody& other);
+		~RigidBody();
+		void applyForce(const Vec2& f);
+		void applyForce(float x, float y);
+		void move(const Vec2& displacement);
+		void moveTo(const Vec2& position);
+		void step(float deltaTime,int iterations, const Vec2& gravity,float timeScale = 1.0f);
+
+		void setPosition(const Vec2& pos);
+		void setPosition(float x, float y);
+		Vec2 getPosition() const;
+		void setVelocity(const Vec2& vel);
+		void setVelocity(float x, float y);
+		Vec2 getVelocity() const;
+		void setForce(const Vec2& f);
+		void setForce(float x, float y);
+		Vec2 getForce() const;
+		void setRotation(float r);
+		float getRotation() const;
+		void setRotationalVelocity(float v);
+		float getRotationalVelocity() const;
+		void setCollider(float radius);
+		void setCollider(float width,float height);
+		Collider* getCollider();
+		void setMass(float m);
+		float getMass() const;
+		void setInverseMass(float invM);
+		float getInverseMass() const;
+		void setInteria(float i);
+		float getInteria() const;
+		float getInverseInteria() const;
+		void setStaticMode(bool isStatic);
+		void applyGravity(bool useGravity);
+		void setRestitution(float r);
+		float getRestitution() const;
+		bool getIsStatic() const;
+
+	private:
 		Vec2 position;
 		Vec2 velocity;
 		Vec2 force;
@@ -16,21 +57,13 @@ namespace acro {
 		float rotationalVelocity;
 		float mass;
 		float inverseMass;
+		float interia;
+		float inverseInteria;
 		bool isStatic;
 		bool useGravity = true;
 		float restitution;
 		Collider* collider;
-		ShapeType GetShapeType() const; 		
-		RigidBody(Vec2 pos, float m,bool isStatic = false, float restitution = 0.5);
-		RigidBody(const RigidBody& other);
-		~RigidBody();
-		void applyForce(const Vec2& f);
-		void applyForce(float x, float y);
-		void setCollider(float radius);
-		void setCollider(float width,float height);
-		void move(const Vec2& displacement);
-		void moveTo(const Vec2& position);
-		void step(float deltaTime,int iterations, const Vec2& gravity,float timeScale = 1.0f);
+		float calculateMomentOfInertia();
 		
 
 	};

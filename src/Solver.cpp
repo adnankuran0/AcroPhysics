@@ -16,6 +16,8 @@ namespace acro
         }
     };
 
+    std::vector<Vec2> Solver::contactPoints;
+
     void Solver::handleCollision(std::vector<RigidBody*>& bodies)
     {
         std::unordered_set<std::pair<RigidBody*, RigidBody*>, PairHash, PairEqual> uniquePairs;
@@ -30,8 +32,9 @@ namespace acro
         for (const auto& pair : uniquePairs) {
             if (!pair.first || !pair.second) continue;  
 
-			if (pair.first->isStatic && pair.second->isStatic) continue;
-			if (!intersectAABB(pair.first->collider->aabb , pair.second->collider->aabb)) continue; 
+            if (!pair.first->getCollider() || !pair.second->getCollider()) continue;
+			if (pair.first->getIsStatic() && pair.second->getIsStatic()) continue;
+			if (!intersectAABB(pair.first->getCollider()->aabb , pair.second->getCollider()->aabb)) continue;
 
             if (pair.first->GetShapeType() == acro::ShapeType::CIRCLE && pair.second->GetShapeType() == acro::ShapeType::CIRCLE)
                 resolveForCircleAndCircle(pair.first, pair.second);
@@ -49,32 +52,37 @@ namespace acro
 
     void Solver::resolveForCircleAndCircle(RigidBody* firstBody, RigidBody* secondBody)
     {
-        if (!firstBody || !secondBody || !firstBody->collider || !secondBody->collider) return;  // nullptr kontrolü
+        if (!firstBody || !secondBody || !firstBody->getCollider() || !secondBody->getCollider()) return;  // nullptr kontrolü
 
         Vec2 normal = Vec2::zero;
         float depth = 0.0f;
 
-		float distance = firstBody->position.distance(secondBody->position);
-		float radiusSum = firstBody->collider->getRadius() + secondBody->collider->getRadius();
+		float distance = firstBody->getPosition().distance(secondBody->getPosition());
+		float radiusSum = firstBody->getCollider()->getRadius() + secondBody->getCollider()->getRadius();
 
 		if (distance > radiusSum) return;
 
-		normal = (secondBody->position - firstBody->position).normalized();
+		normal = (secondBody->getPosition() - firstBody->getPosition()).normalized();
 		depth = radiusSum - distance;
 
 		Solver::separateBodies(firstBody, secondBody, normal, depth);
+		Vec2 contactPoint = Solver::findContactPointForCircles(firstBody->getPosition(), secondBody->getPosition(), firstBody->getCollider()->getRadius(),
+            secondBody->getCollider()->getRadius());
+
 		Solver::resolveCollision(firstBody, secondBody, normal, depth);
+        contactPoints.push_back(contactPoint);
+
         
     }
 
     void Solver::resolveForCircleAndRect(RigidBody* circleBody, RigidBody* rectBody)
     {
-        if (!circleBody || !rectBody || !circleBody->collider || !rectBody->collider) return;
+        if (!circleBody || !rectBody || !circleBody->getCollider() || !rectBody->getCollider()) return;
 
-		std::vector<Vec2>& vertices = rectBody->collider->transformedVertices;
+		std::vector<Vec2>& vertices = rectBody->getCollider()->transformedVertices;
 
-		Vec2 circleCenter = circleBody->position;
-		float radius = circleBody->collider->getRadius();
+		Vec2 circleCenter = circleBody->getPosition();
+		float radius = circleBody->getCollider()->getRadius();
 
         Vec2 normal(0,0);
 		float depth = FLT_MAX;
@@ -127,7 +135,7 @@ namespace acro
 			normal = axis;
 		}
 
-		Vec2 direction = rectBody->position - circleCenter;
+		Vec2 direction = rectBody->getPosition() - circleCenter;
 
 		if (direction.dot(normal) < 0.0f)
         {
@@ -135,19 +143,23 @@ namespace acro
 		}
 
 		Solver::separateBodies(circleBody, rectBody, normal, depth);
+		Vec2 contactPoint = Solver::findContactPointForCircleAndRect(circleBody->getPosition(), circleBody->getCollider()->getRadius()
+            , rectBody->getPosition(), rectBody->getCollider()->transformedVertices);
 		Solver::resolveCollision(circleBody, rectBody, normal, depth);
+
+		contactPoints.push_back(contactPoint);
 
     }
 
     void Solver::resolveForRectAndRect(RigidBody* firstBody, RigidBody* secondBody)
     {
-        if (!firstBody || !secondBody || !firstBody->collider || !secondBody->collider) return;
+        if (!firstBody || !secondBody || !firstBody->getCollider() || !secondBody->getCollider()) return;
 
         float minDepth = FLT_MAX;
         Vec2 normal(0,0);
 
-        std::vector<Vec2>& verticesOfFirst = firstBody->collider->transformedVertices;
-        std::vector<Vec2>& verticesOfSecond = secondBody->collider->transformedVertices;
+        std::vector<Vec2>& verticesOfFirst = firstBody->getCollider()->transformedVertices;
+        std::vector<Vec2>& verticesOfSecond = secondBody->getCollider()->transformedVertices;
 
         for (int i = 0; i < verticesOfFirst.size(); i++) {
             Vec2 p1 = verticesOfFirst[i];
@@ -197,7 +209,30 @@ namespace acro
 
 
 		Solver::separateBodies(firstBody, secondBody, normal, minDepth);
+		Vec2 contactPoint1 = Vec2::zero;
+		Vec2 contactPoint2 = Vec2::zero;
+
+		std::vector<Vec2> contactPoints = Solver::findContactPointForRects(verticesOfFirst, verticesOfSecond);
+		int cpCount = contactPoints.size();
+
+		if (cpCount == 1)
+		{
+            contactPoint1 = contactPoints[0];
+            contactPoints.push_back(contactPoint1);
+
+		}
+		else if (cpCount == 2)
+		{
+            contactPoint1 = contactPoints[0];
+            contactPoint2 = contactPoints[1];
+            contactPoints.push_back(contactPoint1);
+            contactPoints.push_back(contactPoint2);
+
+		}
+
+
 		Solver::resolveCollision(firstBody, secondBody, normal, minDepth);
+
     }
 
 
@@ -257,31 +292,31 @@ namespace acro
 	{
 		if (!firstBody || !secondBody) return;
 
-		Vec2 relativeVelocity = secondBody->velocity - firstBody->velocity;
+		Vec2 relativeVelocity = secondBody->getVelocity() - firstBody->getVelocity();
 
         //if objects are already moving apart
 		if (relativeVelocity.dot(normal) > 0) return;
 
-		float e = std::min(firstBody->restitution, secondBody->restitution);
+		float e = std::min(firstBody->getRestitution(), secondBody->getRestitution());
         float j = -(1+e) * relativeVelocity.dot(normal);
 
-		j /= firstBody->inverseMass + secondBody->inverseMass;
+		j /= firstBody->getInverseMass() + secondBody->getInverseMass();
 
 		Vec2 impulse = normal * j;
 
-		firstBody->velocity -= impulse * firstBody->inverseMass;
-		secondBody->velocity += impulse * secondBody->inverseMass;
+		firstBody->setVelocity(firstBody->getVelocity() - impulse * firstBody->getInverseMass());
+		secondBody->setVelocity(secondBody->getVelocity() + impulse * secondBody->getInverseMass());
 	}
 
 	void Solver::separateBodies(RigidBody* firstBody, RigidBody* secondBody, const Vec2& normal, float& depth)
     {
 		if (!firstBody || !secondBody) return;
 
-        if (firstBody->isStatic)
+        if (firstBody->getIsStatic())
         {
 			secondBody->move(normal * depth);
         }
-		else if (secondBody->isStatic)
+		else if (secondBody->getIsStatic())
 		{
 			firstBody->move(-normal * depth);
         }
@@ -299,5 +334,127 @@ namespace acro
 		return (aabb1.m_Left <= aabb2.m_Right && aabb1.m_Right >= aabb2.m_Left &&
 			aabb1.m_Top <= aabb2.m_Bottom && aabb1.m_Bottom >= aabb2.m_Top);
 	}
+
+    void Solver::pointSegmentDistance(const Vec2& point, const Vec2& start, const Vec2& end, float& distanceSq, Vec2& closestPoint)
+    {
+		Vec2 ab = end - start;
+		Vec2 ap = point - start;
+
+		float proj = ap.dot(ab);
+		float abLengthSq = ab.magnitudeSquared();
+		float d = proj / abLengthSq;
+
+        if (d <= 0.0f)
+        {
+            closestPoint = start;
+        }
+		else if (d >= 1.0f)
+		{
+			closestPoint = end;
+		}
+		else
+		{
+			closestPoint = start + ab * d;
+		}
+
+		distanceSq = (point - closestPoint).magnitudeSquared();
+    }
+
+	Vec2 Solver::findContactPointForCircles(const Vec2& center1, const Vec2& center2, float radius1, float radius2)
+    {
+		Vec2 normal = (center2 - center1).normalized();
+		return center1 + normal * radius1;
+	}
+
+    Vec2 Solver::findContactPointForCircleAndRect(const Vec2& circleCenter, float circleRadius, 
+        const Vec2& rectCenter, const std::vector<Vec2>& rectVertices)
+    {
+		Vec2 cp = Vec2::zero;
+
+        float minDistanceSq = FLT_MAX;
+
+        for (int i = 0; i < rectVertices.size(); i++)
+        {
+			Vec2 va = rectVertices[i];
+			Vec2 vb = rectVertices[(i + 1) % rectVertices.size()];
+
+            float distanceSq;
+            Vec2 contact = Vec2::zero;
+
+			pointSegmentDistance(circleCenter, va, vb, distanceSq, contact);
+
+			if (distanceSq < minDistanceSq)
+			{
+                minDistanceSq = distanceSq;
+				cp = contact;
+            }
+        }
+
+        return cp;
+    }
+
+    
+    std::vector<Vec2> Solver::findContactPointForRects(const std::vector<Vec2>& vertices1, const std::vector<Vec2>& vertices2)
+    {
+        Vec2 cp1 = Vec2::zero;
+        Vec2 cp2 = Vec2::zero;
+        float cpCount = 0;
+        float minDistanceSq = FLT_MAX;
+
+        auto checkContact = [&](const Vec2& va, const Vec2& vb, const std::vector<Vec2>& vertices) {
+            for (int j = 0; j < vertices.size(); j++)
+            {
+                Vec2 vc = vertices[j];
+                Vec2 vd = vertices[(j + 1) % vertices.size()];
+                Vec2 contact = Vec2::zero;
+                float distanceSq;
+
+                pointSegmentDistance(va, vc, vd, distanceSq, contact);
+
+                if (Math::nearlyEquals(distanceSq, minDistanceSq))
+                {
+                    if (!Vec2::nearlyEquals(cp1, contact))
+                    {
+                        cp2 = contact;
+                        cpCount = 2;
+                    }
+                }
+                else if (distanceSq < minDistanceSq)
+                {
+                    minDistanceSq = distanceSq;
+                    cpCount = 1;
+                    cp1 = contact;
+                }
+            }
+            };
+
+        for (int i = 0; i < vertices1.size(); i++)
+        {
+            Vec2 va = vertices1[i];
+            Vec2 vb = vertices1[(i + 1) % vertices1.size()];
+            checkContact(va, vb, vertices2);
+        }
+
+        for (int i = 0; i < vertices2.size(); i++)
+        {
+            Vec2 va = vertices2[i];
+            Vec2 vb = vertices2[(i + 1) % vertices2.size()];
+            checkContact(va, vb, vertices1);
+        }
+
+        std::vector<Vec2> result;
+        if (cpCount >= 1)
+        {
+            result.push_back(cp1);
+        }
+        if (cpCount == 2)
+        {
+            result.push_back(cp2);
+        }
+
+
+        return result;
+    }
+
 }
 

@@ -3,7 +3,6 @@
 namespace acro {
 
 	Vec2::Vec2(float x, float y) : x(x), y(y) {}
-	Vec2::Vec2() : x{0}, y{0} {}
 
 	Vec2 Vec2::zero = Vec2(0, 0);
 
@@ -155,6 +154,9 @@ namespace acro {
 		);
 	}
 
-
+	bool Vec2::nearlyEquals(const Vec2& a, const Vec2& b) 
+	{
+		return (b-a).magnitudeSquared() < Math::epsilon * Math::epsilon;
+	}
 
 }

@@ -1,6 +1,4 @@
-﻿  DebugCircle.cpp
-  DebugRect.cpp
-  Test.cpp
+﻿  Test.cpp
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.37.32822\include\xmemory(719,103): warning C4244: 'argument': conversion from '_Ty' to 'float', possible loss of data
           with
           [
@@ -23,18 +21,11 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.37.3282
           [
               _Ty=DebugCircle
           ]
-D:\GitHub\AcroPhysics\Test\Test.cpp(55,13): message : see reference to function template instantiation 'void std::vector<DebugCircle,std::allocator<DebugCircle>>::emplace_back<int&,int&,int,sf::Color,acro::PhysicsWorld&>(int &,int &,int &&,sf::Color &&,acro::PhysicsWorld &)' being compiled
+D:\GitHub\AcroPhysics\Test\Test.cpp(83,13): message : see reference to function template instantiation 'void std::vector<DebugCircle,std::allocator<DebugCircle>>::emplace_back<int&,int&,int,sf::Color,acro::PhysicsWorld&>(int &,int &,int &&,sf::Color &&,acro::PhysicsWorld &)' being compiled
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.37.32822\include\xmemory(719,103): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-  Collider.cpp
-  PhysicsWorld.cpp
-D:\GitHub\AcroPhysics\src\PhysicsWorld.cpp(18,55): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
-  RigidBody.cpp
-D:\GitHub\AcroPhysics\src\RigidBody.cpp(64,12): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
-  Solver.cpp
-D:\GitHub\AcroPhysics\src\Solver.cpp(10,6): warning C4091: 'static ': ignored on left of 'acro::PairHash' when no variable is declared
-D:\GitHub\AcroPhysics\src\Solver.cpp(17,6): warning C4091: 'static ': ignored on left of 'acro::PairEqual' when no variable is declared
   Generating code
-  Previous IPDB and IOBJ mismatch, fall back to full compilation.
-  All 567 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  5 of 635 functions ( 0.8%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    9 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   AcroPhysics.vcxproj -> D:\GitHub\AcroPhysics\x64\Release\AcroPhysics.exe

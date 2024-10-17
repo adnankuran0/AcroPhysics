@@ -52,8 +52,8 @@ void DebugRect::setRotation(float rotation)
 
 void DebugRect::update(sf::RenderWindow& window)
 {
-	m_Shape.setPosition(rb->position.x, rb->position.y);
-	m_Shape.setRotation(rb->rotation);
+	m_Shape.setPosition(rb->getPosition().x, rb->getPosition().y);
+	m_Shape.setRotation(rb->getRotation());
 	window.draw(m_Shape);
 }
 

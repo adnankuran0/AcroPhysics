@@ -36,6 +36,9 @@ namespace acro
 			return value;
 	}
 
-
+	bool Math::nearlyEquals(float a, float b)
+	{
+		return fabs(a - b) < epsilon;
+	}
 
 }

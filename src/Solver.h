@@ -14,6 +14,7 @@ namespace acro
 	{
 	public:
 		static void handleCollision(std::vector<RigidBody*>& bodies);
+		static std::vector<Vec2> contactPoints;
 
 	private:
 		static void resolveForCircleAndCircle(RigidBody* firstBody, RigidBody* secondBody);
@@ -28,6 +29,13 @@ namespace acro
 		static void resolveCollision(RigidBody* firstBody, RigidBody* secondBody, const Vec2& normal, float& depth);
 
 		static bool intersectAABB(const AABB& aabb1, const AABB& aabb2);
+
+		static void pointSegmentDistance(const Vec2& point, const Vec2& start, const Vec2& end, float& distanceSq, Vec2& closestPoint);
+
+		static Vec2 findContactPointForCircles(const Vec2& center1, const Vec2& center2, float radius1, float radius2);
+		static Vec2 findContactPointForCircleAndRect(const Vec2& circleCenter,float circleRadius,
+			const Vec2& rectCenter, const std::vector<Vec2>& rectVertices);
+		static std::vector<Vec2> findContactPointForRects(const std::vector<Vec2>& vertices1, const std::vector<Vec2>& vertices2);
 
 	};
 }

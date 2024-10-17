@@ -22,21 +22,25 @@ namespace acro {
 
 		std::vector<Vec2> vertices;
 		std::vector<Vec2> transformedVertices;
-
 		AABB aabb;
 		ShapeType type;
+		float area;
 
-		bool isTransformUpdateRequired = true;
 
 		virtual void setPosition(const Vec2& newPosition);
 		virtual Vec2 getPosition() const;
 		virtual void setRotation(float angle);
-		virtual float getRadius() const;
+		virtual float getRotation() const; //
+		virtual float getRadius() const; //
+		virtual void setRadius(float rad);
 		virtual float getWidth() const;
-		virtual float getHeight() const;
+		virtual void setWidth(float w);
+		virtual float getHeight() const; //
+		virtual void setHeight(float h); //
+		virtual void setSize(float w,float h); //
+		virtual Vec2 getSize() const;
 		virtual void updateAABB();
-		virtual std::vector<Vec2> getTransformedVertices();
-	
+
 	};
 
 
@@ -49,14 +53,19 @@ namespace acro {
 		void setPosition(const Vec2& newPosition) override;
 		Vec2 getPosition() const override;
 		void setRotation(float angle) override;
+		float getRotation() const override;
 		float getRadius() const override;
+		void setRadius(float rad) override;
 		void updateAABB() override;	
 
-		std::vector<Vec2> getTransformedVertices() override;
 
 		//deleted functions
 		float getWidth() const override;
+		void setWidth(float w) override;
 		float getHeight() const override;
+		void setHeight(float h) override ; 
+		void setSize(float w, float h) override;
+		Vec2 getSize() const override;
 	private:
 		Vec2 position = Vec2(0, 0);
 		float radius;
@@ -72,14 +81,21 @@ namespace acro {
 		void setPosition(const Vec2& newPosition) override;
 		Vec2 getPosition() const override;
 		void setRotation(float angle) override;
+		float getRotation() const override;
 		float getWidth() const override;
+		void setWidth(float w) override;
 		float getHeight() const override;
+		void setHeight(float h) override;
 		void updateAABB() override;
+		void updateVertices();	
+		Vec2 getSize() const override;
+		void setSize(float w, float h) override;
 
-		std::vector<Vec2> getTransformedVertices() override;
 		
 		//deleted functions
 		float getRadius() const override;
+		void setRadius(float rad) override;
+
 	private:
 		float width, height;
 		Vec2 position = Vec2(0, 0);
