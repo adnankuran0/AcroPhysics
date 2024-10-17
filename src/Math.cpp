@@ -36,6 +36,16 @@ namespace acro
 			return value;
 	}
 
+	float Math::toRadians(float degrees)
+	{
+		return degrees * PI / 180.0f;
+	}
+
+	float Math::toDegrees(float radians)
+	{
+		return radians * 180.0f / PI;
+	}
+
 	bool Math::nearlyEquals(float a, float b)
 	{
 		return fabs(a - b) < epsilon;

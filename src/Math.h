@@ -11,5 +11,7 @@ namespace acro {
 		static float clamp(float num, float low, float high);
 		static int clamp(int num, int low, int high);
 		static bool nearlyEquals(float a, float b);
+		static float toRadians(float degrees);
+		static float toDegrees(float radians);
 	};
 }

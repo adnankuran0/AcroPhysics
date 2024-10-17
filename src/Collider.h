@@ -10,7 +10,8 @@ namespace acro {
 
 	enum class ShapeType {
 		CIRCLE = 0,
-		RECTANGLE = 1
+		RECTANGLE = 1,
+		NONE = 2
 	};
 
 

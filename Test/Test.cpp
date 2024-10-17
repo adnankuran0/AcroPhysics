@@ -5,7 +5,6 @@
 #include "DebugCircle.h"
 #include "DebugRect.h"
 
-//TODO: Fix Solver::findContactPointForRects function
 
 //TODO: optimizations
 //TODO: Narrow and broad phase

@@ -94,7 +94,7 @@ namespace acro {
 	void RectangleShape::setRadius(float rad) {}
 
 	void RectangleShape::setRotation(float angle) {
-		angle = angle * Math::PI / 180.0f;
+		angle = Math::toRadians(angle);
 		float s = sin(angle);
 		float c = cos(angle);
 
@@ -135,23 +135,17 @@ namespace acro {
 
 	
 
-	void RectangleShape::updateAABB()
-	{
-		float minX = FLT_MAX;
-		float minY = FLT_MAX;
-		float maxX = -FLT_MAX;
-		float maxY = -FLT_MAX;
+	void RectangleShape::updateAABB() {
+		float minX = transformedVertices[0].x;
+		float maxX = minX;
+		float minY = transformedVertices[0].y;
+		float maxY = minY;
 
-		for (int i = 0; i < transformedVertices.size(); i++)
-		{
-			if (transformedVertices[i].x < minX)
-				minX = transformedVertices[i].x;
-			if (transformedVertices[i].x > maxX)
-				maxX = transformedVertices[i].x;
-			if (transformedVertices[i].y < minY)
-				minY = transformedVertices[i].y;
-			if (transformedVertices[i].y > maxY)
-				maxY = transformedVertices[i].y;
+		for (const auto& vertex : transformedVertices) {
+			minX = std::min(minX, vertex.x);
+			maxX = std::max(maxX, vertex.x);
+			minY = std::min(minY, vertex.y);
+			maxY = std::max(maxY, vertex.y);
 		}
 
 		aabb.m_Left = minX;
@@ -159,6 +153,5 @@ namespace acro {
 		aabb.m_Top = minY;
 		aabb.m_Bottom = maxY;
 	}
-
 
 }

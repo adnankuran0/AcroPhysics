@@ -40,9 +40,9 @@ namespace acro {
 		float getMass() const;
 		void setInverseMass(float invM);
 		float getInverseMass() const;
-		void setInteria(float i);
-		float getInteria() const;
-		float getInverseInteria() const;
+		void setInertia(float i);
+		float getInertia() const;
+		float getInverseInertia() const;
 		void setStaticMode(bool isStatic);
 		void applyGravity(bool useGravity);
 		void setRestitution(float r);
@@ -57,13 +57,17 @@ namespace acro {
 		float rotationalVelocity;
 		float mass;
 		float inverseMass;
-		float interia;
-		float inverseInteria;
+		float inertia;
+		float inverseInertia;
 		bool isStatic;
 		bool useGravity = true;
 		float restitution;
 		Collider* collider;
 		float calculateMomentOfInertia();
+		void updateInverseMass();
+		void updateInertia();
+		void updateColliderPosition();
+		void updateColliderRotation();
 		
 
 	};
