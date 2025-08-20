@@ -5,19 +5,25 @@ project "Sandbox"
    targetdir "Binaries/%{cfg.buildcfg}"
    staticruntime "off"
 
-   files { "Source/**.h", "Source/**.cpp" }
+   files { "Source/**.h", "Source/**.cpp", "../Vendor/GLAD/src/**.c" }
 
    includedirs
    {
       "Source",
 
 	  -- Include Core
-	  "../Acro/Source"
+	  "../Acro/Source",
+      "../Vendor/GLAD/include",
+      "../Vendor/GLFW/include",
+      "../Vendor/glm/include"
    }
+
+   libdirs { "../Vendor/GLFW/lib" }
 
    links
    {
-      "Acro"
+      "Acro",
+      "glfw3"
    }
 
    targetdir ("../Binaries/" .. OutputDir .. "/%{prj.name}")
@@ -25,7 +31,7 @@ project "Sandbox"
 
    filter "system:windows"
        systemversion "latest"
-       defines { "WINDOWS" }
+       defines { "WINDOWS", "GLFW_STATIC" }
 
    filter "configurations:Debug"
        defines { "DEBUG" }

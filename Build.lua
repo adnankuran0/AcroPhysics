@@ -10,10 +10,6 @@ workspace "Acro"
 
 OutputDir = "%{cfg.system}-%{cfg.architecture}/%{cfg.buildcfg}"
 
-group "Acro"
-	include "Acro/Build-Acro.lua"
-group "Tests"
-	include "Tests/Build-Tests.lua"
-group ""
-
+include "Acro/Build-Acro.lua"
+include "Tests/Build-Tests.lua"
 include "Sandbox/Build-Sandbox.lua"
