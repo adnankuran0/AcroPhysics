@@ -158,14 +158,13 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         model = glm::mat4(1.0f);
-        pos.x += 0.5f * deltaTime;
         model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         model = glm::translate(model, pos);
 
         shader.setMat4("model", model);
         shader.setMat4("view", camera.GetViewMatrix());
         shader.setMat4("projection", projection);
-        shader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+        shader.setVec3("objectColor", 1.0f, 0.0f, 0.0f);
         shader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
         shader.setVec3("lightPos", glm::vec3(0.5f,3.0f,2.0f));
         shader.setVec3("viewPos", camera.Position);
