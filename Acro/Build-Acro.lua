@@ -9,7 +9,8 @@ project "Acro"
 
    includedirs
    {
-      "Source"
+      "Source",
+      "../Vendor/glm/include"
    }
 
    targetdir ("../Binaries/" .. OutputDir .. "/%{prj.name}")
