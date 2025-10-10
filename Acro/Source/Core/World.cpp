@@ -10,9 +10,9 @@ void World::Step(float deltaTime)
 		Vector3 vel = m_WorldData.velocities.at(bodyIndex);
 		Vector3 acc = m_WorldData.accels.at(bodyIndex);
 
-		acc += m_Gravity * deltaTime;
+		acc += m_Gravity;
 		vel += acc * deltaTime;
-		pos += acc * deltaTime;
+		pos += vel * deltaTime;
 
 		m_WorldData.positions[bodyIndex] = pos;
 		m_WorldData.velocities[bodyIndex] = vel;

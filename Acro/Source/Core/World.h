@@ -42,7 +42,7 @@ public:
 		return index;
 	}
 
-	Rigidbody& GetBody(int index)
+	Rigidbody GetBody(int index)
 	{
 		Rigidbody body;
 

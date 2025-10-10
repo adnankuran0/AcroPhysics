@@ -54,6 +54,7 @@ public:
 				result[i][j] = m[i][j];
 			}
 		}
+		return result;
 	}
 
 	inline static Matrix3 Identity() { return Matrix3(1.0f); }

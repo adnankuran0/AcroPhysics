@@ -12,7 +12,7 @@ public:
 	float x, y, z;
 	Vector3() : x(0.0f) , y(0.0f), z(0.0f) {}
 	Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
-	Vector3(const glm::vec3& v) : x(v.x) , y(v.y), z(v.y) {}
+	Vector3(const glm::vec3& v) : x(v.x) , y(v.y), z(v.z) {}
 
 
 	operator glm::vec3() const { return glm::vec3(x, y, z); }
@@ -25,7 +25,7 @@ public:
 		z += other.z;
 		return *this;
 	}
-	Vector3 operator-(const Vector3& other) const { return Vector3(x - other.x, y - other.y, z - other.y); }
+	Vector3 operator-(const Vector3& other) const { return Vector3(x - other.x, y - other.y, z - other.z); }
 	Vector3 operator*(float value) const { return Vector3(x * value, y * value, z * value); }
 
 
