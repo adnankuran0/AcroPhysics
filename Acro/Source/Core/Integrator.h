@@ -3,14 +3,22 @@
 
 #include "Core/BodyManager.h"
 
-namespace Acro {
+namespace Acro::Core {
 
 class Integrator
 {
 public:
-	void Step(BodyData& bodyData, Vector3& gravity, float deltaTime);
+	Integrator(const Vector3& gravity = { 0.0f, -9.8f, 0.0f }) : m_Gravity(gravity) {}
+
+	void Step(BodyData& bodyData, float deltaTime);
+
+	void SetGravity(const Vector3& gravity) { m_Gravity = gravity; }
+	Vector3 GetGravity() const { return m_Gravity; }
+
 private:
-	void IntegrateBody(BodyData& bodyData, Vector3& gravity,size_t index, float deltaTime);
+	void IntegrateBody(BodyData& bodyData, size_t index, float deltaTime);
+
+	Vector3 m_Gravity;
 };
 
 }

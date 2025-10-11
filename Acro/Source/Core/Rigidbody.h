@@ -3,29 +3,30 @@
 
 #include "Core/World.h"
 
-using namespace Acro;
+using namespace Acro::Core;
 
 namespace Acro {
 
 class Rigidbody
 {
 public:
-	Rigidbody() : m_BodyManager(nullptr) {}
-	Rigidbody(BodyManager* bodyManagaer, BodyHandle handle) { m_BodyManager = bodyManagaer; m_Handle = handle; }
+	Rigidbody(BodyManager* bodyManager, BodyHandle handle) { m_BodyManager = bodyManager; m_Handle = handle; }
 
-	inline const Vector3& GetPosition() const noexcept { return m_BodyManager->GetPosition(m_Handle); }
-	inline const Vector3& GetLinearVelocity() const noexcept { return m_BodyManager->GetLinearVelocity(m_Handle); }
-	inline const Quaternion& GetOrientation() const noexcept { return m_BodyManager->GetOrientation(m_Handle); }
-	inline const Vector3& GetAngularVelocity() const noexcept { return m_BodyManager->GetAngularVelocity(m_Handle); }
-	inline const Vector3& GetForceAccumulator() const noexcept { return m_BodyManager->GetForceAccumulator(m_Handle); }
-	inline const Vector3& GetMass() const noexcept { return m_BodyManager->GetMass(m_Handle); }
+	//TODO: check if body is already destroyed
 
-	inline void SetPosition(const Vector3& pos) const noexcept { m_BodyManager->SetPosition(m_Handle,pos); }
-	inline void SetLinearVelocity(const Vector3& linVel) const noexcept { m_BodyManager->SetLinearVelocity(m_Handle, linVel); }
-	inline void SetOrientation(const Quaternion& orientation) const noexcept { m_BodyManager->SetOrientation(m_Handle,orientation); }
-	inline void SetAngularVelocity(const Vector3& angVel) const noexcept { m_BodyManager->SetAngularVelocity(m_Handle,angVel); }
-	inline void ApplyForce(const Vector3& force) const noexcept { m_BodyManager->ApplyForce(m_Handle,force); }
-	inline void SetMass(float mass) const noexcept { m_BodyManager->SetMass(m_Handle,mass); }
+	inline const Vector3& GetPosition()		            const noexcept { return m_BodyManager->GetPosition(m_Handle); }
+	inline const Vector3& GetLinearVelocity()           const noexcept { return m_BodyManager->GetLinearVelocity(m_Handle); }
+	inline const Quaternion& GetOrientation()           const noexcept { return m_BodyManager->GetOrientation(m_Handle); }
+	inline const Vector3& GetAngularVelocity()          const noexcept { return m_BodyManager->GetAngularVelocity(m_Handle); }
+	inline const Vector3& GetForceAccumulator()         const noexcept { return m_BodyManager->GetForceAccumulator(m_Handle); }
+	inline const float& GetMass()				        const noexcept { return m_BodyManager->GetMass(m_Handle); }
+
+	inline void SetPosition(const Vector3& pos)				  noexcept { m_BodyManager->SetPosition(m_Handle,pos); }
+	inline void SetLinearVelocity(const Vector3& linVel)	  noexcept { m_BodyManager->SetLinearVelocity(m_Handle, linVel); }
+	inline void SetOrientation(const Quaternion& orientation) noexcept { m_BodyManager->SetOrientation(m_Handle,orientation); }
+	inline void SetAngularVelocity(const Vector3& angVel)	  noexcept { m_BodyManager->SetAngularVelocity(m_Handle,angVel); }
+	inline void ApplyForce(const Vector3& force)			  noexcept { m_BodyManager->ApplyForce(m_Handle,force); }
+	inline void SetMass(float mass)							  noexcept { m_BodyManager->SetMass(m_Handle,mass); }
 
 	inline void Destroy() const noexcept { m_BodyManager->DestroyBody(m_Handle); }
 private:

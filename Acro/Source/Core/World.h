@@ -7,6 +7,7 @@
 #include <vector>
 
 using namespace Acro::Math;
+using namespace Acro::Core;
 
 namespace Acro {
 
@@ -16,7 +17,7 @@ class World
 {
 public:
 	World(Vector3 gravity = { 0.0f,-9.8f,0.0f }, unsigned int fixedFPS = 60, unsigned int maxSteps = 8) : m_Gravity(gravity), 
-		m_MaxSteps(maxSteps), m_DeltaAccumulator(0), m_StepCount(0)
+		m_MaxSteps(maxSteps), m_DeltaAccumulator(0), m_StepCount(0), m_Integrator(gravity)
 	{
 		m_FixedDeltaTime = 1.0f / float(fixedFPS);
 	}

@@ -9,7 +9,8 @@ void World::Step(float deltaTime)
 
 	while (m_DeltaAccumulator >= m_FixedDeltaTime && m_StepCount < m_MaxSteps)
 	{
-		m_Integrator.Step(m_BodyManager.GetData(), m_Gravity, m_FixedDeltaTime);
+		m_Integrator.SetGravity(m_Gravity);
+		m_Integrator.Step(m_BodyManager.GetData(),m_FixedDeltaTime);
 		m_StepCount++;
 		m_DeltaAccumulator -= m_FixedDeltaTime;
 	}

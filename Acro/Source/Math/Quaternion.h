@@ -15,14 +15,15 @@ public:
 	Quaternion() noexcept : q(1.0f,0.0f,0.0f,0.0f) {}
 	Quaternion(float w, float x, float y, float z) noexcept : q(w,x,y,z) {}
 	Quaternion(const glm::quat& other) noexcept : q(other) {}
-	Quaternion(const glm::vec3& axis, float angleRadians) noexcept
+	Quaternion(const Vector3& axis, float angleRadians) noexcept
 	{
-		q = glm::angleAxis(angleRadians, glm::normalize(axis));
+		glm::vec3 glmAxis(axis.x, axis.y, axis.z);
+		q = glm::angleAxis(angleRadians, glm::normalize(glmAxis));
 	}
 
 	static Quaternion Identity() noexcept { return Quaternion(); }
 
-	Quaternion operator*(const Quaternion& other) 
+	Quaternion operator*(const Quaternion& other) const noexcept
 	{
 		return Quaternion(q * other.q);
 	}
@@ -46,7 +47,7 @@ public:
 	inline glm::mat3 ToMat3() const noexcept { return glm::toMat3(q); }
 	inline Vector3 ToEuler() const noexcept { return Vector3(glm::eulerAngles(q)); }
 
-	operator glm::quat() { return q; }
+	operator glm::quat() const noexcept { return q; }
 	
 
 private:

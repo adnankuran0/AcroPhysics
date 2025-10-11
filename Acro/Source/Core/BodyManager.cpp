@@ -1,8 +1,8 @@
 #include "BodyManager.h"
 
-using namespace Acro;
+using namespace Acro::Core;
 
-BodyHandle BodyManager::CreateBody()
+BodyHandle BodyManager::CreateBody() noexcept
 {
 	BodyHandle handle;
 	uint32_t denseIndex;
@@ -32,11 +32,12 @@ BodyHandle BodyManager::CreateBody()
 	m_BodyData.forceAccumulators.push_back(Vector3());
 	m_BodyData.masses.push_back(1.0f);
 
+	m_DenseToHandle.push_back(handle.index);
 	return { handle.index,m_Generations[handle.index] };
 
 }
 
-void BodyManager::DestroyBody(const BodyHandle& handle)
+void BodyManager::DestroyBody(const BodyHandle& handle) noexcept
 {
 	if (!IsValid(handle)) return;
 
@@ -45,6 +46,7 @@ void BodyManager::DestroyBody(const BodyHandle& handle)
 
 	if (denseIndex != lastDense)
 	{
+		// Swap dense data
 		m_BodyData.positions[denseIndex] = m_BodyData.positions[lastDense];
 		m_BodyData.linearVelocities[denseIndex] = m_BodyData.linearVelocities[lastDense];
 		m_BodyData.orientations[denseIndex] = m_BodyData.orientations[lastDense];
@@ -52,25 +54,21 @@ void BodyManager::DestroyBody(const BodyHandle& handle)
 		m_BodyData.forceAccumulators[denseIndex] = m_BodyData.forceAccumulators[lastDense];
 		m_BodyData.masses[denseIndex] = m_BodyData.masses[lastDense];
 
-		// update sparse
-		for (int i = 0; i < m_Sparse.size(); i++)
-		{
-			if (m_Sparse[i] == lastDense)
-			{
-				m_Sparse[i] = denseIndex;
-				break;
-			}
-		}
+		// Update sparse 
+		uint32_t lastHandleIndex = m_DenseToHandle[lastDense];
+		m_Sparse[lastHandleIndex] = denseIndex;
+		m_DenseToHandle[denseIndex] = lastHandleIndex;
 	}
 
+	// Pop back dense data
 	m_BodyData.positions.pop_back();
 	m_BodyData.linearVelocities.pop_back();
 	m_BodyData.orientations.pop_back();
 	m_BodyData.angularVelocities.pop_back();
 	m_BodyData.forceAccumulators.pop_back();
 	m_BodyData.masses.pop_back();
+	m_DenseToHandle.pop_back();
 
 	m_Generations[handle.index]++;
 	m_FreeHandles.push_back(handle);
-
 }

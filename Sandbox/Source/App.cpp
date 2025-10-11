@@ -9,6 +9,9 @@
 #include "Acro.h"
 #include <iostream>
 #include "DebugCube.h"
+#include <memory>
+#define STB_IMAGE_IMPLEMENTATION
+#include "Skybox.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -28,7 +31,7 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 
-Acro::Rigidbody body;
+Acro::Rigidbody body(nullptr,Acro::Core::BodyHandle{});
 
 int main(void)
 {
@@ -66,6 +69,19 @@ int main(void)
     glEnable(GL_DEPTH_TEST);
 
     Shader shader("D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Phong.vs", "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Phong.fs");
+    Shader skyboxShader("D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Skybox.vs", "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Skybox.fs");
+
+    std::vector<std::string> faces
+    {
+        "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Textures\\Skybox\\right.jpg",
+        "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Textures\\Skybox\\left.jpg",
+        "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Textures\\Skybox\\top.jpg",
+        "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Textures\\Skybox\\bottom.jpg",
+        "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Textures\\Skybox\\front.jpg",
+        "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Textures\\Skybox\\back.jpg"
+    };
+
+    Skybox skybox(faces);
 
     DebugCube cube;
 
@@ -87,13 +103,17 @@ int main(void)
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        skybox.Draw(skyboxShader, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+
         glm::vec3 pos = body.GetPosition();
+        glm::quat rot = body.GetOrientation();
         //std::cout << pos.x << "," << pos.y << "," << pos.z << "\n";
 
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 proj = camera.GetProjectionMatrix();
 
         cube.SetPosition(pos);
+        cube.SetRotation(rot);
         cube.Draw(shader, view, proj, camera.Position);
 
         /* Swap front and back buffers */

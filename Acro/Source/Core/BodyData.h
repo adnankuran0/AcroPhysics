@@ -7,7 +7,7 @@
 
 using namespace Acro::Math;
 
-namespace Acro {
+namespace Acro::Core {
 
 struct BodyData
 {

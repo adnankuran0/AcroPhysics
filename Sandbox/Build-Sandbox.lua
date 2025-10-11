@@ -15,7 +15,8 @@ project "Sandbox"
 	  "../Acro/Source",
       "../Vendor/GLAD/include",
       "../Vendor/GLFW/include",
-      "../Vendor/glm/include"
+      "../Vendor/glm/include",
+      "../Vendor/stb_image"
    }
 
    libdirs { "../Vendor/GLFW/lib" }

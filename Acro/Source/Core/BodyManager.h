@@ -4,7 +4,7 @@
 #include <cstdint>
 #include "Core/BodyData.h"
 
-namespace Acro {
+namespace Acro::Core {
 
 struct BodyHandle
 {
@@ -21,8 +21,8 @@ struct BodyHandle
 class BodyManager
 {
 public:
-	BodyHandle CreateBody();
-	void DestroyBody(const BodyHandle& handle);
+	BodyHandle CreateBody() noexcept ;
+	void DestroyBody(const BodyHandle& handle) noexcept;
 
 	inline bool IsValid(const BodyHandle& handle) const noexcept
 	{
@@ -37,7 +37,7 @@ public:
 	inline Quaternion& GetOrientation(const BodyHandle& handle) noexcept { return m_BodyData.orientations[m_Sparse[handle.index]]; }
 	inline Vector3& GetAngularVelocity(const BodyHandle& handle) noexcept { return m_BodyData.angularVelocities[m_Sparse[handle.index]]; }
 	inline Vector3& GetForceAccumulator(const BodyHandle& handle) noexcept { return m_BodyData.forceAccumulators[m_Sparse[handle.index]]; }
-	inline float GetMass(const BodyHandle& handle) noexcept { return m_BodyData.masses[m_Sparse[handle.index]]; }
+	inline float& GetMass(const BodyHandle& handle) noexcept { return m_BodyData.masses[m_Sparse[handle.index]]; }
 
 	inline void SetPosition(const BodyHandle& handle, const Vector3& pos) noexcept { m_BodyData.positions[m_Sparse[handle.index]] = pos; }
 	inline void SetLinearVelocity(const BodyHandle& handle, const Vector3& linVel) noexcept { m_BodyData.linearVelocities[m_Sparse[handle.index]] = linVel; }
@@ -51,6 +51,7 @@ public:
 private:
 	BodyData m_BodyData; // dense
 	std::vector<uint32_t> m_Sparse;
+	std::vector<uint32_t> m_DenseToHandle;
 	std::vector<uint32_t> m_Generations;
 	std::vector<BodyHandle> m_FreeHandles;
 };
