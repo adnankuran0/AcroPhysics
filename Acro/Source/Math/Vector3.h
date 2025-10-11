@@ -1,5 +1,5 @@
-#ifndef ACRO_MATH_VECTOR3
-#define ACRO_MATH_VECTOR3
+#ifndef ACRO_MATH_VECTOR3_H
+#define ACRO_MATH_VECTOR3_H
 
 #include "glm/glm.hpp"
 
@@ -13,6 +13,7 @@ public:
 	Vector3() : x(0.0f) , y(0.0f), z(0.0f) {}
 	Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
 	Vector3(const glm::vec3& v) : x(v.x) , y(v.y), z(v.z) {}
+	Vector3(float value) : x(value), y(value), z(value) {}
 
 
 	operator glm::vec3() const { return glm::vec3(x, y, z); }
@@ -26,8 +27,15 @@ public:
 		return *this;
 	}
 	Vector3 operator-(const Vector3& other) const { return Vector3(x - other.x, y - other.y, z - other.z); }
+	Vector3& operator-=(const Vector3& other)
+	{
+		x -= other.x;
+		y -= other.y;
+		z -= other.z;
+		return *this;
+	}
 	Vector3 operator*(float value) const { return Vector3(x * value, y * value, z * value); }
-
+	Vector3 operator/(float value) const { return Vector3(x / value, y / value, z / value); }
 
 	inline float Length() const noexcept { return glm::length(glm::vec3(x, y, z)); }
 	inline Vector3 Normalized() const noexcept { return glm::normalize(glm::vec3(x, y, z)); }
@@ -51,4 +59,4 @@ public:
 }
 
 
-#endif // ACRO_MATH_VECTOR3
+#endif // ACRO_MATH_VECTOR3_H

@@ -27,8 +27,8 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-Acro::World world;
 
+Acro::Rigidbody body;
 
 int main(void)
 {
@@ -69,17 +69,9 @@ int main(void)
 
     DebugCube cube;
 
-    std::vector<DebugCube> cubes;
-    for (int i = 0; i < 20; i++)
-    {
-        //DebugCube cube(glm::vec3(i * 2.0f, 0.0f, 0.0f));
-        glm::vec3 pos = glm::vec3((i - 10) * 2.0f, (i - 10) * 2.0f, 0.0f);
-        cubes.push_back(std::move(pos));
-        world.AddBody(pos);
-    }
-    
+    Acro::World world(Vector3(0.0f,-9.8f,0.0f),60,8);
 
-    int bodyID = world.AddBody();
+    body = world.CreateBody();
 
     while (!glfwWindowShouldClose(window))
     {
@@ -91,10 +83,11 @@ int main(void)
 
         processInput(window);
 
+        glClearColor(0.0, 0.0, 0.0, 1.0);
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glm::vec3 pos = world.GetBody(bodyID).GetPosition();
+        glm::vec3 pos = body.GetPosition();
         //std::cout << pos.x << "," << pos.y << "," << pos.z << "\n";
 
         glm::mat4 view = camera.GetViewMatrix();
@@ -102,13 +95,6 @@ int main(void)
 
         cube.SetPosition(pos);
         cube.Draw(shader, view, proj, camera.Position);
-
-        for (size_t i = 0; i < cubes.size(); i++)
-        {
-            glm::vec3 _pos = world.GetBody(i+1).GetPosition();
-            cubes[i].SetPosition(_pos);
-            cubes[i].Draw(shader, view, proj, camera.Position);
-        }
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -185,6 +171,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 {
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
     {
-        world.AddForce(0, Vector3(0.0f, 3.0f, 0.0));
+        body.ApplyForce(Vector3(0.0f, 400.0f, 0.0f));
     }
 }

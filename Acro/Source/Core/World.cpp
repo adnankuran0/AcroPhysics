@@ -1,21 +1,28 @@
 #include "Core/World.h"
+#include "Core/Rigidbody.h"
 
 using namespace Acro;
 
 void World::Step(float deltaTime)
 {
-	for (int bodyIndex = 0; bodyIndex < m_WorldData.bodyCount; bodyIndex++ )
+	m_DeltaAccumulator += deltaTime;
+
+	while (m_DeltaAccumulator >= m_FixedDeltaTime && m_StepCount < m_MaxSteps)
 	{
-		Vector3 pos = m_WorldData.positions.at(bodyIndex);
-		Vector3 vel = m_WorldData.velocities.at(bodyIndex);
-		Vector3 acc = m_WorldData.accels.at(bodyIndex);
-
-		acc += m_Gravity;
-		vel += acc * deltaTime;
-		pos += vel * deltaTime;
-
-		m_WorldData.positions[bodyIndex] = pos;
-		m_WorldData.velocities[bodyIndex] = vel;
-		m_WorldData.accels[bodyIndex] = acc;
+		m_Integrator.Step(m_BodyManager.GetData(), m_Gravity, m_FixedDeltaTime);
+		m_StepCount++;
+		m_DeltaAccumulator -= m_FixedDeltaTime;
 	}
+	m_StepCount = 0;
+	
+}
+
+Rigidbody World::CreateBody() noexcept
+{
+	return Rigidbody(&m_BodyManager, m_BodyManager.CreateBody());
+}
+
+void World::DestroyBody(const BodyHandle& handle) noexcept
+{
+	m_BodyManager.DestroyBody(handle);
 }
