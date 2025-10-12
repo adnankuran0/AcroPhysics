@@ -1,37 +1,52 @@
 #ifndef ACRO_RIGIDBODY_H
 #define ACRO_RIGIDBODY_H
 
-#include "Core/World.h"
-
-using namespace Acro::Core;
+#include "Core/Shape/Shape.h"
+#include "Core/Shape/ShapeManager.h"
+#include <iostream>
 
 namespace Acro {
 
 class Rigidbody
 {
 public:
-	Rigidbody(BodyManager* bodyManager, BodyHandle handle) { m_BodyManager = bodyManager; m_Handle = handle; }
+	Rigidbody(Acro::Core::BodyManager* bodyManager, Acro::Core::ShapeManager* shapeManager, Acro::Core::BodyHandle handle) { m_BodyManager = bodyManager; m_ShapeManager = shapeManager;  m_BodyHandle = handle; }
+	// TODO: Destructor
 
-	//TODO: check if body is already destroyed
+	inline const Acro::Math::Vector3& GetPosition()		            const noexcept { return m_BodyManager->GetPosition(m_BodyHandle); }
+	inline const Acro::Math::Vector3& GetLinearVelocity()           const noexcept { return m_BodyManager->GetLinearVelocity(m_BodyHandle); }
+	inline const Acro::Math::Quaternion& GetOrientation()           const noexcept { return m_BodyManager->GetOrientation(m_BodyHandle); }
+	inline const Acro::Math::Vector3& GetAngularVelocity()          const noexcept { return m_BodyManager->GetAngularVelocity(m_BodyHandle); }
+	inline const Acro::Math::Vector3& GetForceAccumulator()         const noexcept { return m_BodyManager->GetForceAccumulator(m_BodyHandle); }
+	inline const float& GetMass()				        const noexcept { return m_BodyManager->GetMass(m_BodyHandle); }
 
-	inline const Vector3& GetPosition()		            const noexcept { return m_BodyManager->GetPosition(m_Handle); }
-	inline const Vector3& GetLinearVelocity()           const noexcept { return m_BodyManager->GetLinearVelocity(m_Handle); }
-	inline const Quaternion& GetOrientation()           const noexcept { return m_BodyManager->GetOrientation(m_Handle); }
-	inline const Vector3& GetAngularVelocity()          const noexcept { return m_BodyManager->GetAngularVelocity(m_Handle); }
-	inline const Vector3& GetForceAccumulator()         const noexcept { return m_BodyManager->GetForceAccumulator(m_Handle); }
-	inline const float& GetMass()				        const noexcept { return m_BodyManager->GetMass(m_Handle); }
+	inline void SetPosition(const Acro::Math::Vector3& pos)				  noexcept { m_BodyManager->SetPosition(m_BodyHandle,pos); }
+	inline void SetLinearVelocity(const Acro::Math::Vector3& linVel)	  noexcept { m_BodyManager->SetLinearVelocity(m_BodyHandle, linVel); }
+	inline void SetOrientation(const Acro::Math::Quaternion& orientation) noexcept { m_BodyManager->SetOrientation(m_BodyHandle,orientation); }
+	inline void SetAngularVelocity(const Acro::Math::Vector3& angVel)	  noexcept { m_BodyManager->SetAngularVelocity(m_BodyHandle,angVel); }
+	inline void ApplyForce(const Acro::Math::Vector3& force)			  noexcept { m_BodyManager->ApplyForce(m_BodyHandle,force); }
+	inline void SetMass(float mass)							  noexcept { m_BodyManager->SetMass(m_BodyHandle,mass); }
 
-	inline void SetPosition(const Vector3& pos)				  noexcept { m_BodyManager->SetPosition(m_Handle,pos); }
-	inline void SetLinearVelocity(const Vector3& linVel)	  noexcept { m_BodyManager->SetLinearVelocity(m_Handle, linVel); }
-	inline void SetOrientation(const Quaternion& orientation) noexcept { m_BodyManager->SetOrientation(m_Handle,orientation); }
-	inline void SetAngularVelocity(const Vector3& angVel)	  noexcept { m_BodyManager->SetAngularVelocity(m_Handle,angVel); }
-	inline void ApplyForce(const Vector3& force)			  noexcept { m_BodyManager->ApplyForce(m_Handle,force); }
-	inline void SetMass(float mass)							  noexcept { m_BodyManager->SetMass(m_Handle,mass); }
+	void AttachShape(const Acro::Shape& shape) 
+	{ 
+		if (!m_ShapeManager->IsValid(shape.m_Handle)) return;
 
-	inline void Destroy() const noexcept { m_BodyManager->DestroyBody(m_Handle); }
+		m_ShapeHandle = shape.m_Handle;
+		m_BodyManager->AttachShape(m_BodyHandle, m_ShapeHandle);
+		m_ShapeManager->AddRef(m_ShapeHandle);
+	}
+
+	inline void Destroy() const noexcept 
+	{
+		m_BodyManager->DestroyBody(m_BodyHandle); 
+		m_ShapeManager->ReleaseRef(m_ShapeHandle);
+	}
 private:
-	BodyHandle m_Handle;
-	BodyManager* m_BodyManager;
+
+	Acro::Core::BodyHandle m_BodyHandle;
+	Acro::Core::ShapeHandle m_ShapeHandle;
+	Acro::Core::BodyManager* m_BodyManager;
+	Acro::Core::ShapeManager* m_ShapeManager;
 };
 
 }

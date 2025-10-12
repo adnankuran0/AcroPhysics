@@ -1,4 +1,7 @@
 ﻿#include <glad/gl.h>
+
+#include "Gui.h"
+
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -12,6 +15,7 @@
 #include <memory>
 #define STB_IMAGE_IMPLEMENTATION
 #include "Skybox.h"
+#include "imgui.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -31,10 +35,12 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 
-Acro::Rigidbody body(nullptr,Acro::Core::BodyHandle{});
+Acro::Rigidbody body(nullptr,nullptr,Acro::Core::BodyHandle{});
 
 int main(void)
 {
+    bool stepPhysics = false;
+
     GLFWwindow* window;
 
     /* Initialize the library */
@@ -58,6 +64,7 @@ int main(void)
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetKeyCallback(window, key_callback);
 
+
     int version = gladLoadGL(glfwGetProcAddress);
     if (version == 0) {
         printf("Failed to initialize OpenGL context\n");
@@ -65,6 +72,8 @@ int main(void)
     }
 
     printf("Loaded OpenGL %d.%d\n", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
+
+    Gui gui(window);
 
     glEnable(GL_DEPTH_TEST);
 
@@ -85,9 +94,25 @@ int main(void)
 
     DebugCube cube;
 
-    Acro::World world(Vector3(0.0f,-9.8f,0.0f),60,8);
+    Acro::World world(Acro::Math::Vector3(0.0f,-9.8f,0.0f),60,8);
 
     body = world.CreateBody();
+
+    Acro::BoxShape boxShape = world.CreateBoxShape();
+    Acro::SphereShape sphereShape = world.CreateSphereShape(5.0f);
+
+    Acro::Rigidbody body1 = world.CreateBody();
+    Acro::Rigidbody body2 = world.CreateBody();
+    Acro::Rigidbody body3 = world.CreateBody();
+
+    body1.AttachShape(boxShape);
+    body2.AttachShape(boxShape);
+    body3.AttachShape(sphereShape);
+
+    body1.Destroy();
+    body2.Destroy();
+    body3.Destroy();
+    
 
     while (!glfwWindowShouldClose(window))
     {
@@ -95,7 +120,12 @@ int main(void)
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        world.Step(deltaTime);
+        gui.NewFrame();
+
+        ImGui::Checkbox("Simulate physics", &stepPhysics);
+
+        if(stepPhysics)
+            world.Step(deltaTime);
 
         processInput(window);
 
@@ -116,6 +146,8 @@ int main(void)
         cube.SetRotation(rot);
         cube.Draw(shader, view, proj, camera.Position);
 
+        gui.Render();
+
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
 
@@ -126,6 +158,8 @@ int main(void)
         /* Poll for and process events */
         glfwPollEvents();
     }
+
+    gui.Shutdown();
 
     glfwTerminate();
     return 0;
@@ -191,6 +225,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 {
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
     {
-        body.ApplyForce(Vector3(0.0f, 400.0f, 0.0f));
+        body.ApplyForce(Acro::Math::Vector3(0.0f, 400.0f, 0.0f));
     }
 }

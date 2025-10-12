@@ -1,6 +1,7 @@
 #include "Core/Integrator.h"
 #include <iostream>
 
+using namespace Acro::Math;
 using namespace Acro::Core;
 
 void Integrator::Step(BodyData& bodyData, float deltaTime)

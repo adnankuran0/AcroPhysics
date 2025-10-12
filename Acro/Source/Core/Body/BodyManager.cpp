@@ -1,5 +1,7 @@
-#include "BodyManager.h"
+#include "Core/Body/BodyManager.h"
+#include "Core/Shape/ShapeManager.h"
 
+using namespace Acro::Math;
 using namespace Acro::Core;
 
 BodyHandle BodyManager::CreateBody() noexcept
@@ -11,7 +13,7 @@ BodyHandle BodyManager::CreateBody() noexcept
 	{
 		handle = m_FreeHandles.back();
 		m_FreeHandles.pop_back();
-		denseIndex = m_BodyData.positions.size();
+		denseIndex = static_cast<uint32_t>(m_BodyData.positions.size());
 		m_Sparse[handle.index] = denseIndex;
 		m_Generations[handle.index]++;
 	}
@@ -22,7 +24,7 @@ BodyHandle BodyManager::CreateBody() noexcept
 		handle.generation = 0;
 		m_Sparse.push_back(static_cast<uint32_t>(m_BodyData.positions.size()));
 		m_Generations.push_back(0);
-		denseIndex = m_BodyData.positions.size();
+		denseIndex = static_cast<uint32_t>(m_BodyData.positions.size());
 	}
 
 	m_BodyData.positions.push_back(Vector3());
@@ -31,6 +33,7 @@ BodyHandle BodyManager::CreateBody() noexcept
 	m_BodyData.angularVelocities.push_back(Vector3());
 	m_BodyData.forceAccumulators.push_back(Vector3());
 	m_BodyData.masses.push_back(1.0f);
+	m_BodyData.shapes.push_back(ShapeHandle(-1, -1)); 
 
 	m_DenseToHandle.push_back(handle.index);
 	return { handle.index,m_Generations[handle.index] };
@@ -42,7 +45,7 @@ void BodyManager::DestroyBody(const BodyHandle& handle) noexcept
 	if (!IsValid(handle)) return;
 
 	uint32_t denseIndex = m_Sparse[handle.index];
-	uint32_t lastDense = m_BodyData.positions.size() - 1;
+	uint32_t lastDense = static_cast<uint32_t>(m_BodyData.positions.size() - 1);
 
 	if (denseIndex != lastDense)
 	{
@@ -53,6 +56,8 @@ void BodyManager::DestroyBody(const BodyHandle& handle) noexcept
 		m_BodyData.angularVelocities[denseIndex] = m_BodyData.angularVelocities[lastDense];
 		m_BodyData.forceAccumulators[denseIndex] = m_BodyData.forceAccumulators[lastDense];
 		m_BodyData.masses[denseIndex] = m_BodyData.masses[lastDense];
+		m_BodyData.shapes[denseIndex] = m_BodyData.shapes[lastDense];
+
 
 		// Update sparse 
 		uint32_t lastHandleIndex = m_DenseToHandle[lastDense];
@@ -67,8 +72,15 @@ void BodyManager::DestroyBody(const BodyHandle& handle) noexcept
 	m_BodyData.angularVelocities.pop_back();
 	m_BodyData.forceAccumulators.pop_back();
 	m_BodyData.masses.pop_back();
+	m_BodyData.shapes.pop_back();
 	m_DenseToHandle.pop_back();
 
 	m_Generations[handle.index]++;
 	m_FreeHandles.push_back(handle);
+}
+
+void BodyManager::AttachShape(const BodyHandle& bodyHandle, const ShapeHandle& shapeHandle)
+{
+	assert(IsValid(bodyHandle));
+	m_BodyData.shapes[m_Sparse[bodyHandle.index]] = shapeHandle;
 }

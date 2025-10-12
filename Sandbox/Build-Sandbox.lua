@@ -5,7 +5,7 @@ project "Sandbox"
    targetdir "Binaries/%{cfg.buildcfg}"
    staticruntime "off"
 
-   files { "Source/**.h", "Source/**.cpp", "../Vendor/GLAD/src/**.c" }
+   files { "Source/**.h", "Source/**.cpp", "../Vendor/GLAD/src/**.c", "../Vendor/ImGui/**.cpp" }
 
    includedirs
    {
@@ -16,7 +16,9 @@ project "Sandbox"
       "../Vendor/GLAD/include",
       "../Vendor/GLFW/include",
       "../Vendor/glm/include",
-      "../Vendor/stb_image"
+      "../Vendor/stb_image",
+      "../Vendor/ImGui"
+      
    }
 
    libdirs { "../Vendor/GLFW/lib" }
