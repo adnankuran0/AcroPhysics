@@ -9,6 +9,8 @@
 
 namespace Acro::Math {
 
+class Matrix4; // forward declaration
+
 class Quaternion
 {
 public:
@@ -28,6 +30,11 @@ public:
 		return Quaternion(q * other.q);
 	}
 
+	Vector3 operator*(const Vector3& vec) const noexcept
+	{
+		return Rotate(vec);
+	}
+
 	Quaternion& operator*=(const Quaternion& other) 
 	{
 		q *= other.q;
@@ -43,7 +50,7 @@ public:
 		return Vector3(glm::rotate(q, glm::vec3(v.x,v.y,v.z)));
 	}
 
-	inline glm::mat4 ToMat4() const noexcept { return glm::toMat4(q); }
+	Acro::Math::Matrix4 ToMat4() const noexcept;
 	inline glm::mat3 ToMat3() const noexcept { return glm::toMat3(q); }
 	inline Vector3 ToEuler() const noexcept { return Vector3(glm::eulerAngles(q)); }
 

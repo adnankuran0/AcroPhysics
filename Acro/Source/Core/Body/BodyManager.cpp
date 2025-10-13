@@ -33,7 +33,7 @@ BodyHandle BodyManager::CreateBody() noexcept
 	m_BodyData.angularVelocities.push_back(Vector3());
 	m_BodyData.forceAccumulators.push_back(Vector3());
 	m_BodyData.masses.push_back(1.0f);
-	m_BodyData.shapes.push_back(ShapeHandle(-1, -1)); 
+	m_BodyData.shapes.push_back(ShapeHandle::Null()); 
 
 	m_DenseToHandle.push_back(handle.index);
 	return { handle.index,m_Generations[handle.index] };
@@ -83,4 +83,9 @@ void BodyManager::AttachShape(const BodyHandle& bodyHandle, const ShapeHandle& s
 {
 	assert(IsValid(bodyHandle));
 	m_BodyData.shapes[m_Sparse[bodyHandle.index]] = shapeHandle;
+}
+
+void Acro::Core::BodyManager::DetachShape(const BodyHandle& bodyHandle)
+{
+	m_BodyData.shapes[m_Sparse[bodyHandle.index]] = ShapeHandle::Null();
 }

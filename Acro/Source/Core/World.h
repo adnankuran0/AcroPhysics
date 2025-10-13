@@ -4,6 +4,7 @@
 #include "Math/Vector3.h"
 #include "Core/Body/BodyManager.h"
 #include "Core/Shape/ShapeManager.h"
+#include "Core/Shape/ShapeInstanceManager.h"
 #include "Core/Integrator.h"
 #include "Core/Shape/Shape.h"
 #include "Core/World.h"
@@ -27,10 +28,15 @@ public:
 	inline Acro::Math::Vector3 GetGravity() const noexcept { return m_Gravity; }
 
 	Rigidbody CreateBody() noexcept; 
-	void DestroyBody(const Acro::Core::BodyHandle& handle) noexcept;
+	void DestroyBody(const Rigidbody& body) noexcept;
 
 	Acro::BoxShape CreateBoxShape(const Acro::Math::Vector3& extent = Acro::Math::Vector3(1.0)) noexcept;
 	Acro::SphereShape CreateSphereShape(float radius = 1.0f) noexcept;
+
+	// TODO: return ShapeInstance wrapper
+	Acro::Core::ShapeInstanceHandle AttachShape(const Rigidbody& body, const Acro::Shape& shape);
+	// TODO: can detach by shape handle
+	void DetachShape(const Rigidbody& body);
 
 
 private:
@@ -43,6 +49,7 @@ private:
 	Acro::Core::Integrator m_Integrator;
 	Acro::Core::BodyManager m_BodyManager;
 	Acro::Core::ShapeManager m_ShapeManager;
+	Acro::Core::ShapeInstanceManager m_ShapeInstanceManager;
 };
 
 }

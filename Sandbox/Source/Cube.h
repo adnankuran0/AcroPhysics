@@ -49,15 +49,15 @@ static constexpr float vertices[] = {
     -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
 };
 
-class DebugCube
+class Cube
 {
 public:
-    DebugCube() { SetupBuffers(); }
-    DebugCube(const glm::vec3& pos) : m_Pos(pos) { SetupBuffers(); }
+    Cube() { SetupBuffers(); }
+    Cube(const glm::vec3& pos) : m_Pos(pos) { SetupBuffers(); }
 
-    DebugCube(const DebugCube&) = delete;
-    DebugCube& operator=(const DebugCube&) = delete;
-    DebugCube(DebugCube&& other) noexcept
+    Cube(const Cube&) = delete;
+    Cube& operator=(const Cube&) = delete;
+    Cube(Cube&& other) noexcept
     {
         m_VAO = other.m_VAO;
         m_VBO = other.m_VBO;
@@ -67,7 +67,7 @@ public:
         other.m_VBO = 0;
     }
 
-    ~DebugCube()
+    ~Cube()
     {
         glDeleteVertexArrays(1, &m_VAO);
         glDeleteBuffers(1, &m_VBO);

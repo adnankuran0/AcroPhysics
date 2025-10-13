@@ -10,7 +10,7 @@ namespace Acro {
 class Rigidbody
 {
 public:
-	Rigidbody(Acro::Core::BodyManager* bodyManager, Acro::Core::ShapeManager* shapeManager, Acro::Core::BodyHandle handle) { m_BodyManager = bodyManager; m_ShapeManager = shapeManager;  m_BodyHandle = handle; }
+	Rigidbody(Acro::World* world, Acro::Core::BodyManager* bodyManager, Acro::Core::ShapeManager* shapeManager, Acro::Core::BodyHandle handle) { m_World = world; m_BodyManager = bodyManager; m_ShapeManager = shapeManager;  m_BodyHandle = handle; }
 	// TODO: Destructor
 
 	inline const Acro::Math::Vector3& GetPosition()		            const noexcept { return m_BodyManager->GetPosition(m_BodyHandle); }
@@ -29,24 +29,32 @@ public:
 
 	void AttachShape(const Acro::Shape& shape) 
 	{ 
-		if (!m_ShapeManager->IsValid(shape.m_Handle)) return;
-
 		m_ShapeHandle = shape.m_Handle;
-		m_BodyManager->AttachShape(m_BodyHandle, m_ShapeHandle);
-		m_ShapeManager->AddRef(m_ShapeHandle);
+		m_ShapeInstanceHandle = m_World->AttachShape(*this,shape);
+	}
+
+	void DetachShape()
+	{
+		m_World->DetachShape(*this);
 	}
 
 	inline void Destroy() const noexcept 
 	{
-		m_BodyManager->DestroyBody(m_BodyHandle); 
-		m_ShapeManager->ReleaseRef(m_ShapeHandle);
+		m_World->DestroyBody(*this);
 	}
 private:
-
 	Acro::Core::BodyHandle m_BodyHandle;
 	Acro::Core::ShapeHandle m_ShapeHandle;
+	Acro::Core::ShapeInstanceHandle m_ShapeInstanceHandle;
+
 	Acro::Core::BodyManager* m_BodyManager;
 	Acro::Core::ShapeManager* m_ShapeManager;
+	Acro::Core::ShapeInstanceManager* m_ShapeInstanceManager;
+
+	Acro::World* m_World;
+
+	friend class World;
+
 };
 
 }

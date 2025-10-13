@@ -11,7 +11,7 @@
 #include <Camera.h>
 #include "Acro.h"
 #include <iostream>
-#include "DebugCube.h"
+#include "Cube.h"
 #include <memory>
 #define STB_IMAGE_IMPLEMENTATION
 #include "Skybox.h"
@@ -35,7 +35,7 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 
-Acro::Rigidbody body(nullptr,nullptr,Acro::Core::BodyHandle{});
+Acro::Rigidbody body(nullptr,nullptr,nullptr,Acro::Core::BodyHandle{});
 
 int main(void)
 {
@@ -63,6 +63,7 @@ int main(void)
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetKeyCallback(window, key_callback);
+    glfwSwapInterval(0);
 
 
     int version = gladLoadGL(glfwGetProcAddress);
@@ -92,7 +93,7 @@ int main(void)
 
     Skybox skybox(faces);
 
-    DebugCube cube;
+    Cube cube;
 
     Acro::World world(Acro::Math::Vector3(0.0f,-9.8f,0.0f),60,8);
 
@@ -105,13 +106,14 @@ int main(void)
     Acro::Rigidbody body2 = world.CreateBody();
     Acro::Rigidbody body3 = world.CreateBody();
 
+    body.AttachShape(boxShape);
     body1.AttachShape(boxShape);
     body2.AttachShape(boxShape);
     body3.AttachShape(sphereShape);
 
-    body1.Destroy();
-    body2.Destroy();
-    body3.Destroy();
+    //body1.Destroy();
+    //body2.Destroy();
+    //body3.Destroy();
     
 
     while (!glfwWindowShouldClose(window))
@@ -121,7 +123,7 @@ int main(void)
         lastFrame = currentFrame;
 
         gui.NewFrame();
-
+        ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
         ImGui::Checkbox("Simulate physics", &stepPhysics);
 
         if(stepPhysics)

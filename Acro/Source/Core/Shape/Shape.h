@@ -24,6 +24,7 @@ public:
 
 protected:
 	friend class Rigidbody;
+	friend class World;
 
 	Acro::Core::ShapeHandle m_Handle;
 	Acro::Core::ShapeManager* m_ShapeManager;

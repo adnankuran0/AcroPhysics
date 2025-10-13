@@ -11,6 +11,8 @@ struct BodyHandle
 	uint32_t index;
 	uint32_t generation;
 
+	static constexpr BodyHandle Null() { return{ std::numeric_limits<uint32_t>::max(),std::numeric_limits<uint32_t>::max() }; }
+
 	bool operator==(const BodyHandle& other) const
 	{
 		return index == other.index && generation == other.generation;
@@ -27,13 +29,13 @@ public:
 	inline bool IsValid(const BodyHandle& handle) const noexcept
 	{
 		if (handle.index >= m_Generations.size()) return false;
-		return m_Generations[handle.index] == handle.generation;
+		return m_Generations[handle.index] == handle.generation && handle != BodyHandle::Null();
 	}
 
 	inline size_t GetBodyCount() const noexcept { return m_BodyData.positions.size(); }
 
 	void AttachShape(const BodyHandle& bodyHandle, const ShapeHandle& shapeHandle);
-	
+	void DetachShape(const BodyHandle& bodyHandle);
 
 	inline Acro::Math::Vector3& GetPosition(const BodyHandle& handle) noexcept { assert(IsValid(handle)); return m_BodyData.positions[m_Sparse[handle.index]]; }
 	inline Acro::Math::Vector3& GetLinearVelocity(const BodyHandle& handle) noexcept { assert(IsValid(handle)); return m_BodyData.linearVelocities[m_Sparse[handle.index]]; }

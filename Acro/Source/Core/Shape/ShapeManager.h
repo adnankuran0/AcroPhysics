@@ -11,6 +11,8 @@ namespace Acro::Core {
 		uint32_t index;
 		uint32_t generation;
 
+		static constexpr ShapeHandle Null() { return { std::numeric_limits<uint32_t>::max(),std::numeric_limits<uint32_t>::max() }; }
+
 		bool operator==(const ShapeHandle& other) const
 		{
 			return index == other.index && generation == other.generation;
@@ -35,6 +37,7 @@ namespace Acro::Core {
 			return m_Generations[handle.index] == handle.generation;
 		}
 
+		inline Acro::Core::ShapeType GetShapeType(const ShapeHandle& handle) const noexcept { assert(IsValid(handle)); return m_ShapeData.shapeTypes[m_Sparse[handle.index]]; }
 		inline Acro::Math::Vector3 GetOffset(const ShapeHandle& handle) const noexcept { assert(IsValid(handle)); return m_ShapeData.offsets[m_Sparse[handle.index]]; }
 		inline Acro::Math::Vector3 GetExtent(const ShapeHandle& handle) const noexcept { assert(IsValid(handle)); return m_ShapeData.extents[m_Sparse[handle.index]]; }
 		inline float GetRadius(const ShapeHandle& handle) const noexcept { assert(IsValid(handle)); return m_ShapeData.radii[m_Sparse[handle.index]]; }
@@ -43,6 +46,7 @@ namespace Acro::Core {
 		inline void SetExtent(const ShapeHandle& handle, const Acro::Math::Vector3& extent) noexcept { assert(IsValid(handle)); m_ShapeData.extents[m_Sparse[handle.index]] = extent; }
 		inline void SetRadius(const ShapeHandle& handle, float radius) noexcept { assert(IsValid(handle)); m_ShapeData.radii[m_Sparse[handle.index]] = radius; }
 		
+
 		[[nodiscard]] ShapeData& GetData() noexcept { return m_ShapeData; }
 
 	private:
