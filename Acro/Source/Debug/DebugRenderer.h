@@ -19,6 +19,8 @@ public:
 	void Clear() { m_Primitives.clear(); }
 
 	bool drawAABBs = false;
+	bool drawShapes = false;
+
 private:
 	std::vector<Acro::Debug::DebugPrimitive> m_Primitives;
 

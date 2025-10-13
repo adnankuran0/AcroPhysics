@@ -40,6 +40,9 @@ void World::Step(float deltaTime)
 			m_DebugRenderer.DrawAABB(aabb.min, aabb.max, color, 1.0f);
 		}
 	}
+	if (m_DebugRenderer.drawShapes)
+	{
+	}
 	
 	
 }

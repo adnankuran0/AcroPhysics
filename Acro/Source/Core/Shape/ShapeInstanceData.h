@@ -5,7 +5,7 @@
 #include "Core/Shape/ShapeManager.h"
 #include "Core/Body/BodyManager.h"
 #include "Math/Matrix4.h"
-#include "Core/Shape/AABB.h"
+#include "Math/AABB.h"
 
 
 namespace Acro::Core {
@@ -15,7 +15,7 @@ struct ShapeInstanceData
 	std::vector<Core::ShapeHandle> shapes;
 	std::vector<Core::BodyHandle> bodies;
 	std::vector<Math::Matrix4> worldTransforms;
-	std::vector<Core::AABB> worldAABBs;
+	std::vector<Math::AABB> worldAABBs;
 	std::vector<uint8_t> dirtyFlags;
 };
 

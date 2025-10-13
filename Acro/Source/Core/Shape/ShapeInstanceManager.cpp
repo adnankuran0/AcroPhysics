@@ -105,7 +105,25 @@ void ShapeInstanceManager::UpdateWorldData(Acro::Core::BodyManager& bodyManager,
 		if (shapeManager.GetShapeType(shape) == ShapeType::Box)
 		{
 			Vector3 extent = shapeManager.GetExtent(shape);
-			data.worldAABBs[i] = AABB::FromCenterAndExtent(pos + rot * offset , extent);
+
+			Vector3 localVerts[8] = {
+			{-extent.x, -extent.y, -extent.z},
+			{ extent.x, -extent.y, -extent.z},
+			{ extent.x,  extent.y, -extent.z},
+			{-extent.x,  extent.y, -extent.z},
+			{-extent.x, -extent.y,  extent.z},
+			{ extent.x, -extent.y,  extent.z},
+			{ extent.x,  extent.y,  extent.z},
+			{-extent.x,  extent.y,  extent.z},
+					};
+
+			Matrix4 worldTransform = Matrix4::Translation(pos + rot * offset) * rot.ToMat4();
+			Vector3 worldVerts[8];
+			for (int v = 0; v < 8; v++)
+				worldVerts[v] = worldTransform * localVerts[v];
+
+			
+			data.worldAABBs[i] = AABB::FromVertices(worldVerts, 8);
 			auto& aabb = data.worldAABBs[i];
 			Vector3 color = Vector3(1.0f, 0.0f, 0.0f);
 

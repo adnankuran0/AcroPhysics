@@ -1,18 +1,19 @@
 #pragma once
 
 #include "glm/glm.hpp"
-#include <glad/gl.h>
 #include <Shader.h>
 #include <glm/ext/matrix_transform.hpp>
 
 static constexpr float vertices[] = {
+    // Back face (Z-)
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
      0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
      0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 
+    // Front face (Z+)
     -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
      0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
      0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
@@ -20,34 +21,39 @@ static constexpr float vertices[] = {
     -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
     -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
 
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+    // Left face (X-)
     -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
     -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
     -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
 
-     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+    // Right face (X+)
+     0.5f, -0.5f, -0.5f, 1.0f,  0.0f,  0.0f,
+     0.5f,  0.5f,  -0.5f, 1.0f,  0.0f,  0.0f,
+     0.5f,  0.5f,  0.5f, 1.0f,  0.0f,  0.0f,
+     0.5f,  0.5f,  0.5f, 1.0f,  0.0f,  0.0f,
+     0.5f, -0.5f,  0.5f, 1.0f,  0.0f,  0.0f,
+     0.5f, -0.5f, -0.5f, 1.0f,  0.0f,  0.0f,
 
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+     // Bottom face (Y-)
+     -0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f,
+      0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f,
+      0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,
+      0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,
+     -0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,
+     -0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f,
 
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+     // Top face (Y+)
+     -0.5f,  0.5f, -0.5f, 0.0f,  1.0f, 0.0f,
+      0.5f,  0.5f,  0.5f, 0.0f,  1.0f, 0.0f,
+      0.5f,  0.5f, -0.5f, 0.0f,  1.0f, 0.0f,
+      0.5f,  0.5f,  0.5f, 0.0f,  1.0f, 0.0f,
+     -0.5f,  0.5f, -0.5f, 0.0f,  1.0f, 0.0f,
+     -0.5f,  0.5f,  0.5f, 0.0f,  1.0f, 0.0f
 };
+
 
 class Cube
 {
@@ -76,8 +82,11 @@ public:
     void SetPosition(const glm::vec3& pos) { m_Pos = pos; }
     void SetRotation(const glm::quat& rot) { m_Rotation = rot; }
 
-    void Draw(const Shader& shader, const glm::mat4& viewMat, const glm::mat4& projMat, const glm::vec3& cameraPos)
+    void Draw(const Shader& shader, const Acro::Rigidbody& body,const glm::mat4& viewMat, const glm::mat4& projMat, const glm::vec3& cameraPos)
     {
+        SetPosition(body.GetPosition());
+        SetRotation(body.GetOrientation());
+
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, m_Pos);
         model *= glm::toMat4(m_Rotation); 

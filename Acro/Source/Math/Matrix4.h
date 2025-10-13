@@ -40,6 +40,11 @@ public:
 		return Matrix4(m * other.m);
 	}
 
+	inline Vector3 operator*(const Vector3& vec) const noexcept
+	{
+		return TransformPoint(vec);
+	}
+
 	inline Matrix4& operator*=(const Matrix4& other) noexcept
 	{
 		m *= other.m;

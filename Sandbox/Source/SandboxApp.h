@@ -1,4 +1,6 @@
-﻿#include <Window.h>
+#pragma once
+#include "Application.h"
+#include <Window.h>
 #include "Gui.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -14,8 +16,18 @@
 #include "imgui.h"
 #include "DebugRenderer/DebugRendererGL.h"
 
+#define SCR_WIDTH 1280
+#define SCR_HEIGHT 720
 
-using namespace Acro::Math;
+class SandboxApp : public Application
+{
+
+};
+
+
+
+
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -23,8 +35,6 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void processInput(GLFWwindow* window);
 
-#define SCR_WIDTH 1280
-#define SCR_HEIGHT 720
 
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float lastX = SCR_WIDTH / 2.0f;
@@ -35,7 +45,7 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 
-Acro::Rigidbody body(nullptr,nullptr,nullptr,Acro::Core::BodyHandle{});
+Acro::Rigidbody body(nullptr, nullptr, nullptr, Acro::Core::BodyHandle{});
 
 int main(void)
 {
@@ -61,7 +71,7 @@ int main(void)
     Cube cube;
     Cube cube2;
 
-    Acro::World world(Acro::Math::Vector3(0.0f,-9.8f,0.0f),60,8);
+    Acro::World world(Acro::Math::Vector3(0.0f, -9.8f, 0.0f), 60, 8);
 
     body = world.CreateBody();
 
@@ -70,9 +80,9 @@ int main(void)
 
 
     Acro::Rigidbody body2 = world.CreateBody();
-    body2.SetPosition(Vector3(2.0,0.0,0.0)),
+    body2.SetPosition(Vector3(2.0, 0.0, 0.0)),
 
-    body.AttachShape(boxShape);
+        body.AttachShape(boxShape);
     body2.AttachShape(boxShape);
 
 
@@ -88,7 +98,7 @@ int main(void)
 
         gui.NewFrame();
         ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-        if(ImGui::Checkbox("Simulate physics", &stepPhysics))
+        if (ImGui::Checkbox("Simulate physics", &stepPhysics))
         {
             world.IsPaused(!stepPhysics);
         }
@@ -96,7 +106,7 @@ int main(void)
         {
             world.GetDebugRenderer().drawAABBs = drawAABBs;
         }
-            
+
         world.Step(deltaTime);
 
         processInput(window.GetNative());
@@ -112,8 +122,8 @@ int main(void)
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 proj = camera.GetProjectionMatrix();
 
-        cube.Draw(shader, body,view, proj, camera.Position);
-        cube2.Draw(shader, body2,view, proj, camera.Position);
+        cube.Draw(shader, body, view, proj, camera.Position);
+        cube2.Draw(shader, body2, view, proj, camera.Position);
 
         gui.Render();
 
@@ -125,7 +135,7 @@ int main(void)
         window.SwapBuffers();
 
         GLenum err = glGetError();
-        if(err)
+        if (err)
             std::cout << "OpenGL error: " << err << "\n";
 
         /* Poll for and process events */
@@ -162,7 +172,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 {
     if (!glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2))
     {
-        firstMouse = true; 
+        firstMouse = true;
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         return;
     }

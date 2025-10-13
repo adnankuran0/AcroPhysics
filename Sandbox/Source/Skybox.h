@@ -8,10 +8,20 @@
 #include <stb_image.h>
 #include <Shader.h>
 
+static std::vector<std::string> faces
+{
+    "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Textures\\Skybox\\right.jpg",
+    "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Textures\\Skybox\\left.jpg",
+    "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Textures\\Skybox\\top.jpg",
+    "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Textures\\Skybox\\bottom.jpg",
+    "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Textures\\Skybox\\front.jpg",
+    "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Textures\\Skybox\\back.jpg"
+};
+
 class Skybox
 {
 public:
-    Skybox(const std::vector<std::string>& faces)
+    Skybox()
     {
         LoadCubemap(faces);
         SetupCube();
