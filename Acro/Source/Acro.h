@@ -3,6 +3,7 @@
 
 #include "Core/World.h"
 #include "Core/Rigidbody.h"
+#include "Debug/DebugRenderer.h"
 
 #endif // !ACRO_H
 

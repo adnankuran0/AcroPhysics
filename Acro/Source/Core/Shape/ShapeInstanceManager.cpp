@@ -1,6 +1,6 @@
 #include "ShapeInstanceManager.h"
 #include "Math/Matrix4.h"
-
+#include "Debug/DebugRenderer.h"
 #include <iostream>
 
 
@@ -106,9 +106,11 @@ void ShapeInstanceManager::UpdateWorldData(Acro::Core::BodyManager& bodyManager,
 		{
 			Vector3 extent = shapeManager.GetExtent(shape);
 			data.worldAABBs[i] = AABB::FromCenterAndExtent(pos + rot * offset , extent);
+			auto& aabb = data.worldAABBs[i];
+			Vector3 color = Vector3(1.0f, 0.0f, 0.0f);
 
 		}
 
-		data.dirtyFlags[i] = 0;
+		//data.dirtyFlags[i] = 0;
 	}
 }

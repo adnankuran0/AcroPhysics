@@ -11,7 +11,6 @@ class Rigidbody
 {
 public:
 	Rigidbody(Acro::World* world, Acro::Core::BodyManager* bodyManager, Acro::Core::ShapeManager* shapeManager, Acro::Core::BodyHandle handle) { m_World = world; m_BodyManager = bodyManager; m_ShapeManager = shapeManager;  m_BodyHandle = handle; }
-	// TODO: Destructor
 
 	inline const Acro::Math::Vector3& GetPosition()		            const noexcept { return m_BodyManager->GetPosition(m_BodyHandle); }
 	inline const Acro::Math::Vector3& GetLinearVelocity()           const noexcept { return m_BodyManager->GetLinearVelocity(m_BodyHandle); }
@@ -38,10 +37,7 @@ public:
 		m_World->DetachShape(*this);
 	}
 
-	inline void Destroy() const noexcept 
-	{
-		m_World->DestroyBody(*this);
-	}
+	
 private:
 	Acro::Core::BodyHandle m_BodyHandle;
 	Acro::Core::ShapeHandle m_ShapeHandle;

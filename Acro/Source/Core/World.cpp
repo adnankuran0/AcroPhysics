@@ -8,19 +8,39 @@ using namespace Acro;
 
 void World::Step(float deltaTime)
 {
-	m_DeltaAccumulator += deltaTime;
-
-	while (m_DeltaAccumulator >= m_FixedDeltaTime && m_StepCount < m_MaxSteps)
+	if (!m_IsPaused)
 	{
-		m_Integrator.SetGravity(m_Gravity);
-		m_Integrator.Step(m_BodyManager.GetData(),m_FixedDeltaTime);
+		m_DeltaAccumulator += deltaTime;
 
-		m_ShapeInstanceManager.UpdateWorldData(m_BodyManager, m_ShapeManager);
+		while (m_DeltaAccumulator >= m_FixedDeltaTime && m_StepCount < m_MaxSteps)
+		{
+			m_Integrator.SetGravity(m_Gravity);
+			m_Integrator.Step(m_BodyManager.GetData(), m_FixedDeltaTime);
 
-		m_StepCount++;
-		m_DeltaAccumulator -= m_FixedDeltaTime;
+			
+			m_ShapeInstanceManager.UpdateWorldData(m_BodyManager, m_ShapeManager);
+
+
+			m_StepCount++;
+			m_DeltaAccumulator -= m_FixedDeltaTime;
+		}
+		m_StepCount = 0;
 	}
-	m_StepCount = 0;
+	else
+	{
+		m_ShapeInstanceManager.UpdateWorldData(m_BodyManager, m_ShapeManager);
+	}
+
+	
+	if (m_DebugRenderer.drawAABBs)
+	{
+		for (auto& aabb : m_ShapeInstanceManager.GetData().worldAABBs)
+		{
+			Vector3 color = Vector3(1.0f, 0.0f, 0.0f);
+			m_DebugRenderer.DrawAABB(aabb.min, aabb.max, color, 1.0f);
+		}
+	}
+	
 	
 }
 
@@ -39,14 +59,14 @@ void World::DestroyBody(const Rigidbody& body) noexcept
 }
 
 
-BoxShape World::CreateBoxShape(const Vector3& extent) noexcept
+BoxShape World::CreateBoxShape(const Vector3& extent, const Acro::Math::Vector3& offset) noexcept
 {
-	return BoxShape(&m_ShapeManager,m_ShapeManager.CreateBoxShape(extent));
+	return BoxShape(&m_ShapeManager,m_ShapeManager.CreateBoxShape(extent,offset));
 }
 
-SphereShape World::CreateSphereShape(float radius) noexcept
+SphereShape World::CreateSphereShape(float radius, const Acro::Math::Vector3& offset) noexcept
 {
-	return SphereShape(&m_ShapeManager, m_ShapeManager.CreateSphereShape(radius));
+	return SphereShape(&m_ShapeManager, m_ShapeManager.CreateSphereShape(radius,offset));
 }
 
 ShapeInstanceHandle Acro::World::AttachShape(const Rigidbody& body , const Acro::Shape& shape)

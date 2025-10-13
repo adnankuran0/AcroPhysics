@@ -4,6 +4,7 @@
 #include <cstdint>
 #include "Core/Body/BodyData.h"
 
+
 namespace Acro::Core {
 
 struct BodyHandle
@@ -23,6 +24,12 @@ struct BodyHandle
 class BodyManager
 {
 public:
+	BodyManager() = default;
+	BodyManager(size_t capacity)
+	{
+		m_BodyData.Reserve(capacity);
+	}
+
 	BodyHandle CreateBody() noexcept ;
 	void DestroyBody(const BodyHandle& handle) noexcept;
 

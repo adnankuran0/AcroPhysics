@@ -4,6 +4,7 @@
 #include <vector>
 #include "Math/Vector3.h"
 #include "Math/Quaternion.h"
+#include "Core/Shape/ShapeManager.h"
 
 namespace Acro::Core {
 
@@ -18,6 +19,9 @@ struct BodyData
 	std::vector<Acro::Math::Vector3> forceAccumulators;
 	std::vector<float> masses;
 	std::vector<Acro::Core::ShapeHandle> shapes;
+
+	void Reserve(size_t capacity);
+	
 };
 
 }

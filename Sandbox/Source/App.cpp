@@ -16,6 +16,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "Skybox.h"
 #include "imgui.h"
+#include "DebugRenderer/DebugRendererGL.h"
+
+using namespace Acro::Math;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -40,6 +43,7 @@ Acro::Rigidbody body(nullptr,nullptr,nullptr,Acro::Core::BodyHandle{});
 int main(void)
 {
     bool stepPhysics = false;
+    bool drawAABBs = false;
 
     GLFWwindow* window;
 
@@ -99,7 +103,7 @@ int main(void)
 
     body = world.CreateBody();
 
-    Acro::BoxShape boxShape = world.CreateBoxShape();
+    Acro::BoxShape boxShape = world.CreateBoxShape(Acro::Math::Vector3(0.5f, 0.5f, 0.5f));
     Acro::SphereShape sphereShape = world.CreateSphereShape(5.0f);
 
     Acro::Rigidbody body1 = world.CreateBody();
@@ -111,10 +115,14 @@ int main(void)
     body2.AttachShape(boxShape);
     body3.AttachShape(sphereShape);
 
-    //body1.Destroy();
-    //body2.Destroy();
-    //body3.Destroy();
+    world.DestroyBody(body1);
+    world.DestroyBody(body2);
+    world.DestroyBody(body3);
     
+
+    DebugRendererGL debugRendererGL;
+    debugRendererGL.Init("D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Line.vs", "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Line.fs",
+        "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Point.vs", "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Point.fs");
 
     while (!glfwWindowShouldClose(window))
     {
@@ -124,10 +132,16 @@ int main(void)
 
         gui.NewFrame();
         ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-        ImGui::Checkbox("Simulate physics", &stepPhysics);
-
-        if(stepPhysics)
-            world.Step(deltaTime);
+        if(ImGui::Checkbox("Simulate physics", &stepPhysics))
+        {
+            world.IsPaused(!stepPhysics);
+        }
+        if (ImGui::Checkbox("Draw AABBs", &drawAABBs))
+        {
+            world.GetDebugRenderer().drawAABBs = drawAABBs;
+        }
+            
+        world.Step(deltaTime);
 
         processInput(window);
 
@@ -149,6 +163,10 @@ int main(void)
         cube.Draw(shader, view, proj, camera.Position);
 
         gui.Render();
+
+        debugRendererGL.Render(world.GetDebugRenderer(), view, proj);
+
+        world.GetDebugRenderer().Clear();
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
