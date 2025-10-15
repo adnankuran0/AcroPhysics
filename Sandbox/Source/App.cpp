@@ -14,7 +14,6 @@
 #include "imgui.h"
 #include "DebugRenderer/DebugRendererGL.h"
 
-
 using namespace Acro::Math;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -57,6 +56,7 @@ int main(void)
     Shader skyboxShader("D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Skybox.vs", "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Skybox.fs");
 
     Skybox skybox;
+    skybox.Init();
 
     Cube cube;
     Cube cube2;
@@ -66,8 +66,6 @@ int main(void)
     body = world.CreateBody();
 
     Acro::BoxShape boxShape = world.CreateBoxShape(Acro::Math::Vector3(0.5f, 0.5f, 0.5f));
-    Acro::SphereShape sphereShape = world.CreateSphereShape(5.0f);
-
 
     Acro::Rigidbody body2 = world.CreateBody();
     body2.SetPosition(Vector3(2.0,0.0,0.0)),
@@ -75,6 +73,8 @@ int main(void)
     body.AttachShape(boxShape);
     body2.AttachShape(boxShape);
 
+    Acro::Rigidbody body3 = world.CreateBody();
+    world.DestroyBody(body3);
 
     DebugRendererGL debugRendererGL;
     debugRendererGL.Init("D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Line.vs", "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Line.fs",
@@ -90,7 +90,7 @@ int main(void)
         ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
         if(ImGui::Checkbox("Simulate physics", &stepPhysics))
         {
-            world.IsPaused(!stepPhysics);
+            world.SetPaused(!stepPhysics);
         }
         if (ImGui::Checkbox("Draw AABBs", &drawAABBs))
         {
@@ -105,7 +105,7 @@ int main(void)
 
         skybox.Draw(skyboxShader, camera.GetViewMatrix(), camera.GetProjectionMatrix());
 
-        body.SetOrientation(Quaternion(Vector3(1.0, 0.5, 0.0), 45.0 + glfwGetTime()));
+        body.SetOrientation(Quaternion(Vector3(1.0, 0.5, 0.0), 45.0f + static_cast<float>(glfwGetTime())));
 
         //std::cout << pos.x << "," << pos.y << "," << pos.z << "\n";
 

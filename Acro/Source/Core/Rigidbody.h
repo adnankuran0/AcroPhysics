@@ -32,9 +32,9 @@ public:
 		m_ShapeInstanceHandle = m_World->AttachShape(*this,shape);
 	}
 
-	void DetachShape()
+	void DetachShape(const Acro::Shape& shape)
 	{
-		m_World->DetachShape(*this);
+		m_World->DetachShape(*this, shape);
 	}
 
 	

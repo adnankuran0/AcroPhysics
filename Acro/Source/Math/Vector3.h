@@ -16,26 +16,26 @@ public:
 	Vector3(float value) : x(value), y(value), z(value) {}
 
 
-	operator glm::vec3() const { return glm::vec3(x, y, z); }
+	inline operator glm::vec3() const noexcept { return glm::vec3(x, y, z); }
 
-	Vector3 operator+(const Vector3& other) const { return Vector3(x + other.x, y + other.y, z + other.z); }
-	Vector3& operator+=(const Vector3& other) 
+	inline Vector3 operator+(const Vector3& other) const noexcept { return Vector3(x + other.x, y + other.y, z + other.z); }
+	inline Vector3& operator+=(const Vector3& other)
 	{
 		x += other.x;
 		y += other.y;
 		z += other.z;
 		return *this;
 	}
-	Vector3 operator-(const Vector3& other) const { return Vector3(x - other.x, y - other.y, z - other.z); }
-	Vector3& operator-=(const Vector3& other)
+	inline Vector3 operator-(const Vector3& other) const noexcept { return Vector3(x - other.x, y - other.y, z - other.z); }
+	inline Vector3& operator-=(const Vector3& other) noexcept
 	{
 		x -= other.x;
 		y -= other.y;
 		z -= other.z;
 		return *this;
 	}
-	Vector3 operator*(float value) const { return Vector3(x * value, y * value, z * value); }
-	Vector3 operator/(float value) const { return Vector3(x / value, y / value, z / value); }
+	inline Vector3 operator*(float value) const noexcept { return Vector3(x * value, y * value, z * value); }
+	inline Vector3 operator/(float value) const noexcept { return Vector3(x / value, y / value, z / value); }
 
 	inline float Length() const noexcept { return glm::length(glm::vec3(x, y, z)); }
 	inline Vector3 Normalized() const noexcept { return glm::normalize(glm::vec3(x, y, z)); }

@@ -17,8 +17,8 @@ struct BodyData
 	std::vector<Acro::Math::Quaternion> orientations;
 	std::vector<Acro::Math::Vector3> angularVelocities;
 	std::vector<Acro::Math::Vector3> forceAccumulators;
-	std::vector<float> masses;
-	std::vector<Acro::Core::ShapeHandle> shapes;
+	std::vector<float> inverseMasses;
+	std::vector<std::vector<Acro::Core::ShapeHandle>> shapes;
 
 	void Reserve(size_t capacity);
 	

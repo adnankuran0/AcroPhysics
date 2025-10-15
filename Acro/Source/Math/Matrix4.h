@@ -73,16 +73,7 @@ public:
 		return Matrix4(glm::transpose(m));
 	}
 
-	void Decompose(Vector3& outTranslation, Quaternion& outRotation, Vector3& outScale) const noexcept
-	{
-		glm::vec3 t, s, skew;
-		glm::vec4 persp;
-		glm::quat r;
-		glm::decompose(m, s, r, t, skew, persp);
-		outTranslation = Vector3(t);
-		outRotation = Quaternion(r);
-		outScale = Vector3(s);
-	}
+	void Decompose(Vector3& outTranslation, Quaternion& outRotation, Vector3& outScale) const noexcept;
 
 	inline operator glm::mat4() const noexcept { return m; }
 	inline const glm::mat4& GetNative() const noexcept { return m; }

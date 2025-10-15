@@ -23,19 +23,19 @@ public:
 		q = glm::angleAxis(angleRadians, glm::normalize(glmAxis));
 	}
 
-	static Quaternion Identity() noexcept { return Quaternion(); }
+	inline static Quaternion Identity() noexcept { return Quaternion(); }
 
-	Quaternion operator*(const Quaternion& other) const noexcept
+	inline Quaternion operator*(const Quaternion& other) const noexcept
 	{
 		return Quaternion(q * other.q);
 	}
 
-	Vector3 operator*(const Vector3& vec) const noexcept
+	inline Vector3 operator*(const Vector3& vec) const noexcept
 	{
 		return Rotate(vec);
 	}
 
-	Quaternion& operator*=(const Quaternion& other) 
+	inline Quaternion& operator*=(const Quaternion& other)  noexcept
 	{
 		q *= other.q;
 		return *this;

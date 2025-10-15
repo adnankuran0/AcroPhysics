@@ -7,7 +7,6 @@
 #include "Core/Shape/ShapeInstanceManager.h"
 #include "Core/Integrator.h"
 #include "Core/Shape/Shape.h"
-#include "Core/World.h"
 #include "Debug/DebugRenderer.h"
 #include <vector>
 
@@ -23,7 +22,7 @@ public:
 		m_FixedDeltaTime = 1.0f / float(fixedFPS);
 	}
 
-	inline void IsPaused(bool isPaused) { m_IsPaused = isPaused; }
+	inline void SetPaused(bool isPaused) { m_IsPaused = isPaused; }
 
 	void Step(float deltaTime);
 
@@ -39,6 +38,7 @@ public:
 	// TODO: return ShapeInstance wrapper
 	Acro::Core::ShapeInstanceHandle AttachShape(const Rigidbody& body, const Acro::Shape& shape);
 	// TODO: can detach by shape handle
+	void DetachShape(const Rigidbody& body, const Acro::Shape& shape);
 	void DetachShape(const Rigidbody& body);
 
 	inline [[nodiscard]] Acro::Debug::DebugRenderer& GetDebugRenderer() noexcept { return m_DebugRenderer; }

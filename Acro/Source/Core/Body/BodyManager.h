@@ -42,6 +42,7 @@ public:
 	inline size_t GetBodyCount() const noexcept { return m_BodyData.positions.size(); }
 
 	void AttachShape(const BodyHandle& bodyHandle, const ShapeHandle& shapeHandle);
+	void DetachShape(const BodyHandle& bodyHandle, const ShapeHandle& shapeHandle);
 	void DetachShape(const BodyHandle& bodyHandle);
 
 	inline Acro::Math::Vector3& GetPosition(const BodyHandle& handle) noexcept { assert(IsValid(handle)); return m_BodyData.positions[m_Sparse[handle.index]]; }
@@ -49,14 +50,33 @@ public:
 	inline Acro::Math::Quaternion& GetOrientation(const BodyHandle& handle) noexcept { assert(IsValid(handle)); return m_BodyData.orientations[m_Sparse[handle.index]]; }
 	inline Acro::Math::Vector3& GetAngularVelocity(const BodyHandle& handle) noexcept { assert(IsValid(handle)); return m_BodyData.angularVelocities[m_Sparse[handle.index]]; }
 	inline Acro::Math::Vector3& GetForceAccumulator(const BodyHandle& handle) noexcept { assert(IsValid(handle)); return m_BodyData.forceAccumulators[m_Sparse[handle.index]]; }
-	inline float& GetMass(const BodyHandle& handle) noexcept { assert(IsValid(handle)); return m_BodyData.masses[m_Sparse[handle.index]]; }
+	inline float GetMass(const BodyHandle& handle) noexcept 
+	{
+		assert(IsValid(handle)); 
+		float invMass = m_BodyData.inverseMasses[m_Sparse[handle.index]];
+		if (invMass <= 0.0f) return 0.0f;
+		return 1.0f / invMass;
+	}
 
 	inline void SetPosition(const BodyHandle& handle, const Acro::Math::Vector3& pos) noexcept { assert(IsValid(handle)); m_BodyData.positions[m_Sparse[handle.index]] = pos; }
 	inline void SetLinearVelocity(const BodyHandle& handle, const Acro::Math::Vector3& linVel) noexcept { assert(IsValid(handle)); m_BodyData.linearVelocities[m_Sparse[handle.index]] = linVel; }
 	inline void SetOrientation(const BodyHandle& handle, const Acro::Math::Quaternion& orientation) noexcept { assert(IsValid(handle)); m_BodyData.orientations[m_Sparse[handle.index]] = orientation; }
 	inline void SetAngularVelocity(const BodyHandle& handle, const Acro::Math::Vector3& angVel) noexcept { assert(IsValid(handle)); m_BodyData.angularVelocities[m_Sparse[handle.index]] = angVel; }
 	inline void ApplyForce(const BodyHandle& handle, const Acro::Math::Vector3& force) noexcept { assert(IsValid(handle)); m_BodyData.forceAccumulators[m_Sparse[handle.index]] += force; }
-	inline void SetMass(const BodyHandle& handle, float mass) noexcept { assert(IsValid(handle)); m_BodyData.masses[m_Sparse[handle.index]] = mass; }
+	inline void SetMass(const BodyHandle& handle, float mass) noexcept 
+	{ 
+		assert(IsValid(handle)); 
+		float invMass;
+		if (mass <= 0.0f)
+		{
+			invMass = 0.0f;
+		}
+		else
+		{
+			invMass = 1.0f / mass;
+		}
+		m_BodyData.inverseMasses[m_Sparse[handle.index]] = invMass; 
+	}
 
 	[[nodiscard]] BodyData& GetData() noexcept { return m_BodyData; }
 

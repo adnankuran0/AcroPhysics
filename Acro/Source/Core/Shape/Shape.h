@@ -3,8 +3,6 @@
 
 #include "Core/Shape/ShapeManager.h"
 
-
-
 namespace Acro::Core {
 	struct ShapeHandle; // forward declaration
 }

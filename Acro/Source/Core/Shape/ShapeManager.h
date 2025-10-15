@@ -13,7 +13,7 @@ namespace Acro::Core {
 
 		static constexpr ShapeHandle Null() { return { std::numeric_limits<uint32_t>::max(),std::numeric_limits<uint32_t>::max() }; }
 
-		bool operator==(const ShapeHandle& other) const
+		bool operator==(const ShapeHandle& other) const noexcept
 		{
 			return index == other.index && generation == other.generation;
 		}

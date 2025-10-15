@@ -21,6 +21,7 @@ public:
 	inline bool ShouldClose() { return glfwWindowShouldClose(m_NativeWindow); }
 	inline void SwapBuffers() { glfwSwapBuffers(m_NativeWindow); }
 	inline void PollEvents() { glfwPollEvents(); }
+	inline void Resize(unsigned int width, unsigned int height) noexcept { glViewport(0, 0, width, height); }
 
 private:
 	GLFWwindow* m_NativeWindow;

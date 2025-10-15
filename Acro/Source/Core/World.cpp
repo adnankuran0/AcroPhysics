@@ -54,7 +54,7 @@ Rigidbody World::CreateBody() noexcept
 
 void World::DestroyBody(const Rigidbody& body) noexcept
 {
-	DetachShape(body);
+	//DetachShape(body);
 	m_BodyManager.DestroyBody(body.m_BodyHandle);
 
 	// Shape may not have a shape instance
@@ -83,6 +83,16 @@ ShapeInstanceHandle Acro::World::AttachShape(const Rigidbody& body , const Acro:
 	return m_ShapeInstanceManager.CreateShapeInstance(body.m_ShapeHandle, body.m_BodyHandle);
 }
 
+void Acro::World::DetachShape(const Rigidbody& body, const Acro::Shape& shape)
+{
+	if (!m_BodyManager.IsValid(body.m_BodyHandle)) return;
+
+	m_BodyManager.DetachShape(body.m_BodyHandle,shape.m_Handle);
+	m_ShapeManager.ReleaseRef(body.m_ShapeHandle);
+	m_ShapeInstanceManager.DestroyShapeInstance(body.m_ShapeInstanceHandle);
+
+}
+
 void Acro::World::DetachShape(const Rigidbody& body)
 {
 	if (!m_BodyManager.IsValid(body.m_BodyHandle)) return;
@@ -90,5 +100,4 @@ void Acro::World::DetachShape(const Rigidbody& body)
 	m_BodyManager.DetachShape(body.m_BodyHandle);
 	m_ShapeManager.ReleaseRef(body.m_ShapeHandle);
 	m_ShapeInstanceManager.DestroyShapeInstance(body.m_ShapeInstanceHandle);
-
 }

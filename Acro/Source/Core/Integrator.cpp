@@ -22,15 +22,20 @@ void Integrator::IntegrateBody(BodyData& bodyData, size_t index, float deltaTime
 	Vector3& angularVel = bodyData.angularVelocities[index];
 	Quaternion& orientation = bodyData.orientations[index];
 
-	Vector3 gravityForce = m_Gravity * bodyData.masses[index];
 
-	totalForce += gravityForce;
 
 	Vector3 acc;
-	if (bodyData.masses[index] > 0.0f)
-		acc = totalForce / bodyData.masses[index];
+	float invMass = bodyData.inverseMasses[index];
+
+	if (invMass > 0.0f)
+	{
+		Vector3 gravityForce = m_Gravity * 1.0f / (bodyData.inverseMasses[index]);
+		totalForce += gravityForce;
+		acc = totalForce * invMass;
+	}
 	else
-		acc = Vector3(0.0f);
+		return;
+		//acc = Vector3(0.0f);
 
 	vel += acc * deltaTime;
 	pos += vel * deltaTime;

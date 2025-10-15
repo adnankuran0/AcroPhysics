@@ -21,7 +21,7 @@ static std::vector<std::string> faces
 class Skybox
 {
 public:
-    Skybox()
+    void Init()
     {
         LoadCubemap(faces);
         SetupCube();
