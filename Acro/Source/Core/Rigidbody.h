@@ -10,7 +10,16 @@ namespace Acro {
 class Rigidbody
 {
 public:
-	Rigidbody(Acro::World* world, Acro::Core::BodyManager* bodyManager, Acro::Core::ShapeManager* shapeManager, Acro::Core::BodyHandle handle) { m_World = world; m_BodyManager = bodyManager; m_ShapeManager = shapeManager;  m_BodyHandle = handle; }
+	Rigidbody(Acro::World* world, Acro::Core::BodyManager* bodyManager, Acro::Core::ShapeManager* shapeManager, Acro::Core::BodyHandle handle) :
+		m_ShapeHandle(Acro::Core::ShapeHandle::Null()), 
+		m_BodyHandle(Acro::Core::BodyHandle::Null()),
+		m_ShapeInstanceHandle(Acro::Core::ShapeInstanceHandle::Null())
+	{ 
+		m_World = world; 
+		m_BodyManager = bodyManager; 
+		m_ShapeManager = shapeManager;  
+		m_BodyHandle = handle; 
+	}
 
 	inline const Acro::Math::Vector3& GetPosition()		            const noexcept { return m_BodyManager->GetPosition(m_BodyHandle); }
 	inline const Acro::Math::Vector3& GetLinearVelocity()           const noexcept { return m_BodyManager->GetLinearVelocity(m_BodyHandle); }

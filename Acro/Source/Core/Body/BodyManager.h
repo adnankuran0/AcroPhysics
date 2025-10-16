@@ -3,7 +3,7 @@
 
 #include <cstdint>
 #include "Core/Body/BodyData.h"
-
+#include <iostream>
 
 namespace Acro::Core {
 
@@ -31,6 +31,7 @@ public:
 	}
 
 	BodyHandle CreateBody() noexcept ;
+	BodyHandle CreateBody(const BodyDescription& desc) noexcept;
 	void DestroyBody(const BodyHandle& handle) noexcept;
 
 	inline bool IsValid(const BodyHandle& handle) const noexcept
@@ -44,6 +45,8 @@ public:
 	void AttachShape(const BodyHandle& bodyHandle, const ShapeHandle& shapeHandle);
 	void DetachShape(const BodyHandle& bodyHandle, const ShapeHandle& shapeHandle);
 	void DetachShape(const BodyHandle& bodyHandle);
+	bool HasShape(const BodyHandle& bodyHandle, const ShapeHandle& shapeHandle);
+	bool HasShape(const BodyHandle& bodyHandle);
 
 	inline Acro::Math::Vector3& GetPosition(const BodyHandle& handle) noexcept { assert(IsValid(handle)); return m_BodyData.positions[m_Sparse[handle.index]]; }
 	inline Acro::Math::Vector3& GetLinearVelocity(const BodyHandle& handle) noexcept { assert(IsValid(handle)); return m_BodyData.linearVelocities[m_Sparse[handle.index]]; }
@@ -81,6 +84,9 @@ public:
 	[[nodiscard]] BodyData& GetData() noexcept { return m_BodyData; }
 
 private:
+	void PushData(const BodyDescription& desc);
+	void CreateHandle(BodyHandle& outHandle, uint32_t& outDenseIndex) noexcept;
+
 	BodyData m_BodyData; // dense
 	std::vector<uint32_t> m_Sparse;
 	std::vector<uint32_t> m_DenseToHandle;

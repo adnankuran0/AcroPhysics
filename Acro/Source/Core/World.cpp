@@ -30,7 +30,6 @@ void World::Step(float deltaTime)
 	{
 		m_ShapeInstanceManager.UpdateWorldData(m_BodyManager, m_ShapeManager);
 	}
-
 	
 	if (m_DebugRenderer.drawAABBs)
 	{
@@ -52,13 +51,15 @@ Rigidbody World::CreateBody() noexcept
 	return Rigidbody(this, &m_BodyManager,&m_ShapeManager, m_BodyManager.CreateBody());
 }
 
+Rigidbody World::CreateBody(const BodyDescription& desc) noexcept
+{
+	return Rigidbody(this, &m_BodyManager, &m_ShapeManager, m_BodyManager.CreateBody(desc));
+}
+
 void World::DestroyBody(const Rigidbody& body) noexcept
 {
-	//DetachShape(body);
+	DetachShape(body);
 	m_BodyManager.DestroyBody(body.m_BodyHandle);
-
-	// Shape may not have a shape instance
-	//m_ShapeInstanceManager->DestroyShapeInstance(m_ShapeInstanceHandle);
 }
 
 
@@ -74,9 +75,11 @@ SphereShape World::CreateSphereShape(float radius, const Acro::Math::Vector3& of
 
 ShapeInstanceHandle Acro::World::AttachShape(const Rigidbody& body , const Acro::Shape& shape)
 {
-	if (!m_ShapeManager.IsValid(shape.m_Handle)) return ShapeInstanceHandle::Null();
+	// Check if body is not valid or body already has the shape
+	if (!m_ShapeManager.IsValid(shape.m_Handle) 
+		|| m_BodyManager.HasShape(body.m_BodyHandle,shape.m_Handle)) 
+		return ShapeInstanceHandle::Null();
 
-	//m_ShapeHandle = shape.m_Handle;
 	m_BodyManager.AttachShape(body.m_BodyHandle, body.m_ShapeHandle);
 	m_ShapeManager.AddRef(body.m_ShapeHandle);
 
@@ -85,19 +88,19 @@ ShapeInstanceHandle Acro::World::AttachShape(const Rigidbody& body , const Acro:
 
 void Acro::World::DetachShape(const Rigidbody& body, const Acro::Shape& shape)
 {
-	if (!m_BodyManager.IsValid(body.m_BodyHandle)) return;
+	if (!m_BodyManager.IsValid(body.m_BodyHandle) || !m_BodyManager.HasShape(body.m_BodyHandle,shape.m_Handle)) return;
 
 	m_BodyManager.DetachShape(body.m_BodyHandle,shape.m_Handle);
-	m_ShapeManager.ReleaseRef(body.m_ShapeHandle);
 	m_ShapeInstanceManager.DestroyShapeInstance(body.m_ShapeInstanceHandle);
+	m_ShapeManager.ReleaseRef(body.m_ShapeHandle);
 
 }
 
 void Acro::World::DetachShape(const Rigidbody& body)
 {
-	if (!m_BodyManager.IsValid(body.m_BodyHandle)) return;
+	if (!m_BodyManager.IsValid(body.m_BodyHandle) || !m_BodyManager.HasShape(body.m_BodyHandle)) return;
 
 	m_BodyManager.DetachShape(body.m_BodyHandle);
-	m_ShapeManager.ReleaseRef(body.m_ShapeHandle);
 	m_ShapeInstanceManager.DestroyShapeInstance(body.m_ShapeInstanceHandle);
+	m_ShapeManager.ReleaseRef(body.m_ShapeHandle);
 }

@@ -38,6 +38,8 @@ public:
 
 private:
 
+	void CreateHandle(ShapeInstanceHandle& outHandle, uint32_t& outDenseIndex) noexcept;
+
 	ShapeInstanceData m_ShapeInstanceData; // dense
 	std::vector<uint32_t> m_Sparse;
 	std::vector<uint32_t> m_DenseToHandle;

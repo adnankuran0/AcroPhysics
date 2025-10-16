@@ -22,8 +22,6 @@ void Integrator::IntegrateBody(BodyData& bodyData, size_t index, float deltaTime
 	Vector3& angularVel = bodyData.angularVelocities[index];
 	Quaternion& orientation = bodyData.orientations[index];
 
-
-
 	Vector3 acc;
 	float invMass = bodyData.inverseMasses[index];
 

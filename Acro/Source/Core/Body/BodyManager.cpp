@@ -1,5 +1,7 @@
-#include "Core/Body/BodyManager.h"
+﻿#include "Core/Body/BodyManager.h"
 #include "Core/Shape/ShapeManager.h"
+#include <algorithm>
+#include <iostream>
 
 using namespace Acro::Math;
 using namespace Acro::Core;
@@ -9,35 +11,34 @@ BodyHandle BodyManager::CreateBody() noexcept
 	BodyHandle handle;
 	uint32_t denseIndex;
 
-	if (!m_FreeHandles.empty())
-	{
-		handle = m_FreeHandles.back();
-		m_FreeHandles.pop_back();
-		denseIndex = static_cast<uint32_t>(m_BodyData.positions.size());
-		m_Sparse[handle.index] = denseIndex;
-		m_Generations[handle.index]++;
-	}
-	else
-	{
-		// create new handle
-		handle.index = static_cast<uint32_t>(m_Sparse.size());
-		handle.generation = 0;
-		m_Sparse.push_back(static_cast<uint32_t>(m_BodyData.positions.size()));
-		m_Generations.push_back(0);
-		denseIndex = static_cast<uint32_t>(m_BodyData.positions.size());
-	}
+	CreateHandle(handle, denseIndex);
 
-	m_BodyData.positions.push_back(Vector3());
-	m_BodyData.linearVelocities.push_back(Vector3());
-	m_BodyData.orientations.push_back(Quaternion());
-	m_BodyData.angularVelocities.push_back(Vector3());
-	m_BodyData.forceAccumulators.push_back(Vector3());
-	m_BodyData.inverseMasses.push_back(1.0f);
-	m_BodyData.shapes.push_back({});
+	BodyDescription desc;
+	PushData(desc);
 
 	m_DenseToHandle.push_back(handle.index);
+
+	SetMass(handle, desc.mass);
+
 	return { handle.index,m_Generations[handle.index] };
 
+}
+
+BodyHandle Acro::Core::BodyManager::CreateBody(const BodyDescription& desc) noexcept
+{
+
+	BodyHandle handle;
+	uint32_t denseIndex;
+
+	CreateHandle(handle, denseIndex);
+
+	PushData(desc);
+
+	m_DenseToHandle.push_back(handle.index);
+
+	SetMass(handle, desc.mass);
+
+	return { handle.index,m_Generations[handle.index] };
 }
 
 void BodyManager::DestroyBody(const BodyHandle& handle) noexcept
@@ -56,7 +57,8 @@ void BodyManager::DestroyBody(const BodyHandle& handle) noexcept
 		m_BodyData.angularVelocities[denseIndex] = m_BodyData.angularVelocities[lastDense];
 		m_BodyData.forceAccumulators[denseIndex] = m_BodyData.forceAccumulators[lastDense];
 		m_BodyData.inverseMasses[denseIndex] = m_BodyData.inverseMasses[lastDense];
-		m_BodyData.shapes[denseIndex] = m_BodyData.shapes[lastDense];
+
+		m_BodyData.shapesCount[denseIndex] = m_BodyData.shapesCount[lastDense];
 
 
 		// Update sparse 
@@ -73,6 +75,11 @@ void BodyManager::DestroyBody(const BodyHandle& handle) noexcept
 	m_BodyData.forceAccumulators.pop_back();
 	m_BodyData.inverseMasses.pop_back();
 	m_BodyData.shapes.pop_back();
+	m_BodyData.shapesCount.pop_back();
+	m_BodyData.shapesStart.pop_back();
+
+
+
 	m_DenseToHandle.pop_back();
 
 	m_Generations[handle.index]++;
@@ -82,19 +89,120 @@ void BodyManager::DestroyBody(const BodyHandle& handle) noexcept
 void BodyManager::AttachShape(const BodyHandle& bodyHandle, const ShapeHandle& shapeHandle)
 {
 	assert(IsValid(bodyHandle));
-	m_BodyData.shapes[m_Sparse[bodyHandle.index]].push_back(shapeHandle);
+
+	size_t bodyIndex = m_Sparse[bodyHandle.index];
+
+	if (m_BodyData.shapesCount[bodyIndex] == 0)
+	{
+		m_BodyData.shapesStart[bodyIndex] = m_BodyData.shapes.size();
+	}
+
+	m_BodyData.shapes.push_back(shapeHandle);
+	m_BodyData.shapesCount[bodyIndex]++;
 }
 
 void Acro::Core::BodyManager::DetachShape(const BodyHandle& bodyHandle, const ShapeHandle& shapeHandle)
 {
 	assert(IsValid(bodyHandle));
-	auto& shapes = m_BodyData.shapes[m_Sparse[bodyHandle.index]];
-	auto it = std::find(shapes.begin(), shapes.end(), shapeHandle);
-	if (it != shapes.end())
-		shapes.erase(it);
+	size_t bodyIndex = m_Sparse[bodyHandle.index];
+
+	size_t start = m_BodyData.shapesStart[bodyIndex];
+	size_t count = m_BodyData.shapesCount[bodyIndex];
+
+	auto begin = m_BodyData.shapes.begin() + start;
+	auto end = begin + count;
+	auto it = std::find(begin, end, shapeHandle);
+
+	if (it != end)
+	{
+		// swap remove
+		*it = m_BodyData.shapes.back();
+		m_BodyData.shapes.pop_back();
+		m_BodyData.shapesCount[bodyIndex]--;
+	}
 }
 
 void Acro::Core::BodyManager::DetachShape(const BodyHandle& bodyHandle)
 {
-	m_BodyData.shapes[m_Sparse[bodyHandle.index]] = {};
+	assert(IsValid(bodyHandle));
+
+	size_t bodyIndex = m_Sparse[bodyHandle.index];
+
+	size_t start = m_BodyData.shapesStart[bodyIndex];
+	size_t count = m_BodyData.shapesCount[bodyIndex];
+
+	if (count == 0) return;
+
+	m_BodyData.shapes.erase(m_BodyData.shapes.begin() + start, m_BodyData.shapes.begin() + start + count);
+
+	m_BodyData.shapesCount[bodyIndex] = 0;
+
+	for (size_t i = bodyIndex + 1; i < m_BodyData.shapesStart.size(); ++i)
+	{
+		if (m_BodyData.shapesCount[i] > 0)
+			m_BodyData.shapesStart[i] -= count;
+	}
 }
+
+bool Acro::Core::BodyManager::HasShape(const BodyHandle& bodyHandle, const ShapeHandle& shapeHandle)
+{
+	assert(IsValid(bodyHandle));
+
+	size_t bodyIndex = m_Sparse[bodyHandle.index];
+
+	size_t start = m_BodyData.shapesStart[bodyIndex];
+	size_t count = m_BodyData.shapesCount[bodyIndex];
+
+	auto begin = m_BodyData.shapes.begin() + start;
+	auto end = begin + count;
+
+	return std::find(begin, end, shapeHandle) != end;
+
+}
+
+bool Acro::Core::BodyManager::HasShape(const BodyHandle& bodyHandle)
+{
+	assert(IsValid(bodyHandle));
+	size_t bodyIndex = m_Sparse[bodyHandle.index];
+	size_t count = m_BodyData.shapesCount[bodyIndex];
+	return count > 0;
+}
+
+void Acro::Core::BodyManager::PushData(const BodyDescription& desc)
+{
+	m_BodyData.positions.push_back(desc.position);
+	m_BodyData.linearVelocities.push_back(desc.linearVelocity);
+	m_BodyData.orientations.push_back(desc.orientation);
+	m_BodyData.angularVelocities.push_back(desc.angularVelocity);
+	m_BodyData.forceAccumulators.push_back(desc.forceAccumulation);
+	m_BodyData.inverseMasses.push_back(0);
+	m_BodyData.shapesCount.push_back(0);
+	m_BodyData.shapesStart.push_back(0);
+}
+
+void Acro::Core::BodyManager::CreateHandle(BodyHandle& outHandle, uint32_t& outDenseIndex) noexcept
+{
+	if (!m_FreeHandles.empty())
+	{
+		outHandle = m_FreeHandles.back();
+		m_FreeHandles.pop_back();
+		outDenseIndex = static_cast<uint32_t>(m_BodyData.positions.size());
+		m_Sparse[outHandle.index] = outDenseIndex;
+		m_Generations[outHandle.index]++;
+
+		outHandle.generation = m_Generations[outHandle.index];
+	}
+	else
+	{
+		// create new handle
+		outHandle.index = static_cast<uint32_t>(m_Sparse.size());
+		outHandle.generation = 0;
+		m_Sparse.push_back(static_cast<uint32_t>(m_BodyData.positions.size()));
+		m_Generations.push_back(0);
+		outDenseIndex = static_cast<uint32_t>(m_BodyData.positions.size());
+	}
+}
+
+
+
+

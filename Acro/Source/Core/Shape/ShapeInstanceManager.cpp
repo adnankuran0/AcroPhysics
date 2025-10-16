@@ -13,23 +13,7 @@ ShapeInstanceHandle Acro::Core::ShapeInstanceManager::CreateShapeInstance(const 
 	ShapeInstanceHandle handle;
 	uint32_t denseIndex;
 
-	if (!m_FreeHandles.empty())
-	{
-		handle = m_FreeHandles.back();
-		m_FreeHandles.pop_back();
-		denseIndex = static_cast<uint32_t>(m_ShapeInstanceData.shapes.size());
-		m_Sparse[handle.index] = denseIndex;
-		m_Generations[handle.index]++;
-	}
-	else
-	{
-		// create new handle
-		handle.index = static_cast<uint32_t>(m_Sparse.size());
-		handle.generation = 0;
-		m_Sparse.push_back(static_cast<uint32_t>(m_ShapeInstanceData.shapes.size()));
-		m_Generations.push_back(0);
-		denseIndex = static_cast<uint32_t>(m_ShapeInstanceData.shapes.size());
-	}
+	CreateHandle(handle, denseIndex);
 
 	m_ShapeInstanceData.shapes.push_back(shapeHandle); 
 	m_ShapeInstanceData.bodies.push_back(bodyHandle);
@@ -38,8 +22,6 @@ ShapeInstanceHandle Acro::Core::ShapeInstanceManager::CreateShapeInstance(const 
 	m_ShapeInstanceData.dirtyFlags.push_back(1);
 	
 	m_DenseToHandle.push_back(handle.index);
-
-
 
 	return { handle.index,m_Generations[handle.index] };
 }
@@ -66,7 +48,6 @@ void Acro::Core::ShapeInstanceManager::DestroyShapeInstance(const ShapeInstanceH
 		m_DenseToHandle[denseIndex] = lastHandleIndex;
 
 	}
-
 	
 	
 	// Pop back dense data
@@ -130,5 +111,26 @@ void ShapeInstanceManager::UpdateWorldData(Acro::Core::BodyManager& bodyManager,
 		}
 
 		//data.dirtyFlags[i] = 0;
+	}
+}
+
+void Acro::Core::ShapeInstanceManager::CreateHandle(ShapeInstanceHandle& outHandle, uint32_t& outDenseIndex) noexcept
+{
+	if (!m_FreeHandles.empty())
+	{
+		outHandle = m_FreeHandles.back();
+		m_FreeHandles.pop_back();
+		outDenseIndex = static_cast<uint32_t>(m_ShapeInstanceData.shapes.size());
+		m_Sparse[outHandle.index] = outDenseIndex;
+		m_Generations[outHandle.index]++;
+	}
+	else
+	{
+		// create new handle
+		outHandle.index = static_cast<uint32_t>(m_Sparse.size());
+		outHandle.generation = 0;
+		m_Sparse.push_back(static_cast<uint32_t>(m_ShapeInstanceData.shapes.size()));
+		m_Generations.push_back(0);
+		outDenseIndex = static_cast<uint32_t>(m_ShapeInstanceData.shapes.size());
 	}
 }

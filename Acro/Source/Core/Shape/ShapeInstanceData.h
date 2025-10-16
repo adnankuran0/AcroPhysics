@@ -14,6 +14,7 @@ struct ShapeInstanceData
 {
 	std::vector<Core::ShapeHandle> shapes;
 	std::vector<Core::BodyHandle> bodies;
+	// TODO: vertex groups
 	std::vector<Math::Matrix4> worldTransforms;
 	std::vector<Math::AABB> worldAABBs;
 	std::vector<uint8_t> dirtyFlags;

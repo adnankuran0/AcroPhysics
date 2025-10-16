@@ -66,15 +66,19 @@ int main(void)
     body = world.CreateBody();
 
     Acro::BoxShape boxShape = world.CreateBoxShape(Acro::Math::Vector3(0.5f, 0.5f, 0.5f));
+    Acro::BoxShape boxShape2 = world.CreateBoxShape(Acro::Math::Vector3(1.5f, 1.5f, 1.5f));
 
-    Acro::Rigidbody body2 = world.CreateBody();
-    body2.SetPosition(Vector3(2.0,0.0,0.0)),
 
+    Acro::BodyDescription desc;
+    desc.position = Vector3(2.0, 0.0, 0.0);
+    desc.mass = 0.0f;
+    Acro::Rigidbody body2 = world.CreateBody(desc);
+
+
+    body.AttachShape(boxShape);
     body.AttachShape(boxShape);
     body2.AttachShape(boxShape);
 
-    Acro::Rigidbody body3 = world.CreateBody();
-    world.DestroyBody(body3);
 
     DebugRendererGL debugRendererGL;
     debugRendererGL.Init("D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Line.vs", "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Line.fs",
@@ -107,7 +111,6 @@ int main(void)
 
         body.SetOrientation(Quaternion(Vector3(1.0, 0.5, 0.0), 45.0f + static_cast<float>(glfwGetTime())));
 
-        //std::cout << pos.x << "," << pos.y << "," << pos.z << "\n";
 
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 proj = camera.GetProjectionMatrix();
@@ -116,6 +119,7 @@ int main(void)
         cube2.Draw(shader, body2,view, proj, camera.Position);
 
         gui.Render();
+        world.GetDebugRenderer().DrawSphere(Vector3(0.0f), 1.0f, Vector3(0.0f, 0.0f, 1.0f), 5.0f, 32);
 
         debugRendererGL.Render(world.GetDebugRenderer(), view, proj);
 

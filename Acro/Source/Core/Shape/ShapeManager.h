@@ -52,6 +52,9 @@ namespace Acro::Core {
 	private:
 		void DestroyShape(const ShapeHandle& handle) noexcept;
 
+		void CreateHandle(ShapeHandle& outShapeHandle, uint32_t& outDenseIndex) noexcept;
+
+
 		ShapeData m_ShapeData; // dense
 		std::vector<uint32_t> m_Sparse;
 		std::vector<uint32_t> m_DenseToHandle;

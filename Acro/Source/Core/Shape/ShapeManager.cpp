@@ -9,31 +9,12 @@ ShapeHandle ShapeManager::CreateBoxShape(const Vector3& extent, const Vector3& o
 	ShapeHandle handle;
 	uint32_t denseIndex;
 
-	if (!m_FreeHandles.empty())
-	{
-		handle = m_FreeHandles.back();
-		m_FreeHandles.pop_back();
-		denseIndex = static_cast<uint32_t>(m_ShapeData.shapeTypes.size());
-		m_Sparse[handle.index] = denseIndex;
-		m_RefCount[handle.index] = 0;
-		m_Generations[handle.index]++;
-	}
-	else
-	{
-		// create new handle
-		handle.index = static_cast<uint32_t>(m_Sparse.size());
-		handle.generation = 0;
-		m_Sparse.push_back(static_cast<uint32_t>(m_ShapeData.shapeTypes.size()));
-		m_RefCount.push_back(static_cast<uint32_t>(0));
-		m_Generations.push_back(0);
-		denseIndex = static_cast<uint32_t>(m_ShapeData.shapeTypes.size());
-	}
+	CreateHandle(handle, denseIndex);
 
 	m_ShapeData.shapeTypes.push_back(ShapeType::Box);
 	m_ShapeData.offsets.push_back(offset);
 	m_ShapeData.extents.push_back(extent);
 	m_ShapeData.radii.push_back(0.0f);
-
 
 	m_DenseToHandle.push_back(handle.index);
 	return { handle.index,m_Generations[handle.index] };
@@ -44,31 +25,12 @@ ShapeHandle ShapeManager::CreateSphereShape(float radius, const Vector3& offset)
 	ShapeHandle handle;
 	uint32_t denseIndex;
 
-	if (!m_FreeHandles.empty())
-	{
-		handle = m_FreeHandles.back();
-		m_FreeHandles.pop_back();
-		denseIndex = static_cast<uint32_t>(m_ShapeData.shapeTypes.size());
-		m_Sparse[handle.index] = denseIndex;
-		m_RefCount[handle.index] = 0;
-		m_Generations[handle.index]++;
-	}
-	else
-	{
-		// create new handle
-		handle.index = static_cast<uint32_t>(m_Sparse.size());
-		handle.generation = 0;
-		m_Sparse.push_back(static_cast<uint32_t>(m_ShapeData.shapeTypes.size()));
-		m_RefCount.push_back(static_cast<uint32_t>(0));
-		m_Generations.push_back(0);
-		denseIndex = static_cast<uint32_t>(m_ShapeData.shapeTypes.size());
-	}
+	CreateHandle(handle, denseIndex);
 
 	m_ShapeData.shapeTypes.push_back(ShapeType::Sphere);
 	m_ShapeData.offsets.push_back(offset);
 	m_ShapeData.extents.push_back(Vector3(0.0f));
 	m_ShapeData.radii.push_back(radius);
-
 
 	m_DenseToHandle.push_back(handle.index);
 	return { handle.index,m_Generations[handle.index] };
@@ -126,4 +88,27 @@ void ShapeManager::DestroyShape(const ShapeHandle& handle) noexcept
 	m_RefCount[handle.index] = 0;
 	m_Generations[handle.index]++;
 	m_FreeHandles.push_back(handle);
+}
+
+void Acro::Core::ShapeManager::CreateHandle(ShapeHandle& outShapeHandle, uint32_t& outDenseIndex) noexcept
+{
+	if (!m_FreeHandles.empty())
+	{
+		outShapeHandle = m_FreeHandles.back();
+		m_FreeHandles.pop_back();
+		outDenseIndex = static_cast<uint32_t>(m_ShapeData.shapeTypes.size());
+		m_Sparse[outShapeHandle.index] = outDenseIndex;
+		m_RefCount[outShapeHandle.index] = 0;
+		m_Generations[outShapeHandle.index]++;
+	}
+	else
+	{
+		// create new handle
+		outShapeHandle.index = static_cast<uint32_t>(m_Sparse.size());
+		outShapeHandle.generation = 0;
+		m_Sparse.push_back(static_cast<uint32_t>(m_ShapeData.shapeTypes.size()));
+		m_RefCount.push_back(static_cast<uint32_t>(0));
+		m_Generations.push_back(0);
+		outDenseIndex = static_cast<uint32_t>(m_ShapeData.shapeTypes.size());
+	}
 }
