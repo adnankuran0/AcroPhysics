@@ -15,11 +15,9 @@ void World::Step(float deltaTime)
 		while (m_DeltaAccumulator >= m_FixedDeltaTime && m_StepCount < m_MaxSteps)
 		{
 			m_Integrator.SetGravity(m_Gravity);
-			m_Integrator.Step(m_BodyManager.GetData(), m_FixedDeltaTime);
-
+			m_Integrator.Step(m_BodyManager, m_FixedDeltaTime);
 			
 			m_ShapeInstanceManager.UpdateWorldData(m_BodyManager, m_ShapeManager);
-
 
 			m_StepCount++;
 			m_DeltaAccumulator -= m_FixedDeltaTime;
@@ -31,34 +29,7 @@ void World::Step(float deltaTime)
 		m_ShapeInstanceManager.UpdateWorldData(m_BodyManager, m_ShapeManager);
 	}
 	
-	auto& shapeInstanceData = m_ShapeInstanceManager.GetData();
-
-	if (m_DebugRenderer.drawAABBs)
-	{
-		for (auto& aabb : shapeInstanceData.worldAABBs)
-		{
-			Vector3 color = Vector3(1.0f, 0.0f, 0.0f);
-			m_DebugRenderer.DrawAABB(aabb.min, aabb.max, color, 1.0f);
-		}
-	}
-	if (m_DebugRenderer.drawShapes)
-	{
-		for (auto& vertex : shapeInstanceData.worldVertexBuffer)
-		{
-			Vector3 color = Vector3(0.0f, 1.0f, 0.0f);
-			m_DebugRenderer.DrawPoint(vertex, color, 1.0f);
-		}
-
-		for (size_t i = 0; i < shapeInstanceData.shapes.size(); i++)
-		{
-			if (m_ShapeManager.GetShapeType(shapeInstanceData.shapes[i]) == ShapeType::Sphere)
-			{
-				float radius = m_ShapeManager.GetRadius(shapeInstanceData.shapes[i]);
-				Vector3 worldPosition = shapeInstanceData.worldTransforms[i] * Vector3(0.0f);
-				m_DebugRenderer.DrawSphere(worldPosition, radius, Vector3(0.0f, 1.0f, 0.0f), 1.0f, 32);
-			}
-		}
-	}
+	DrawDebugShapes();
 	
 	
 }
@@ -120,4 +91,36 @@ void Acro::World::DetachShape(const Rigidbody& body)
 	m_BodyManager.DetachShape(body.m_BodyHandle);
 	m_ShapeInstanceManager.DestroyShapeInstance(body.m_ShapeInstanceHandle);
 	m_ShapeManager.ReleaseRef(body.m_ShapeHandle);
+}
+
+void Acro::World::DrawDebugShapes()
+{
+	auto& shapeInstanceData = m_ShapeInstanceManager.GetData();
+
+	if (m_DebugRenderer.drawAABBs)
+	{
+		for (auto& aabb : shapeInstanceData.worldAABBs)
+		{
+			Vector3 color = Vector3(1.0f, 0.0f, 0.0f);
+			m_DebugRenderer.DrawAABB(aabb.min, aabb.max, color);
+		}
+	}
+	if (m_DebugRenderer.drawShapes)
+	{
+		for (auto& vertex : shapeInstanceData.worldVertexBuffer)
+		{
+			Vector3 color = Vector3(0.0f, 1.0f, 0.0f);
+			m_DebugRenderer.DrawPoint(vertex, color);
+		}
+
+		for (size_t i = 0; i < shapeInstanceData.shapes.size(); i++)
+		{
+			if (m_ShapeManager.GetShapeType(shapeInstanceData.shapes[i]) == ShapeType::Sphere)
+			{
+				float radius = m_ShapeManager.GetRadius(shapeInstanceData.shapes[i]);
+				Vector3 worldPosition = shapeInstanceData.worldTransforms[i] * Vector3(0.0f);
+				m_DebugRenderer.DrawSphere(worldPosition, radius, Vector3(0.0f, 1.0f, 0.0f));
+			}
+		}
+	}
 }

@@ -38,7 +38,11 @@ public:
 	{
 		if (handle.index >= m_Generations.size()) return false;
 		return m_Generations[handle.index] == handle.generation && handle != BodyHandle::Null();
+	
 	}
+
+	inline bool IsDirty(const BodyHandle& handle) const noexcept { return m_BodyData.dirtyFlags[m_Sparse[handle.index]]; }
+	inline void SetDirty(const BodyHandle& handle, uint8_t isDirty) noexcept { m_BodyData.dirtyFlags[m_Sparse[handle.index]] = isDirty; }
 
 	inline size_t GetBodyCount() const noexcept { return m_BodyData.positions.size(); }
 
@@ -61,11 +65,36 @@ public:
 		return 1.0f / invMass;
 	}
 
-	inline void SetPosition(const BodyHandle& handle, const Acro::Math::Vector3& pos) noexcept { assert(IsValid(handle)); m_BodyData.positions[m_Sparse[handle.index]] = pos; }
-	inline void SetLinearVelocity(const BodyHandle& handle, const Acro::Math::Vector3& linVel) noexcept { assert(IsValid(handle)); m_BodyData.linearVelocities[m_Sparse[handle.index]] = linVel; }
-	inline void SetOrientation(const BodyHandle& handle, const Acro::Math::Quaternion& orientation) noexcept { assert(IsValid(handle)); m_BodyData.orientations[m_Sparse[handle.index]] = orientation; }
-	inline void SetAngularVelocity(const BodyHandle& handle, const Acro::Math::Vector3& angVel) noexcept { assert(IsValid(handle)); m_BodyData.angularVelocities[m_Sparse[handle.index]] = angVel; }
-	inline void ApplyForce(const BodyHandle& handle, const Acro::Math::Vector3& force) noexcept { assert(IsValid(handle)); m_BodyData.forceAccumulators[m_Sparse[handle.index]] += force; }
+	inline void SetPosition(const BodyHandle& handle, const Acro::Math::Vector3& pos) noexcept 
+	{ 
+		assert(IsValid(handle)); 
+		SetDirty(handle, 1);
+		m_BodyData.positions[m_Sparse[handle.index]] = pos; 
+	}
+	inline void SetLinearVelocity(const BodyHandle& handle, const Acro::Math::Vector3& linVel) noexcept 
+	{
+		assert(IsValid(handle)); 
+		SetDirty(handle, 1);
+		m_BodyData.linearVelocities[m_Sparse[handle.index]] = linVel; 
+	}
+	inline void SetOrientation(const BodyHandle& handle, const Acro::Math::Quaternion& orientation) noexcept 
+	{ 
+		assert(IsValid(handle)); 
+		SetDirty(handle, 1);
+		m_BodyData.orientations[m_Sparse[handle.index]] = orientation; 
+	}
+	inline void SetAngularVelocity(const BodyHandle& handle, const Acro::Math::Vector3& angVel) noexcept 
+	{ 
+		assert(IsValid(handle)); 
+		SetDirty(handle, 1);
+		m_BodyData.angularVelocities[m_Sparse[handle.index]] = angVel; 
+	}
+	inline void ApplyForce(const BodyHandle& handle, const Acro::Math::Vector3& force) noexcept 
+	{ 
+		assert(IsValid(handle)); 
+		SetDirty(handle, 1);
+		m_BodyData.forceAccumulators[m_Sparse[handle.index]] += force; 
+	}
 	inline void SetMass(const BodyHandle& handle, float mass) noexcept 
 	{ 
 		assert(IsValid(handle)); 

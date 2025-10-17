@@ -4,17 +4,21 @@
 using namespace Acro::Math;
 using namespace Acro::Core;
 
-void Integrator::Step(BodyData& bodyData, float deltaTime)
+void Integrator::Step(BodyManager& bodyManager, float deltaTime)
 {
-	size_t count = bodyData.positions.size();
+	size_t count = bodyManager.GetData().positions.size();
 	for (size_t i = 0; i < count; i++)
 	{
-		IntegrateBody(bodyData, i, deltaTime);
+		IntegrateBody(bodyManager, i, deltaTime);
 	}
 }
 
-void Integrator::IntegrateBody(BodyData& bodyData, size_t index, float deltaTime)
+void Integrator::IntegrateBody(BodyManager& bodyManager, size_t index, float deltaTime)
 {
+	auto& bodyData = bodyManager.GetData();
+	float invMass = bodyData.inverseMasses[index];
+	if (invMass <= 0.0f) return;
+
 	Vector3& pos = bodyData.positions[index];
 	Vector3& vel = bodyData.linearVelocities[index];
 	Vector3& totalForce = bodyData.forceAccumulators[index];
@@ -22,18 +26,9 @@ void Integrator::IntegrateBody(BodyData& bodyData, size_t index, float deltaTime
 	Vector3& angularVel = bodyData.angularVelocities[index];
 	Quaternion& orientation = bodyData.orientations[index];
 
-	Vector3 acc;
-	float invMass = bodyData.inverseMasses[index];
-
-	if (invMass > 0.0f)
-	{
-		Vector3 gravityForce = m_Gravity * 1.0f / (bodyData.inverseMasses[index]);
-		totalForce += gravityForce;
-		acc = totalForce * invMass;
-	}
-	else
-		return;
-		//acc = Vector3(0.0f);
+	Vector3 gravityForce = m_Gravity * 1.0f / (bodyData.inverseMasses[index]);
+	totalForce += gravityForce;
+	Vector3 acc = totalForce * invMass;
 
 	vel += acc * deltaTime;
 	pos += vel * deltaTime;
@@ -46,5 +41,7 @@ void Integrator::IntegrateBody(BodyData& bodyData, size_t index, float deltaTime
 	Quaternion deltaRot(axis, angle);
 	orientation *= deltaRot;
 	orientation.Normalize();
+
+	bodyData.dirtyFlags[index] = 1;
 
 }

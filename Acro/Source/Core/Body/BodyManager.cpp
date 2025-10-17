@@ -57,6 +57,7 @@ void BodyManager::DestroyBody(const BodyHandle& handle) noexcept
 		m_BodyData.angularVelocities[denseIndex] = m_BodyData.angularVelocities[lastDense];
 		m_BodyData.forceAccumulators[denseIndex] = m_BodyData.forceAccumulators[lastDense];
 		m_BodyData.inverseMasses[denseIndex] = m_BodyData.inverseMasses[lastDense];
+		m_BodyData.dirtyFlags[denseIndex] = m_BodyData.dirtyFlags[lastDense];
 		m_BodyData.shapeCounts[denseIndex] = m_BodyData.shapeCounts[lastDense];
 		m_BodyData.shapeOffsets[denseIndex] = m_BodyData.shapeOffsets[lastDense];
 
@@ -74,6 +75,8 @@ void BodyManager::DestroyBody(const BodyHandle& handle) noexcept
 	m_BodyData.angularVelocities.pop_back();
 	m_BodyData.forceAccumulators.pop_back();
 	m_BodyData.inverseMasses.pop_back();
+	m_BodyData.dirtyFlags.pop_back();
+
 	m_BodyData.shapeBuffer.pop_back();
 	m_BodyData.shapeCounts.pop_back();
 	m_BodyData.shapeOffsets.pop_back();
@@ -176,6 +179,7 @@ void Acro::Core::BodyManager::PushData(const BodyDescription& desc)
 	m_BodyData.angularVelocities.push_back(desc.angularVelocity);
 	m_BodyData.forceAccumulators.push_back(desc.forceAccumulation);
 	m_BodyData.inverseMasses.push_back(0);
+	m_BodyData.dirtyFlags.push_back(1);
 	m_BodyData.shapeCounts.push_back(0);
 	m_BodyData.shapeOffsets.push_back(0);
 }

@@ -44,6 +44,8 @@ public:
 	inline [[nodiscard]] Acro::Debug::DebugRenderer& GetDebugRenderer() noexcept { return m_DebugRenderer; }
 
 private:
+	void DrawDebugShapes();
+
 	float m_FixedDeltaTime;
 	float m_DeltaAccumulator;
 	unsigned int m_MaxSteps;

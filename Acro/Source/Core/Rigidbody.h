@@ -4,6 +4,7 @@
 #include "Core/Shape/Shape.h"
 #include "Core/Shape/ShapeManager.h"
 #include <iostream>
+#include "CollisionLayer.h"
 
 namespace Acro {
 
@@ -39,6 +40,7 @@ public:
 	{ 
 		m_ShapeHandle = shape.m_Handle;
 		m_ShapeInstanceHandle = m_World->AttachShape(*this,shape);
+		// TODO : should return ShapeInstance wrapper
 	}
 
 	void DetachShape(const Acro::Shape& shape)

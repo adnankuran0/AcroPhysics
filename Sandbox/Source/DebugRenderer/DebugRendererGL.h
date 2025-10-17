@@ -12,7 +12,7 @@ public:
 	void Init(const char* lineVert, const char* lineFrag,
 		const char* pointVert, const char* pointFrag);
 
-	void Render(Acro::Debug::DebugRenderer& debugRenderer, const glm::mat4 viewMat, const glm::mat4 projMat);
+	void Render(Acro::Debug::DebugRenderer& debugRenderer, const glm::mat4 viewMat, const glm::mat4 projMat, float dt);
 
 private:
 	std::unique_ptr<Shader> m_LineShader;

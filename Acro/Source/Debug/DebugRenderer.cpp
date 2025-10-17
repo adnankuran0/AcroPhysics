@@ -53,7 +53,7 @@ void DebugRenderer::DrawAABB(Acro::Math::Vector3& min, Acro::Math::Vector3& max,
 	DrawLine(v[3], v[7], color, duration);
 }
 
-void Acro::Debug::DebugRenderer::DrawSphere(const Acro::Math::Vector3& pos, float radius, Acro::Math::Vector3 color, float duration, int segments = 32)
+void Acro::Debug::DebugRenderer::DrawSphere(const Acro::Math::Vector3& pos, float radius, Acro::Math::Vector3 color, float duration, int segments)
 {
 	m_Primitives.reserve(m_Primitives.size() + segments * 3);
 

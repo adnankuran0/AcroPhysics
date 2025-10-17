@@ -20,7 +20,7 @@ ShapeInstanceHandle Acro::Core::ShapeInstanceManager::CreateShapeInstance(ShapeM
 	data.bodies.push_back(bodyHandle);
 	data.worldTransforms.push_back(Matrix4(1.0f));
 	data.worldAABBs.push_back(AABB());
-	data.dirtyFlags.push_back(1);
+	data.filters.push_back(CollisionFilter{});
 
 	// vertex cache
 	size_t vertexCount = 0;
@@ -66,7 +66,7 @@ void Acro::Core::ShapeInstanceManager::DestroyShapeInstance(const ShapeInstanceH
 		data.bodies[denseIndex] =			data.bodies[lastDense];
 		data.worldTransforms[denseIndex] =  data.worldTransforms[lastDense];
 		data.worldAABBs[denseIndex] =		data.worldAABBs[lastDense];
-		data.dirtyFlags[denseIndex] =		data.dirtyFlags[lastDense];
+		data.filters[denseIndex] =			data.filters[lastDense];
 
 		// swap vertex buffer
 		for (size_t v = 0; v < lastCount; v++)
@@ -89,7 +89,7 @@ void Acro::Core::ShapeInstanceManager::DestroyShapeInstance(const ShapeInstanceH
 	data.bodies.pop_back();
 	data.worldTransforms.pop_back();
 	data.worldAABBs.pop_back();
-	data.dirtyFlags.pop_back();
+	data.filters.pop_back();
 
 	data.vertexOffsets.pop_back();
 	data.vertexCounts.pop_back();
@@ -108,7 +108,7 @@ void ShapeInstanceManager::UpdateWorldData(Acro::Core::BodyManager& bodyManager,
 
 	for (size_t i = 0; i < data.shapes.size(); i++)
 	{
-		if (!data.dirtyFlags[i]) continue;
+		if (!bodyManager.IsDirty(data.bodies[i])) continue;
 
 		const BodyHandle& body = data.bodies[i];
 		const ShapeHandle& shape = data.shapes[i];
@@ -159,11 +159,8 @@ void ShapeInstanceManager::UpdateWorldData(Acro::Core::BodyManager& bodyManager,
 			break;
 		}
 		}
-		
-		
-	
 
-		//data.dirtyFlags[i] = 0;
+		bodyManager.SetDirty(body, false);
 	}
 }
 
@@ -173,8 +170,7 @@ void Acro::Core::ShapeInstanceManager::CreateHandle(ShapeInstanceHandle& outHand
 	{
 		outHandle = m_FreeHandles.back();
 		m_FreeHandles.pop_back();
-		outDenseIndex = static_cast<uint32_t>(m_ShapeInstanceData.shapes.size());
-		m_Sparse[outHandle.index] = outDenseIndex;
+		outDenseIndex = m_Sparse[outHandle.index]; 
 		m_Generations[outHandle.index]++;
 	}
 	else

@@ -42,7 +42,7 @@ public:
 		return m_ShapeInstanceData.vertexCounts[denseIndex];
 	}
 
-
+	inline const CollisionFilter& GetCollisionFilter(const ShapeInstanceHandle& handle) noexcept { return m_ShapeInstanceData.filters[m_Sparse[handle.index]]; }
 
 	[[nodiscard]] inline ShapeInstanceData& GetData() noexcept { return m_ShapeInstanceData; }
 

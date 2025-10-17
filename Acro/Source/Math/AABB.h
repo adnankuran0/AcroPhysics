@@ -14,9 +14,9 @@ public:
 	float padding;
 
 	AABB() : min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::max()) {}
-	AABB(const Acro::Math::Vector3& min, const Acro::Math::Vector3& max,float padding = 0.05f) : min(min - padding), max(max + padding) {}
+	AABB(const Acro::Math::Vector3& min, const Acro::Math::Vector3& max,float padding = 0.02f) : min(min - padding), max(max + padding) {}
 
-	inline static AABB FromCenterAndExtent(const Acro::Math::Vector3& center, const Acro::Math::Vector3& extent,float padding = 0.05f) noexcept
+	inline static AABB FromCenterAndExtent(const Acro::Math::Vector3& center, const Acro::Math::Vector3& extent,float padding = 0.02f) noexcept
 	{
 		AABB box;
 		box.min = center - extent - padding;
@@ -24,7 +24,7 @@ public:
 		return box;
 	}
 
-	static AABB FromVertices(const Acro::Math::Vector3* vertices, size_t count, float padding = 0.05f) noexcept;
+	static AABB FromVertices(const Acro::Math::Vector3* vertices, size_t count, float padding = 0.02f) noexcept;
 
 	inline Acro::Math::Vector3 Size() const noexcept
 	{

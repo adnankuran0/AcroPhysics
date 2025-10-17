@@ -32,6 +32,7 @@ struct BodyData
 	std::vector<Acro::Math::Vector3> angularVelocities;
 	std::vector<Acro::Math::Vector3> forceAccumulators;
 	std::vector<float> inverseMasses;
+	std::vector<uint8_t> dirtyFlags;
 
 	std::vector<Acro::Core::ShapeHandle> shapeBuffer;
 	std::vector<size_t> shapeOffsets;

@@ -10,13 +10,13 @@ class Integrator
 public:
 	Integrator(const Acro::Math::Vector3& gravity = { 0.0f, -9.8f, 0.0f }) : m_Gravity(gravity) {}
 
-	void Step(BodyData& bodyData, float deltaTime);
+	void Step(BodyManager& bodyManager, float deltaTime);
 
 	void SetGravity(const Acro::Math::Vector3& gravity) { m_Gravity = gravity; }
 	Acro::Math::Vector3 GetGravity() const { return m_Gravity; }
 
 private:
-	void IntegrateBody(BodyData& bodyData, size_t index, float deltaTime);
+	void IntegrateBody(BodyManager& bodyManager, size_t index, float deltaTime);
 
 	Acro::Math::Vector3 m_Gravity;
 };

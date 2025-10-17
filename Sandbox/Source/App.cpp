@@ -17,6 +17,7 @@
 
 
 using namespace Acro::Math;
+using namespace Acro::Core;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -37,6 +38,8 @@ float lastFrame = 0.0f;
 
 
 Acro::Rigidbody body(nullptr,nullptr,nullptr,Acro::Core::BodyHandle{});
+
+std::unique_ptr<Acro::World> world;
 
 int main(void)
 {
@@ -66,25 +69,24 @@ int main(void)
     Cube cube2;
     Sphere sphere;
 
-    Acro::World world(Acro::Math::Vector3(0.0f,-9.8f,0.0f),60,8);
+    world = std::make_unique<Acro::World>(Acro::Math::Vector3(0.0f,-9.8f,0.0f),60,8);
 
-    body = world.CreateBody();
+    body = world->CreateBody();
 
-    Acro::BoxShape boxShape = world.CreateBoxShape(Acro::Math::Vector3(0.5f, 0.5f, 0.5f));
-    Acro::BoxShape boxShape2 = world.CreateBoxShape(Acro::Math::Vector3(1.5f, 1.5f, 1.5f));
+    Acro::BoxShape boxShape = world->CreateBoxShape(Acro::Math::Vector3(0.5f, 0.5f, 0.5f));
+    Acro::BoxShape boxShape2 = world->CreateBoxShape(Acro::Math::Vector3(1.5f, 1.5f, 1.5f));
 
     Acro::BodyDescription desc;
     desc.position = Vector3(2.0, 0.0, 0.0);
     desc.mass = 0.0f; // static body
-    Acro::Rigidbody body2 = world.CreateBody(desc);
+    Acro::Rigidbody body2 = world->CreateBody(desc);
 
     Acro::BodyDescription sphereDesc;
     sphereDesc.position = Vector3(-2.0, 0.0, 0.0);
-    Acro::Rigidbody sphereBody = world.CreateBody(sphereDesc);
-    Acro::SphereShape sphereShape = world.CreateSphereShape(0.5f);
+    Acro::Rigidbody sphereBody = world->CreateBody(sphereDesc);
+    Acro::SphereShape sphereShape = world->CreateSphereShape(0.5f);
     sphereBody.AttachShape(sphereShape);
 
-    body.AttachShape(boxShape);
     body.AttachShape(boxShape);
     body2.AttachShape(boxShape);
 
@@ -92,6 +94,7 @@ int main(void)
     DebugRendererGL debugRendererGL;
     debugRendererGL.Init("D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Line.vs", "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Line.fs",
         "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Point.vs", "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Point.fs");
+
 
     while (!window.ShouldClose())
     {
@@ -103,19 +106,19 @@ int main(void)
         ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
         if(ImGui::Checkbox("Simulate physics", &stepPhysics))
         {
-            world.SetPaused(!stepPhysics);
+            world->SetPaused(!stepPhysics);
         }
         ImGui::Checkbox("Debug draw", &debugDraw);
         if (ImGui::Checkbox("Draw AABBs", &drawAABBs))
         {
-            world.GetDebugRenderer().drawAABBs = drawAABBs;
+            world->GetDebugRenderer().drawAABBs = drawAABBs;
         }
         if (ImGui::Checkbox("Draw shapes", &drawShapes))
         {
-            world.GetDebugRenderer().drawShapes = drawShapes;
+            world->GetDebugRenderer().drawShapes = drawShapes;
         }
             
-        world.Step(deltaTime);
+        world->Step(deltaTime);
 
         processInput(window.GetNative());
 
@@ -134,10 +137,12 @@ int main(void)
 
         gui.Render();
 
-        if (debugDraw)
-            debugRendererGL.Render(world.GetDebugRenderer(), view, proj);
+        
 
-        world.GetDebugRenderer().Clear();
+        if (debugDraw)
+            debugRendererGL.Render(world->GetDebugRenderer(), view, proj,deltaTime);
+
+        
 
         /* Swap front and back buffers */
         window.SwapBuffers();
@@ -216,5 +221,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
     {
         body.ApplyForce(Acro::Math::Vector3(0.0f, 400.0f, 0.0f));
+        world->GetDebugRenderer().DrawLine(body.GetPosition(), body.GetPosition()  + Acro::Math::Vector3(0.0f, 2.0f, 0.0f ), {1.0f,0.0f,0.0f}, 1.0f);
     }
 }

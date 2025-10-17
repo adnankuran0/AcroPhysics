@@ -7,7 +7,7 @@ void DebugRendererGL::Init(const char* lineVert, const char* lineFrag,
 	m_PointShader = std::make_unique<Shader>(pointVert, pointFrag);
 }
 
-void DebugRendererGL::Render(Acro::Debug::DebugRenderer& debugRenderer, const glm::mat4 viewMat, const glm::mat4 projMat)
+void DebugRendererGL::Render(Acro::Debug::DebugRenderer& debugRenderer, const glm::mat4 viewMat, const glm::mat4 projMat,float dt)
 {
 	m_LineRenderer.BeginBatch();
 	m_PointRenderer.BeginBatch();
@@ -29,4 +29,6 @@ void DebugRendererGL::Render(Acro::Debug::DebugRenderer& debugRenderer, const gl
 
 	m_LineRenderer.EndBatch(*m_LineShader,viewMat,projMat);
 	m_PointRenderer.EndBatch(*m_PointShader, viewMat, projMat);
+
+	debugRenderer.Clear(dt);
 }
