@@ -26,6 +26,7 @@ void DebugRenderer::DrawPoint(const Acro::Math::Vector3& pos, const Acro::Math::
 
 void DebugRenderer::DrawTriangle(const Acro::Math::Vector3& pos1, Acro::Math::Vector3& pos2, Acro::Math::Vector3& pos3, Acro::Math::Vector3& color, float duration)
 {
+	m_Primitives.reserve(m_Primitives.size() + 3);
 	DrawLine(pos1, pos2, color, duration);
 	DrawLine(pos2, pos3, color, duration);
 	DrawLine(pos1, pos3, color, duration);
@@ -35,6 +36,8 @@ void DebugRenderer::DrawAABB(Acro::Math::Vector3& min, Acro::Math::Vector3& max,
 {
 	Vector3 v[8] = { {min.x,min.y,min.z},{max.x,min.y,min.z}, {max.x,max.y,min.z}, {min.x,max.y,min.z},
 					 {min.x,min.y,max.z},{max.x,min.y,max.z}, {max.x,max.y,max.z}, {min.x,max.y,max.z} };
+
+	m_Primitives.reserve(m_Primitives.size() + 12);
 
 	DrawLine(v[0], v[1], color, duration);
 	DrawLine(v[1], v[2], color, duration);
@@ -52,6 +55,8 @@ void DebugRenderer::DrawAABB(Acro::Math::Vector3& min, Acro::Math::Vector3& max,
 
 void Acro::Debug::DebugRenderer::DrawSphere(const Acro::Math::Vector3& pos, float radius, Acro::Math::Vector3 color, float duration, int segments = 32)
 {
+	m_Primitives.reserve(m_Primitives.size() + segments * 3);
+
 	for (int i = 0; i < segments; i++)
 	{
 		float theta = i * 2.0f * PI_F / segments;

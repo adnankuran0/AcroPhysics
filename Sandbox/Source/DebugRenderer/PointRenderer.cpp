@@ -8,8 +8,10 @@ PointRenderer::PointRenderer()
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)offsetof(Acro::Debug::DebugVertex, color));
+	glEnableVertexAttribArray(1);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -24,23 +26,14 @@ PointRenderer::~PointRenderer()
 	glDeleteVertexArrays(1, &m_VAO);
 }
 
-void PointRenderer::Render(const Shader& shader, const glm::vec3& pos, const glm::vec3& color,
-	const glm::mat4 viewMat, const glm::mat4 projMat)
+void PointRenderer::EndBatch(const Shader& pointShader, const glm::mat4& view, const glm::mat4 proj) noexcept
 {
-	shader.use();
-
-	glm::mat4 modelMat = glm::mat4(1.0f);
-
-	shader.setVec3("color", color);
-
-	shader.setMat4("model", modelMat);
-	shader.setMat4("view", viewMat);
-	shader.setMat4("projection", projMat);
-
-	std::vector<float> vertex = { pos.x,pos.y,pos.z };
+	pointShader.use();
+	pointShader.setMat4("view", view);
+	pointShader.setMat4("projection", proj);
 	glBindVertexArray(m_VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertex.size() * sizeof(float), vertex.data(), GL_STATIC_DRAW);
-	glDrawArrays(GL_POINTS, 0, 1);
-
+	glBufferData(GL_ARRAY_BUFFER, m_Vertices.size() * sizeof(Acro::Debug::DebugVertex), m_Vertices.data(), GL_STREAM_DRAW);
+	glDrawArrays(GL_POINTS, 0, (GLsizei)m_Vertices.size());
 }
+

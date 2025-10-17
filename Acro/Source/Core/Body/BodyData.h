@@ -33,9 +33,9 @@ struct BodyData
 	std::vector<Acro::Math::Vector3> forceAccumulators;
 	std::vector<float> inverseMasses;
 
-	std::vector<Acro::Core::ShapeHandle> shapes;
-	std::vector<size_t> shapesStart;
-	std::vector<size_t> shapesCount;
+	std::vector<Acro::Core::ShapeHandle> shapeBuffer;
+	std::vector<size_t> shapeOffsets;
+	std::vector<size_t> shapeCounts;
 
 
 	void Reserve(size_t capacity);

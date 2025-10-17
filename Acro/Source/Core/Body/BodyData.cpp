@@ -10,5 +10,5 @@ void BodyData::Reserve(size_t capacity)
 	angularVelocities.reserve(capacity);
 	forceAccumulators.reserve(capacity);
 	inverseMasses.reserve(capacity);
-	shapes.reserve(capacity);
+	shapeBuffer.reserve(capacity);
 }

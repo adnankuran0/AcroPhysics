@@ -31,9 +31,11 @@ void World::Step(float deltaTime)
 		m_ShapeInstanceManager.UpdateWorldData(m_BodyManager, m_ShapeManager);
 	}
 	
+	auto& shapeInstanceData = m_ShapeInstanceManager.GetData();
+
 	if (m_DebugRenderer.drawAABBs)
 	{
-		for (auto& aabb : m_ShapeInstanceManager.GetData().worldAABBs)
+		for (auto& aabb : shapeInstanceData.worldAABBs)
 		{
 			Vector3 color = Vector3(1.0f, 0.0f, 0.0f);
 			m_DebugRenderer.DrawAABB(aabb.min, aabb.max, color, 1.0f);
@@ -41,6 +43,21 @@ void World::Step(float deltaTime)
 	}
 	if (m_DebugRenderer.drawShapes)
 	{
+		for (auto& vertex : shapeInstanceData.worldVertexBuffer)
+		{
+			Vector3 color = Vector3(0.0f, 1.0f, 0.0f);
+			m_DebugRenderer.DrawPoint(vertex, color, 1.0f);
+		}
+
+		for (size_t i = 0; i < shapeInstanceData.shapes.size(); i++)
+		{
+			if (m_ShapeManager.GetShapeType(shapeInstanceData.shapes[i]) == ShapeType::Sphere)
+			{
+				float radius = m_ShapeManager.GetRadius(shapeInstanceData.shapes[i]);
+				Vector3 worldPosition = shapeInstanceData.worldTransforms[i] * Vector3(0.0f);
+				m_DebugRenderer.DrawSphere(worldPosition, radius, Vector3(0.0f, 1.0f, 0.0f), 1.0f, 32);
+			}
+		}
 	}
 	
 	
@@ -83,7 +100,7 @@ ShapeInstanceHandle Acro::World::AttachShape(const Rigidbody& body , const Acro:
 	m_BodyManager.AttachShape(body.m_BodyHandle, body.m_ShapeHandle);
 	m_ShapeManager.AddRef(body.m_ShapeHandle);
 
-	return m_ShapeInstanceManager.CreateShapeInstance(body.m_ShapeHandle, body.m_BodyHandle);
+	return m_ShapeInstanceManager.CreateShapeInstance(m_ShapeManager,body.m_ShapeHandle, body.m_BodyHandle);
 }
 
 void Acro::World::DetachShape(const Rigidbody& body, const Acro::Shape& shape)

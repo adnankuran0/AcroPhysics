@@ -8,18 +8,37 @@ using namespace Acro::Core;
 using namespace Acro::Math;
 
 
-ShapeInstanceHandle Acro::Core::ShapeInstanceManager::CreateShapeInstance(const ShapeHandle& shapeHandle, const BodyHandle& bodyHandle)
+ShapeInstanceHandle Acro::Core::ShapeInstanceManager::CreateShapeInstance(ShapeManager& shapeManager, const ShapeHandle& shapeHandle, const BodyHandle& bodyHandle)
 {
 	ShapeInstanceHandle handle;
 	uint32_t denseIndex;
 
 	CreateHandle(handle, denseIndex);
 
-	m_ShapeInstanceData.shapes.push_back(shapeHandle); 
-	m_ShapeInstanceData.bodies.push_back(bodyHandle);
-	m_ShapeInstanceData.worldTransforms.push_back(Matrix4(1.0f));
-	m_ShapeInstanceData.worldAABBs.push_back(AABB());
-	m_ShapeInstanceData.dirtyFlags.push_back(1);
+	auto& data = m_ShapeInstanceData;
+	data.shapes.push_back(shapeHandle); 
+	data.bodies.push_back(bodyHandle);
+	data.worldTransforms.push_back(Matrix4(1.0f));
+	data.worldAABBs.push_back(AABB());
+	data.dirtyFlags.push_back(1);
+
+	// vertex cache
+	size_t vertexCount = 0;
+	if (shapeHandle != ShapeHandle::Null())
+	{
+		switch (shapeManager.GetShapeType(shapeHandle))
+		{
+		case ShapeType::Box:
+			vertexCount = 8;
+			break;
+		}
+	}
+
+	size_t offset = data.worldVertexBuffer.size();
+	data.vertexOffsets.push_back(offset);
+	data.vertexCounts.push_back(vertexCount);
+
+	data.worldVertexBuffer.resize(offset + vertexCount);
 	
 	m_DenseToHandle.push_back(handle.index);
 
@@ -33,14 +52,29 @@ void Acro::Core::ShapeInstanceManager::DestroyShapeInstance(const ShapeInstanceH
 	uint32_t denseIndex = m_Sparse[handle.index];
 	uint32_t lastDense = static_cast<uint32_t>(m_ShapeInstanceData.shapes.size() - 1);
 
+	auto& data = m_ShapeInstanceData;
+
+	size_t offset = data.vertexOffsets[denseIndex];
+	size_t count = data.vertexCounts[denseIndex];
+	size_t lastOffset = data.vertexOffsets[lastDense];
+	size_t lastCount = data.vertexCounts[lastDense];
+
 	if (denseIndex != lastDense)
 	{
 		// Swap dense data
-		m_ShapeInstanceData.shapes[denseIndex] = m_ShapeInstanceData.shapes[lastDense];
-		m_ShapeInstanceData.bodies[denseIndex] = m_ShapeInstanceData.bodies[lastDense];
-		m_ShapeInstanceData.worldTransforms[denseIndex] = m_ShapeInstanceData.worldTransforms[lastDense];
-		m_ShapeInstanceData.worldAABBs[denseIndex] = m_ShapeInstanceData.worldAABBs[lastDense];
-		m_ShapeInstanceData.dirtyFlags[denseIndex] = m_ShapeInstanceData.dirtyFlags[lastDense];
+		data.shapes[denseIndex] =			data.shapes[lastDense];
+		data.bodies[denseIndex] =			data.bodies[lastDense];
+		data.worldTransforms[denseIndex] =  data.worldTransforms[lastDense];
+		data.worldAABBs[denseIndex] =		data.worldAABBs[lastDense];
+		data.dirtyFlags[denseIndex] =		data.dirtyFlags[lastDense];
+
+		// swap vertex buffer
+		for (size_t v = 0; v < lastCount; v++)
+		{
+			data.worldVertexBuffer[offset + v] = data.worldVertexBuffer[lastOffset + v];
+		}
+		data.vertexOffsets[denseIndex] = offset;
+		data.vertexCounts[denseIndex] = lastCount;
 
 		// Update sparse 
 		uint32_t lastHandleIndex = m_DenseToHandle[lastDense];
@@ -51,16 +85,20 @@ void Acro::Core::ShapeInstanceManager::DestroyShapeInstance(const ShapeInstanceH
 	
 	
 	// Pop back dense data
-	m_ShapeInstanceData.shapes.pop_back();
-	m_ShapeInstanceData.bodies.pop_back();
-	m_ShapeInstanceData.worldTransforms.pop_back();
-	m_ShapeInstanceData.worldAABBs.pop_back();
-	m_ShapeInstanceData.dirtyFlags.pop_back();
+	data.shapes.pop_back();
+	data.bodies.pop_back();
+	data.worldTransforms.pop_back();
+	data.worldAABBs.pop_back();
+	data.dirtyFlags.pop_back();
+
+	data.vertexOffsets.pop_back();
+	data.vertexCounts.pop_back();
+	data.worldVertexBuffer.resize(data.worldVertexBuffer.size() - count);
+
 	m_DenseToHandle.pop_back();
 	m_Generations[handle.index]++;
 	m_FreeHandles.push_back(handle);
 
-	m_FreeHandles.push_back(handle);
 
 }
 
@@ -83,7 +121,12 @@ void ShapeInstanceManager::UpdateWorldData(Acro::Core::BodyManager& bodyManager,
 
 		data.worldTransforms[i] =  Matrix4::Translation(pos + rot * offset) * rot.ToMat4();
 
-		if (shapeManager.GetShapeType(shape) == ShapeType::Box)
+		Vector3* verts = GetWorldVertices(i);
+		size_t count = GetWorldVertexCount(i);
+
+		switch (shapeManager.GetShapeType(shape))
+		{
+		case ShapeType::Box:
 		{
 			Vector3 extent = shapeManager.GetExtent(shape);
 
@@ -96,19 +139,29 @@ void ShapeInstanceManager::UpdateWorldData(Acro::Core::BodyManager& bodyManager,
 			{ extent.x, -extent.y,  extent.z},
 			{ extent.x,  extent.y,  extent.z},
 			{-extent.x,  extent.y,  extent.z},
-					};
+			};
 
 			Matrix4 worldTransform = Matrix4::Translation(pos + rot * offset) * rot.ToMat4();
-			Vector3 worldVerts[8];
-			for (int v = 0; v < 8; v++)
-				worldVerts[v] = worldTransform * localVerts[v];
+			for (int v = 0; v < count; v++)
+				verts[v] = worldTransform * localVerts[v];
 
-			
-			data.worldAABBs[i] = AABB::FromVertices(worldVerts, 8);
-			auto& aabb = data.worldAABBs[i];
-			Vector3 color = Vector3(1.0f, 0.0f, 0.0f);
-
+			data.worldAABBs[i] = AABB::FromVertices(verts, 8);
+			break;
 		}
+		case ShapeType::Sphere:
+		{
+			float radius = shapeManager.GetRadius(shape);
+
+			Vector3 min = (pos + offset) - radius;
+			Vector3 max = (pos + offset) + radius;
+
+			data.worldAABBs[i] = AABB(min, max);
+			break;
+		}
+		}
+		
+		
+	
 
 		//data.dirtyFlags[i] = 0;
 	}

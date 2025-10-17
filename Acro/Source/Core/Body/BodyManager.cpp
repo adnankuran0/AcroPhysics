@@ -57,8 +57,8 @@ void BodyManager::DestroyBody(const BodyHandle& handle) noexcept
 		m_BodyData.angularVelocities[denseIndex] = m_BodyData.angularVelocities[lastDense];
 		m_BodyData.forceAccumulators[denseIndex] = m_BodyData.forceAccumulators[lastDense];
 		m_BodyData.inverseMasses[denseIndex] = m_BodyData.inverseMasses[lastDense];
-
-		m_BodyData.shapesCount[denseIndex] = m_BodyData.shapesCount[lastDense];
+		m_BodyData.shapeCounts[denseIndex] = m_BodyData.shapeCounts[lastDense];
+		m_BodyData.shapeOffsets[denseIndex] = m_BodyData.shapeOffsets[lastDense];
 
 
 		// Update sparse 
@@ -74,9 +74,9 @@ void BodyManager::DestroyBody(const BodyHandle& handle) noexcept
 	m_BodyData.angularVelocities.pop_back();
 	m_BodyData.forceAccumulators.pop_back();
 	m_BodyData.inverseMasses.pop_back();
-	m_BodyData.shapes.pop_back();
-	m_BodyData.shapesCount.pop_back();
-	m_BodyData.shapesStart.pop_back();
+	m_BodyData.shapeBuffer.pop_back();
+	m_BodyData.shapeCounts.pop_back();
+	m_BodyData.shapeOffsets.pop_back();
 
 
 
@@ -92,13 +92,13 @@ void BodyManager::AttachShape(const BodyHandle& bodyHandle, const ShapeHandle& s
 
 	size_t bodyIndex = m_Sparse[bodyHandle.index];
 
-	if (m_BodyData.shapesCount[bodyIndex] == 0)
+	if (m_BodyData.shapeCounts[bodyIndex] == 0)
 	{
-		m_BodyData.shapesStart[bodyIndex] = m_BodyData.shapes.size();
+		m_BodyData.shapeOffsets[bodyIndex] = m_BodyData.shapeBuffer.size();
 	}
 
-	m_BodyData.shapes.push_back(shapeHandle);
-	m_BodyData.shapesCount[bodyIndex]++;
+	m_BodyData.shapeBuffer.push_back(shapeHandle);
+	m_BodyData.shapeCounts[bodyIndex]++;
 }
 
 void Acro::Core::BodyManager::DetachShape(const BodyHandle& bodyHandle, const ShapeHandle& shapeHandle)
@@ -106,19 +106,19 @@ void Acro::Core::BodyManager::DetachShape(const BodyHandle& bodyHandle, const Sh
 	assert(IsValid(bodyHandle));
 	size_t bodyIndex = m_Sparse[bodyHandle.index];
 
-	size_t start = m_BodyData.shapesStart[bodyIndex];
-	size_t count = m_BodyData.shapesCount[bodyIndex];
+	size_t start = m_BodyData.shapeOffsets[bodyIndex];
+	size_t count = m_BodyData.shapeCounts[bodyIndex];
 
-	auto begin = m_BodyData.shapes.begin() + start;
+	auto begin = m_BodyData.shapeBuffer.begin() + start;
 	auto end = begin + count;
 	auto it = std::find(begin, end, shapeHandle);
 
 	if (it != end)
 	{
 		// swap remove
-		*it = m_BodyData.shapes.back();
-		m_BodyData.shapes.pop_back();
-		m_BodyData.shapesCount[bodyIndex]--;
+		*it = m_BodyData.shapeBuffer.back();
+		m_BodyData.shapeBuffer.pop_back();
+		m_BodyData.shapeCounts[bodyIndex]--;
 	}
 }
 
@@ -128,19 +128,19 @@ void Acro::Core::BodyManager::DetachShape(const BodyHandle& bodyHandle)
 
 	size_t bodyIndex = m_Sparse[bodyHandle.index];
 
-	size_t start = m_BodyData.shapesStart[bodyIndex];
-	size_t count = m_BodyData.shapesCount[bodyIndex];
+	size_t start = m_BodyData.shapeOffsets[bodyIndex];
+	size_t count = m_BodyData.shapeCounts[bodyIndex];
 
 	if (count == 0) return;
 
-	m_BodyData.shapes.erase(m_BodyData.shapes.begin() + start, m_BodyData.shapes.begin() + start + count);
+	m_BodyData.shapeBuffer.erase(m_BodyData.shapeBuffer.begin() + start, m_BodyData.shapeBuffer.begin() + start + count);
 
-	m_BodyData.shapesCount[bodyIndex] = 0;
+	m_BodyData.shapeCounts[bodyIndex] = 0;
 
-	for (size_t i = bodyIndex + 1; i < m_BodyData.shapesStart.size(); ++i)
+	for (size_t i = bodyIndex + 1; i < m_BodyData.shapeOffsets.size(); ++i)
 	{
-		if (m_BodyData.shapesCount[i] > 0)
-			m_BodyData.shapesStart[i] -= count;
+		if (m_BodyData.shapeCounts[i] > 0)
+			m_BodyData.shapeOffsets[i] -= count;
 	}
 }
 
@@ -150,10 +150,10 @@ bool Acro::Core::BodyManager::HasShape(const BodyHandle& bodyHandle, const Shape
 
 	size_t bodyIndex = m_Sparse[bodyHandle.index];
 
-	size_t start = m_BodyData.shapesStart[bodyIndex];
-	size_t count = m_BodyData.shapesCount[bodyIndex];
+	size_t start = m_BodyData.shapeOffsets[bodyIndex];
+	size_t count = m_BodyData.shapeCounts[bodyIndex];
 
-	auto begin = m_BodyData.shapes.begin() + start;
+	auto begin = m_BodyData.shapeBuffer.begin() + start;
 	auto end = begin + count;
 
 	return std::find(begin, end, shapeHandle) != end;
@@ -164,7 +164,7 @@ bool Acro::Core::BodyManager::HasShape(const BodyHandle& bodyHandle)
 {
 	assert(IsValid(bodyHandle));
 	size_t bodyIndex = m_Sparse[bodyHandle.index];
-	size_t count = m_BodyData.shapesCount[bodyIndex];
+	size_t count = m_BodyData.shapeCounts[bodyIndex];
 	return count > 0;
 }
 
@@ -176,8 +176,8 @@ void Acro::Core::BodyManager::PushData(const BodyDescription& desc)
 	m_BodyData.angularVelocities.push_back(desc.angularVelocity);
 	m_BodyData.forceAccumulators.push_back(desc.forceAccumulation);
 	m_BodyData.inverseMasses.push_back(0);
-	m_BodyData.shapesCount.push_back(0);
-	m_BodyData.shapesStart.push_back(0);
+	m_BodyData.shapeCounts.push_back(0);
+	m_BodyData.shapeOffsets.push_back(0);
 }
 
 void Acro::Core::BodyManager::CreateHandle(BodyHandle& outHandle, uint32_t& outDenseIndex) noexcept

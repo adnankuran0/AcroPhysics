@@ -14,13 +14,13 @@ public:
 	float padding;
 
 	AABB() : min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::max()) {}
-	AABB(const Acro::Math::Vector3& min, const Acro::Math::Vector3& max) : min(min), max(max) {}
+	AABB(const Acro::Math::Vector3& min, const Acro::Math::Vector3& max,float padding = 0.05f) : min(min - padding), max(max + padding) {}
 
-	inline static AABB FromCenterAndExtent(const Acro::Math::Vector3& center, const Acro::Math::Vector3& extent) noexcept
+	inline static AABB FromCenterAndExtent(const Acro::Math::Vector3& center, const Acro::Math::Vector3& extent,float padding = 0.05f) noexcept
 	{
 		AABB box;
-		box.min = center - extent;
-		box.max = center + extent;
+		box.min = center - extent - padding;
+		box.max = center + extent + padding;
 		return box;
 	}
 

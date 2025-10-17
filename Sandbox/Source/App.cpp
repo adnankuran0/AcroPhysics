@@ -13,6 +13,8 @@
 #include "Skybox.h"
 #include "imgui.h"
 #include "DebugRenderer/DebugRendererGL.h"
+#include "Sphere.h"
+
 
 using namespace Acro::Math;
 
@@ -39,7 +41,9 @@ Acro::Rigidbody body(nullptr,nullptr,nullptr,Acro::Core::BodyHandle{});
 int main(void)
 {
     bool stepPhysics = false;
+    bool debugDraw = true;
     bool drawAABBs = false;
+    bool drawShapes = false;
 
 
     /* Initialize the library */
@@ -60,6 +64,7 @@ int main(void)
 
     Cube cube;
     Cube cube2;
+    Sphere sphere;
 
     Acro::World world(Acro::Math::Vector3(0.0f,-9.8f,0.0f),60,8);
 
@@ -68,12 +73,16 @@ int main(void)
     Acro::BoxShape boxShape = world.CreateBoxShape(Acro::Math::Vector3(0.5f, 0.5f, 0.5f));
     Acro::BoxShape boxShape2 = world.CreateBoxShape(Acro::Math::Vector3(1.5f, 1.5f, 1.5f));
 
-
     Acro::BodyDescription desc;
     desc.position = Vector3(2.0, 0.0, 0.0);
-    desc.mass = 0.0f;
+    desc.mass = 0.0f; // static body
     Acro::Rigidbody body2 = world.CreateBody(desc);
 
+    Acro::BodyDescription sphereDesc;
+    sphereDesc.position = Vector3(-2.0, 0.0, 0.0);
+    Acro::Rigidbody sphereBody = world.CreateBody(sphereDesc);
+    Acro::SphereShape sphereShape = world.CreateSphereShape(0.5f);
+    sphereBody.AttachShape(sphereShape);
 
     body.AttachShape(boxShape);
     body.AttachShape(boxShape);
@@ -96,9 +105,14 @@ int main(void)
         {
             world.SetPaused(!stepPhysics);
         }
+        ImGui::Checkbox("Debug draw", &debugDraw);
         if (ImGui::Checkbox("Draw AABBs", &drawAABBs))
         {
             world.GetDebugRenderer().drawAABBs = drawAABBs;
+        }
+        if (ImGui::Checkbox("Draw shapes", &drawShapes))
+        {
+            world.GetDebugRenderer().drawShapes = drawShapes;
         }
             
         world.Step(deltaTime);
@@ -107,21 +121,21 @@ int main(void)
 
         window.Clear();
 
-        skybox.Draw(skyboxShader, camera.GetViewMatrix(), camera.GetProjectionMatrix());
-
-        body.SetOrientation(Quaternion(Vector3(1.0, 0.5, 0.0), 45.0f + static_cast<float>(glfwGetTime())));
-
-
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 proj = camera.GetProjectionMatrix();
 
+        skybox.Draw(skyboxShader, view, proj);
+
+        body.SetOrientation(Quaternion(Vector3(1.0, 0.5, 0.0), 45.0f + static_cast<float>(glfwGetTime())));
+
         cube.Draw(shader, body,view, proj, camera.Position);
         cube2.Draw(shader, body2,view, proj, camera.Position);
+        sphere.Draw(shader, sphereBody, view, proj, camera.Position);
 
         gui.Render();
-        world.GetDebugRenderer().DrawSphere(Vector3(0.0f), 1.0f, Vector3(0.0f, 0.0f, 1.0f), 5.0f, 32);
 
-        debugRendererGL.Render(world.GetDebugRenderer(), view, proj);
+        if (debugDraw)
+            debugRendererGL.Render(world.GetDebugRenderer(), view, proj);
 
         world.GetDebugRenderer().Clear();
 

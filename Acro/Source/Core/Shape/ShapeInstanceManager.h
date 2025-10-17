@@ -22,7 +22,7 @@ struct ShapeInstanceHandle
 class ShapeInstanceManager
 {
 public:
-	ShapeInstanceHandle CreateShapeInstance(const ShapeHandle& shapeHandle, const BodyHandle& bodyHandle);
+	ShapeInstanceHandle CreateShapeInstance(ShapeManager& shapeManager, const ShapeHandle& shapeHandle, const BodyHandle& bodyHandle);
 	void DestroyShapeInstance(const ShapeInstanceHandle& handle);
 
 	inline bool IsValid(const ShapeInstanceHandle& handle) const noexcept
@@ -33,6 +33,16 @@ public:
 
 	void UpdateWorldData(Acro::Core::BodyManager& bodyManager, Acro::Core::ShapeManager& shapeManager);
 	
+	inline Acro::Math::Vector3* GetWorldVertices(size_t denseIndex) noexcept
+	{
+		return m_ShapeInstanceData.worldVertexBuffer.data() + m_ShapeInstanceData.vertexOffsets[denseIndex];
+	}
+	inline size_t GetWorldVertexCount(size_t denseIndex) noexcept
+	{
+		return m_ShapeInstanceData.vertexCounts[denseIndex];
+	}
+
+
 
 	[[nodiscard]] inline ShapeInstanceData& GetData() noexcept { return m_ShapeInstanceData; }
 
