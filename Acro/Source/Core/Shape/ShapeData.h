@@ -19,6 +19,7 @@ struct ShapeData
 	std::vector<Acro::Math::Vector3> offsets;
 	std::vector<Acro::Math::Vector3> extents; // Box shape
 	std::vector<float> radii; // Sphere shape
+	std::vector<uint8_t> dirtyFlags;
 };
 }
 

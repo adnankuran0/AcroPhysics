@@ -19,6 +19,10 @@ void World::Step(float deltaTime)
 			
 			m_ShapeInstanceManager.UpdateWorldData(m_BodyManager, m_ShapeManager);
 
+			m_BroadphaseBuffer = m_Broadphase.Compute(&m_ShapeInstanceManager);
+
+			//std::cout << "Potential pairs: " << m_BroadphaseBuffer.size() << "\n";
+
 			m_StepCount++;
 			m_DeltaAccumulator -= m_FixedDeltaTime;
 		}
@@ -61,17 +65,20 @@ SphereShape World::CreateSphereShape(float radius, const Acro::Math::Vector3& of
 	return SphereShape(&m_ShapeManager, m_ShapeManager.CreateSphereShape(radius,offset));
 }
 
-ShapeInstanceHandle Acro::World::AttachShape(const Rigidbody& body , const Acro::Shape& shape)
+ShapeInstance Acro::World::AttachShape(const Rigidbody& body , const Acro::Shape& shape)
 {
 	// Check if body is not valid or body already has the shape
-	if (!m_ShapeManager.IsValid(shape.m_Handle) 
-		|| m_BodyManager.HasShape(body.m_BodyHandle,shape.m_Handle)) 
-		return ShapeInstanceHandle::Null();
+	assert(m_ShapeManager.IsValid(shape.m_Handle));
+	assert(!m_BodyManager.HasShape(body.m_BodyHandle, shape.m_Handle));
 
 	m_BodyManager.AttachShape(body.m_BodyHandle, body.m_ShapeHandle);
 	m_ShapeManager.AddRef(body.m_ShapeHandle);
+	ShapeInstanceHandle shapeInstanceHandle = m_ShapeInstanceManager.CreateShapeInstance(m_ShapeManager, body.m_ShapeHandle, body.m_BodyHandle);
 
-	return m_ShapeInstanceManager.CreateShapeInstance(m_ShapeManager,body.m_ShapeHandle, body.m_BodyHandle);
+	// enable layer 1 by default
+	m_ShapeInstanceManager.EnableLayer(shapeInstanceHandle, 1);
+
+	return ShapeInstance(&m_ShapeInstanceManager, shapeInstanceHandle);
 }
 
 void Acro::World::DetachShape(const Rigidbody& body, const Acro::Shape& shape)
@@ -97,14 +104,25 @@ void Acro::World::DrawDebugShapes()
 {
 	auto& shapeInstanceData = m_ShapeInstanceManager.GetData();
 
+	
 	if (m_DebugRenderer.drawAABBs)
 	{
 		for (auto& aabb : shapeInstanceData.worldAABBs)
 		{
-			Vector3 color = Vector3(1.0f, 0.0f, 0.0f);
+			Vector3 color = Vector3(0.0f, 0.0f, 1.0f);
 			m_DebugRenderer.DrawAABB(aabb.min, aabb.max, color);
 		}
+		for (auto& pair : m_BroadphaseBuffer)
+		{
+			auto firstAABB = m_ShapeInstanceManager.GetWorldAABB(pair.first);
+			auto secondAABB = m_ShapeInstanceManager.GetWorldAABB(pair.second);
+			Vector3 color(1.0f, 0.0f, 0.0f);
+			// TODO: it doesnt work with frame time duration
+			m_DebugRenderer.DrawAABB(firstAABB.min, firstAABB.max, color, 0.05f);
+			m_DebugRenderer.DrawAABB(secondAABB.min, secondAABB.max, color, 0.05f);
+		}
 	}
+	
 	if (m_DebugRenderer.drawShapes)
 	{
 		for (auto& vertex : shapeInstanceData.worldVertexBuffer)

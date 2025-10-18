@@ -16,7 +16,7 @@ struct ShapeInstanceData
 	std::vector<Core::BodyHandle> bodies;
 	std::vector<Math::Matrix4> worldTransforms;
 	std::vector<Math::AABB> worldAABBs;
-	std::vector<Core::CollisionFilter> filters;
+	std::vector<CollisionFilter> filters;
 
 	// flattened
 	std::vector<Math::Vector3> worldVertexBuffer;

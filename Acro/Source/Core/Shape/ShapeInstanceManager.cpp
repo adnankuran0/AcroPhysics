@@ -108,10 +108,13 @@ void ShapeInstanceManager::UpdateWorldData(Acro::Core::BodyManager& bodyManager,
 
 	for (size_t i = 0; i < data.shapes.size(); i++)
 	{
-		if (!bodyManager.IsDirty(data.bodies[i])) continue;
-
 		const BodyHandle& body = data.bodies[i];
 		const ShapeHandle& shape = data.shapes[i];
+
+		if (!bodyManager.IsDirty(body)
+			&& !shapeManager.IsDirty(shape)) continue;
+
+		
 		if (shape == ShapeHandle::Null()) continue;
 
 		Vector3 pos = bodyManager.GetPosition(body);
@@ -160,7 +163,9 @@ void ShapeInstanceManager::UpdateWorldData(Acro::Core::BodyManager& bodyManager,
 		}
 		}
 
-		bodyManager.SetDirty(body, false);
+		bodyManager.SetDirty(body, 0);
+		shapeManager.SetDirty(shape, 0);
+
 	}
 }
 

@@ -72,6 +72,8 @@ int main(void)
     world = std::make_unique<Acro::World>(Acro::Math::Vector3(0.0f,-9.8f,0.0f),60,8);
 
     body = world->CreateBody();
+    body.SetMass(0.0f);
+    body.SetPosition({ -5.0f,0.0f,0.0f });
 
     Acro::BoxShape boxShape = world->CreateBoxShape(Acro::Math::Vector3(0.5f, 0.5f, 0.5f));
     Acro::BoxShape boxShape2 = world->CreateBoxShape(Acro::Math::Vector3(1.5f, 1.5f, 1.5f));
@@ -81,14 +83,19 @@ int main(void)
     desc.mass = 0.0f; // static body
     Acro::Rigidbody body2 = world->CreateBody(desc);
 
+
+
     Acro::BodyDescription sphereDesc;
     sphereDesc.position = Vector3(-2.0, 0.0, 0.0);
+    sphereDesc.mass = 0.0f;
     Acro::Rigidbody sphereBody = world->CreateBody(sphereDesc);
     Acro::SphereShape sphereShape = world->CreateSphereShape(0.5f);
     sphereBody.AttachShape(sphereShape);
 
+
     body.AttachShape(boxShape);
     body2.AttachShape(boxShape);
+
 
 
     DebugRendererGL debugRendererGL;
@@ -130,6 +137,7 @@ int main(void)
         skybox.Draw(skyboxShader, view, proj);
 
         body.SetOrientation(Quaternion(Vector3(1.0, 0.5, 0.0), 45.0f + static_cast<float>(glfwGetTime())));
+        body.SetPosition(body.GetPosition() + Vector3(0.5f, 0.0f, 0.0f) * deltaTime);
 
         cube.Draw(shader, body,view, proj, camera.Position);
         cube2.Draw(shader, body2,view, proj, camera.Position);

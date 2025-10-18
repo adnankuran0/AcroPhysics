@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <initializer_list>
 
-namespace Acro::Core {
+namespace Acro {
 
 using LayerMask = uint32_t;
 

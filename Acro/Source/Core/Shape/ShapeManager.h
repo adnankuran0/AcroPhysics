@@ -30,6 +30,8 @@ namespace Acro::Core {
 		uint32_t GetRefCount(const ShapeHandle& handle) { return m_RefCount[handle.index]; }
 		void ReleaseRef(const ShapeHandle& handle);
 		
+		inline bool IsDirty(const ShapeHandle& handle) const noexcept { return m_ShapeData.dirtyFlags[m_Sparse[handle.index]]; }
+		inline void SetDirty(const ShapeHandle& handle, uint8_t isDirty) noexcept { m_ShapeData.dirtyFlags[m_Sparse[handle.index]] = isDirty; }
 
 		inline bool IsValid(const ShapeHandle& handle) const noexcept
 		{
@@ -42,9 +44,24 @@ namespace Acro::Core {
 		inline Acro::Math::Vector3 GetExtent(const ShapeHandle& handle) const noexcept { assert(IsValid(handle)); return m_ShapeData.extents[m_Sparse[handle.index]]; }
 		inline float GetRadius(const ShapeHandle& handle) const noexcept { assert(IsValid(handle)); return m_ShapeData.radii[m_Sparse[handle.index]]; }
 
-		inline void SetOffset(const ShapeHandle& handle, const Acro::Math::Vector3& offset) noexcept { assert(IsValid(handle));  m_ShapeData.offsets[m_Sparse[handle.index]] = offset; }
-		inline void SetExtent(const ShapeHandle& handle, const Acro::Math::Vector3& extent) noexcept { assert(IsValid(handle)); m_ShapeData.extents[m_Sparse[handle.index]] = extent; }
-		inline void SetRadius(const ShapeHandle& handle, float radius) noexcept { assert(IsValid(handle)); m_ShapeData.radii[m_Sparse[handle.index]] = radius; }
+		inline void SetOffset(const ShapeHandle& handle, const Acro::Math::Vector3& offset) noexcept 
+		{ 
+			assert(IsValid(handle));
+			SetDirty(handle, 1);
+			m_ShapeData.offsets[m_Sparse[handle.index]] = offset; 
+		}
+		inline void SetExtent(const ShapeHandle& handle, const Acro::Math::Vector3& extent) noexcept 
+		{ 
+			assert(IsValid(handle)); 
+			SetDirty(handle, 1);
+			m_ShapeData.extents[m_Sparse[handle.index]] = extent; 
+		}
+		inline void SetRadius(const ShapeHandle& handle, float radius) noexcept 
+		{ 
+			assert(IsValid(handle)); 
+			SetDirty(handle, 1);
+			m_ShapeData.radii[m_Sparse[handle.index]] = radius; 
+		}
 		
 
 		[[nodiscard]] ShapeData& GetData() noexcept { return m_ShapeData; }

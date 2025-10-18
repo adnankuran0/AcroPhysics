@@ -8,6 +8,8 @@
 #include "Core/Integrator.h"
 #include "Core/Shape/Shape.h"
 #include "Debug/DebugRenderer.h"
+#include "Core/Shape/ShapeInstance.h"
+#include "Core/Broadphase.h"
 #include <vector>
 
 
@@ -37,7 +39,7 @@ public:
 	Acro::SphereShape CreateSphereShape(float radius = 1.0f, const Acro::Math::Vector3& offset = Acro::Math::Vector3(0.0)) noexcept;
 
 	// TODO: return ShapeInstance wrapper
-	Acro::Core::ShapeInstanceHandle AttachShape(const Rigidbody& body, const Acro::Shape& shape);
+	Acro::ShapeInstance AttachShape(const Rigidbody& body, const Acro::Shape& shape);
 	void DetachShape(const Rigidbody& body, const Acro::Shape& shape);
 	void DetachShape(const Rigidbody& body);
 
@@ -57,6 +59,11 @@ private:
 	Acro::Core::BodyManager m_BodyManager;
 	Acro::Core::ShapeManager m_ShapeManager;
 	Acro::Core::ShapeInstanceManager m_ShapeInstanceManager;
+
+	std::vector<std::pair<Acro::Core::ShapeInstanceHandle, Acro::Core::ShapeInstanceHandle>> m_BroadphaseBuffer;
+
+	Acro::Core::Broadphase m_Broadphase;
+
 	Acro::Debug::DebugRenderer m_DebugRenderer;
 };
 

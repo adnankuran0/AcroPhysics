@@ -3,6 +3,7 @@
 
 #include "Core/Shape/Shape.h"
 #include "Core/Shape/ShapeManager.h"
+#include "Core/Shape/ShapeInstance.h"
 #include <iostream>
 #include "CollisionLayer.h"
 
@@ -22,6 +23,8 @@ public:
 		m_BodyHandle = handle; 
 	}
 
+	inline bool IsValid() const noexcept { return m_BodyManager && m_ShapeInstanceManager && m_ShapeManager && m_BodyManager->IsValid(m_BodyHandle); }
+
 	inline const Acro::Math::Vector3& GetPosition()		            const noexcept { return m_BodyManager->GetPosition(m_BodyHandle); }
 	inline const Acro::Math::Vector3& GetLinearVelocity()           const noexcept { return m_BodyManager->GetLinearVelocity(m_BodyHandle); }
 	inline const Acro::Math::Quaternion& GetOrientation()           const noexcept { return m_BodyManager->GetOrientation(m_BodyHandle); }
@@ -36,11 +39,10 @@ public:
 	inline void ApplyForce(const Acro::Math::Vector3& force)			  noexcept { m_BodyManager->ApplyForce(m_BodyHandle,force); }
 	inline void SetMass(float mass)							  noexcept { m_BodyManager->SetMass(m_BodyHandle,mass); }
 
-	void AttachShape(const Acro::Shape& shape) 
+	Acro::ShapeInstance AttachShape(const Acro::Shape& shape) 
 	{ 
 		m_ShapeHandle = shape.m_Handle;
-		m_ShapeInstanceHandle = m_World->AttachShape(*this,shape);
-		// TODO : should return ShapeInstance wrapper
+		return m_World->AttachShape(*this,shape);
 	}
 
 	void DetachShape(const Acro::Shape& shape)

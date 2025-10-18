@@ -15,6 +15,7 @@ ShapeHandle ShapeManager::CreateBoxShape(const Vector3& extent, const Vector3& o
 	m_ShapeData.offsets.push_back(offset);
 	m_ShapeData.extents.push_back(extent);
 	m_ShapeData.radii.push_back(0.0f);
+	m_ShapeData.dirtyFlags.push_back(1);
 
 	m_DenseToHandle.push_back(handle.index);
 	return { handle.index,m_Generations[handle.index] };
@@ -31,6 +32,7 @@ ShapeHandle ShapeManager::CreateSphereShape(float radius, const Vector3& offset)
 	m_ShapeData.offsets.push_back(offset);
 	m_ShapeData.extents.push_back(Vector3(0.0f));
 	m_ShapeData.radii.push_back(radius);
+	m_ShapeData.dirtyFlags.push_back(1);
 
 	m_DenseToHandle.push_back(handle.index);
 	return { handle.index,m_Generations[handle.index] };
@@ -71,6 +73,7 @@ void ShapeManager::DestroyShape(const ShapeHandle& handle) noexcept
 		m_ShapeData.offsets[denseIndex] = m_ShapeData.offsets[lastDense];
 		m_ShapeData.extents[denseIndex] = m_ShapeData.extents[lastDense];
 		m_ShapeData.radii[denseIndex] = m_ShapeData.radii[lastDense];
+		m_ShapeData.dirtyFlags[denseIndex] = m_ShapeData.dirtyFlags[lastDense];
 
 		// Update sparse 
 		uint32_t lastHandleIndex = m_DenseToHandle[lastDense];
@@ -84,6 +87,7 @@ void ShapeManager::DestroyShape(const ShapeHandle& handle) noexcept
 	m_ShapeData.offsets.pop_back();
 	m_ShapeData.extents.pop_back();
 	m_ShapeData.radii.pop_back();
+	m_ShapeData.dirtyFlags.pop_back();
 	m_DenseToHandle.pop_back();
 	m_RefCount[handle.index] = 0;
 	m_Generations[handle.index]++;
