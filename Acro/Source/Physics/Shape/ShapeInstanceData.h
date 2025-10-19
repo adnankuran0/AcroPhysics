@@ -2,18 +2,18 @@
 #define ACRO_SHAPE_INSTANCE_DATA_H
 
 #include <vector>
-#include "Core/Shape/ShapeManager.h"
-#include "Core/Body/BodyManager.h"
+#include "Physics/Shape/ShapeManager.h"
+#include "Physics/Body/BodyManager.h"
 #include "Math/Matrix4.h"
 #include "Math/AABB.h"
-#include "Core/CollisionLayer.h"
+#include "Public/CollisionLayer.h"
 
-namespace Acro::Core {
+namespace Acro::Physics {
 
 struct ShapeInstanceData
 {
-	std::vector<Core::ShapeHandle> shapes;
-	std::vector<Core::BodyHandle> bodies;
+	std::vector<Physics::ShapeHandle> shapes;
+	std::vector<Physics::BodyHandle> bodies;
 	std::vector<Math::Matrix4> worldTransforms;
 	std::vector<Math::AABB> worldAABBs;
 	std::vector<CollisionFilter> filters;

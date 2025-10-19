@@ -2,7 +2,8 @@
 
 #include <algorithm>
 
-using namespace Acro::Core;
+using namespace Acro::Physics;
+
 using Pair = std::pair<ShapeInstanceHandle, ShapeInstanceHandle>;
 
 

@@ -1,9 +1,9 @@
 #ifndef ACRO_RIGIDBODY_H
 #define ACRO_RIGIDBODY_H
 
-#include "Core/Shape/Shape.h"
-#include "Core/Shape/ShapeManager.h"
-#include "Core/Shape/ShapeInstance.h"
+#include "Public/Shape.h"
+#include "Physics/Shape/ShapeManager.h"
+#include "Public/ShapeInstance.h"
 #include <iostream>
 #include "CollisionLayer.h"
 
@@ -12,10 +12,10 @@ namespace Acro {
 class Rigidbody
 {
 public:
-	Rigidbody(Acro::World* world, Acro::Core::BodyManager* bodyManager, Acro::Core::ShapeManager* shapeManager, Acro::Core::BodyHandle handle) :
-		m_ShapeHandle(Acro::Core::ShapeHandle::Null()), 
-		m_BodyHandle(Acro::Core::BodyHandle::Null()),
-		m_ShapeInstanceHandle(Acro::Core::ShapeInstanceHandle::Null())
+	Rigidbody(Acro::World* world, Acro::Physics::BodyManager* bodyManager, Acro::Physics::ShapeManager* shapeManager, Acro::Physics::BodyHandle handle) :
+		m_ShapeHandle(Acro::Physics::ShapeHandle::Null()),
+		m_BodyHandle(Acro::Physics::BodyHandle::Null()),
+		m_ShapeInstanceHandle(Acro::Physics::ShapeInstanceHandle::Null())
 	{ 
 		m_World = world; 
 		m_BodyManager = bodyManager; 
@@ -23,7 +23,7 @@ public:
 		m_BodyHandle = handle; 
 	}
 
-	inline bool IsValid() const noexcept { return m_BodyManager && m_ShapeInstanceManager && m_ShapeManager && m_BodyManager->IsValid(m_BodyHandle); }
+	inline bool IsValid() const noexcept { return m_BodyManager && m_ShapeManager && m_BodyManager->IsValid(m_BodyHandle); }
 
 	inline const Acro::Math::Vector3& GetPosition()		            const noexcept { return m_BodyManager->GetPosition(m_BodyHandle); }
 	inline const Acro::Math::Vector3& GetLinearVelocity()           const noexcept { return m_BodyManager->GetLinearVelocity(m_BodyHandle); }
@@ -52,13 +52,12 @@ public:
 
 	
 private:
-	Acro::Core::BodyHandle m_BodyHandle;
-	Acro::Core::ShapeHandle m_ShapeHandle;
-	Acro::Core::ShapeInstanceHandle m_ShapeInstanceHandle;
+	Acro::Physics::BodyHandle m_BodyHandle;
+	Acro::Physics::ShapeHandle m_ShapeHandle;
+	Acro::Physics::ShapeInstanceHandle m_ShapeInstanceHandle;
 
-	Acro::Core::BodyManager* m_BodyManager;
-	Acro::Core::ShapeManager* m_ShapeManager;
-	Acro::Core::ShapeInstanceManager* m_ShapeInstanceManager;
+	Acro::Physics::BodyManager* m_BodyManager;
+	Acro::Physics::ShapeManager* m_ShapeManager;
 
 	Acro::World* m_World;
 

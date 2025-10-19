@@ -1,9 +1,10 @@
-#include "Core/World.h"
-#include "Core/Rigidbody.h"
+#include "Public/World.h"
+#include "Public/Rigidbody.h"
+#include "Debug/Profiler.h"
 
-using namespace Acro::Core;
 using namespace Acro::Math;
-
+using namespace Acro::Physics;
+using namespace Acro::Debug;
 using namespace Acro;
 
 void World::Step(float deltaTime)
@@ -14,14 +15,26 @@ void World::Step(float deltaTime)
 
 		while (m_DeltaAccumulator >= m_FixedDeltaTime && m_StepCount < m_MaxSteps)
 		{
-			m_Integrator.SetGravity(m_Gravity);
-			m_Integrator.Step(m_BodyManager, m_FixedDeltaTime);
+			Profiler::BeginFrame();
+
+			{
+				ProfilerScope integratorScope("Integrator");
+				m_Integrator.SetGravity(m_Gravity);
+				m_Integrator.Step(m_BodyManager, m_FixedDeltaTime);
+			}
 			
-			m_ShapeInstanceManager.UpdateWorldData(m_BodyManager, m_ShapeManager);
+			{
+				ProfilerScope shapeUpdatesScope("Shape updates");
+				m_ShapeInstanceManager.UpdateWorldData(m_BodyManager, m_ShapeManager);
+			}
 
-			m_BroadphaseBuffer = m_Broadphase.Compute(&m_ShapeInstanceManager);
+			{
+				ProfilerScope broadphaseScope("Broadphase");
+				m_BroadphaseBuffer = m_Broadphase.Compute(&m_ShapeInstanceManager);
+			}
 
-			//std::cout << "Potential pairs: " << m_BroadphaseBuffer.size() << "\n";
+			Profiler::EndFrame();
+			Profiler::PrintSummary();
 
 			m_StepCount++;
 			m_DeltaAccumulator -= m_FixedDeltaTime;
@@ -36,6 +49,7 @@ void World::Step(float deltaTime)
 	DrawDebugShapes();
 	
 	
+
 }
 
 Rigidbody World::CreateBody() noexcept

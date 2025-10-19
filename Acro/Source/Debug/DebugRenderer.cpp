@@ -81,3 +81,19 @@ void Acro::Debug::DebugRenderer::DrawSphere(const Acro::Math::Vector3& pos, floa
 }
 
 
+void DebugRenderer::Clear(float dt) noexcept
+{
+	for (auto it = m_Primitives.begin(); it != m_Primitives.end();)
+	{
+		it->duration -= dt;
+
+		if (it->duration <= 0.0f)
+		{
+			it = m_Primitives.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+}

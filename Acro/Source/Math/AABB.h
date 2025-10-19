@@ -3,7 +3,6 @@
 
 #include "Math/Vector3.h"
 
-
 namespace Acro::Math {
 
 class AABB

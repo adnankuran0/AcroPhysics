@@ -1,6 +1,6 @@
 #include "BodyData.h"
 
-using namespace Acro::Core;
+using namespace Acro::Physics;
 
 void BodyData::Reserve(size_t capacity)
 {

@@ -1,5 +1,5 @@
-#include "Math/AABB.h"
 #include <algorithm>
+#include "Math/AABB.h"
 
 using namespace Acro::Math;
 

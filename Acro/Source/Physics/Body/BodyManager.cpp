@@ -1,10 +1,12 @@
-﻿#include "Core/Body/BodyManager.h"
-#include "Core/Shape/ShapeManager.h"
-#include <algorithm>
-#include <iostream>
+﻿#include <algorithm>
+
+#include "Physics/Body/BodyManager.h"
+#include "Physics/Shape/ShapeManager.h"
+#include "Public/BodyDescription.h"
+
 
 using namespace Acro::Math;
-using namespace Acro::Core;
+using namespace Acro::Physics;
 
 BodyHandle BodyManager::CreateBody() noexcept
 {
@@ -24,9 +26,8 @@ BodyHandle BodyManager::CreateBody() noexcept
 
 }
 
-BodyHandle Acro::Core::BodyManager::CreateBody(const BodyDescription& desc) noexcept
+BodyHandle BodyManager::CreateBody(const BodyDescription& desc) noexcept
 {
-
 	BodyHandle handle;
 	uint32_t denseIndex;
 
@@ -50,17 +51,7 @@ void BodyManager::DestroyBody(const BodyHandle& handle) noexcept
 
 	if (denseIndex != lastDense)
 	{
-		// Swap dense data
-		m_BodyData.positions[denseIndex] = m_BodyData.positions[lastDense];
-		m_BodyData.linearVelocities[denseIndex] = m_BodyData.linearVelocities[lastDense];
-		m_BodyData.orientations[denseIndex] = m_BodyData.orientations[lastDense];
-		m_BodyData.angularVelocities[denseIndex] = m_BodyData.angularVelocities[lastDense];
-		m_BodyData.forceAccumulators[denseIndex] = m_BodyData.forceAccumulators[lastDense];
-		m_BodyData.inverseMasses[denseIndex] = m_BodyData.inverseMasses[lastDense];
-		m_BodyData.dirtyFlags[denseIndex] = m_BodyData.dirtyFlags[lastDense];
-		m_BodyData.shapeCounts[denseIndex] = m_BodyData.shapeCounts[lastDense];
-		m_BodyData.shapeOffsets[denseIndex] = m_BodyData.shapeOffsets[lastDense];
-
+		SwapDenseData(lastDense, denseIndex);
 
 		// Update sparse 
 		uint32_t lastHandleIndex = m_DenseToHandle[lastDense];
@@ -68,22 +59,7 @@ void BodyManager::DestroyBody(const BodyHandle& handle) noexcept
 		m_DenseToHandle[denseIndex] = lastHandleIndex;
 	}
 
-	// Pop back dense data
-	m_BodyData.positions.pop_back();
-	m_BodyData.linearVelocities.pop_back();
-	m_BodyData.orientations.pop_back();
-	m_BodyData.angularVelocities.pop_back();
-	m_BodyData.forceAccumulators.pop_back();
-	m_BodyData.inverseMasses.pop_back();
-	m_BodyData.dirtyFlags.pop_back();
-
-	m_BodyData.shapeBuffer.pop_back();
-	m_BodyData.shapeCounts.pop_back();
-	m_BodyData.shapeOffsets.pop_back();
-
-
-
-	m_DenseToHandle.pop_back();
+	PopBackDenseData();
 
 	m_Generations[handle.index]++;
 	m_FreeHandles.push_back(handle);
@@ -104,7 +80,7 @@ void BodyManager::AttachShape(const BodyHandle& bodyHandle, const ShapeHandle& s
 	m_BodyData.shapeCounts[bodyIndex]++;
 }
 
-void Acro::Core::BodyManager::DetachShape(const BodyHandle& bodyHandle, const ShapeHandle& shapeHandle)
+void BodyManager::DetachShape(const BodyHandle& bodyHandle, const ShapeHandle& shapeHandle)
 {
 	assert(IsValid(bodyHandle));
 	size_t bodyIndex = m_Sparse[bodyHandle.index];
@@ -125,9 +101,11 @@ void Acro::Core::BodyManager::DetachShape(const BodyHandle& bodyHandle, const Sh
 	}
 }
 
-void Acro::Core::BodyManager::DetachShape(const BodyHandle& bodyHandle)
+void BodyManager::DetachShape(const BodyHandle& bodyHandle)
 {
 	assert(IsValid(bodyHandle));
+
+	// Detach all shapes attached to body
 
 	size_t bodyIndex = m_Sparse[bodyHandle.index];
 
@@ -147,7 +125,7 @@ void Acro::Core::BodyManager::DetachShape(const BodyHandle& bodyHandle)
 	}
 }
 
-bool Acro::Core::BodyManager::HasShape(const BodyHandle& bodyHandle, const ShapeHandle& shapeHandle)
+bool BodyManager::HasShape(const BodyHandle& bodyHandle, const ShapeHandle& shapeHandle)
 {
 	assert(IsValid(bodyHandle));
 
@@ -160,10 +138,9 @@ bool Acro::Core::BodyManager::HasShape(const BodyHandle& bodyHandle, const Shape
 	auto end = begin + count;
 
 	return std::find(begin, end, shapeHandle) != end;
-
 }
 
-bool Acro::Core::BodyManager::HasShape(const BodyHandle& bodyHandle)
+bool BodyManager::HasShape(const BodyHandle& bodyHandle)
 {
 	assert(IsValid(bodyHandle));
 	size_t bodyIndex = m_Sparse[bodyHandle.index];
@@ -171,7 +148,7 @@ bool Acro::Core::BodyManager::HasShape(const BodyHandle& bodyHandle)
 	return count > 0;
 }
 
-void Acro::Core::BodyManager::PushData(const BodyDescription& desc)
+void BodyManager::PushData(const Acro::BodyDescription& desc) noexcept
 {
 	m_BodyData.positions.push_back(desc.position);
 	m_BodyData.linearVelocities.push_back(desc.linearVelocity);
@@ -184,7 +161,35 @@ void Acro::Core::BodyManager::PushData(const BodyDescription& desc)
 	m_BodyData.shapeOffsets.push_back(0);
 }
 
-void Acro::Core::BodyManager::CreateHandle(BodyHandle& outHandle, uint32_t& outDenseIndex) noexcept
+void Acro::Physics::BodyManager::SwapDenseData(size_t from, size_t to) noexcept
+{
+	m_BodyData.positions[to] = m_BodyData.positions[from];
+	m_BodyData.linearVelocities[to] = m_BodyData.linearVelocities[from];
+	m_BodyData.orientations[to] = m_BodyData.orientations[from];
+	m_BodyData.angularVelocities[to] = m_BodyData.angularVelocities[from];
+	m_BodyData.forceAccumulators[to] = m_BodyData.forceAccumulators[from];
+	m_BodyData.inverseMasses[to] = m_BodyData.inverseMasses[from];
+	m_BodyData.dirtyFlags[to] = m_BodyData.dirtyFlags[from];
+	m_BodyData.shapeCounts[to] = m_BodyData.shapeCounts[from];
+	m_BodyData.shapeOffsets[to] = m_BodyData.shapeOffsets[from];
+}
+
+void Acro::Physics::BodyManager::PopBackDenseData() noexcept
+{
+	m_BodyData.positions.pop_back();
+	m_BodyData.linearVelocities.pop_back();
+	m_BodyData.orientations.pop_back();
+	m_BodyData.angularVelocities.pop_back();
+	m_BodyData.forceAccumulators.pop_back();
+	m_BodyData.inverseMasses.pop_back();
+	m_BodyData.dirtyFlags.pop_back();
+	m_BodyData.shapeBuffer.pop_back();
+	m_BodyData.shapeCounts.pop_back();
+	m_BodyData.shapeOffsets.pop_back();
+	m_DenseToHandle.pop_back();
+}
+
+void BodyManager::CreateHandle(BodyHandle& outHandle, uint32_t& outDenseIndex) noexcept
 {
 	if (!m_FreeHandles.empty())
 	{

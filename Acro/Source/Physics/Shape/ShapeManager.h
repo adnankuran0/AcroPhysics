@@ -2,9 +2,9 @@
 #define ACRO_SHAPE_MANAGER_H
 
 #include <cstdint>
-#include "Core/Shape/ShapeData.h"
+#include "Physics/Shape/ShapeData.h"
 
-namespace Acro::Core {
+namespace Acro::Physics {
 
 	struct ShapeHandle
 	{
@@ -39,40 +39,42 @@ namespace Acro::Core {
 			return m_Generations[handle.index] == handle.generation;
 		}
 
-		inline Acro::Core::ShapeType GetShapeType(const ShapeHandle& handle) const noexcept { assert(IsValid(handle)); return m_ShapeData.shapeTypes[m_Sparse[handle.index]]; }
-		inline Acro::Math::Vector3 GetOffset(const ShapeHandle& handle) const noexcept { assert(IsValid(handle)); return m_ShapeData.offsets[m_Sparse[handle.index]]; }
-		inline Acro::Math::Vector3 GetExtent(const ShapeHandle& handle) const noexcept { assert(IsValid(handle)); return m_ShapeData.extents[m_Sparse[handle.index]]; }
-		inline float GetRadius(const ShapeHandle& handle) const noexcept { assert(IsValid(handle)); return m_ShapeData.radii[m_Sparse[handle.index]]; }
+		inline Acro::ShapeType GetShapeType(const ShapeHandle& handle) const noexcept { assert(IsValid(handle)); return m_ShapeData.shapeTypes[m_Sparse[handle.index]]; }
 
-		inline void SetOffset(const ShapeHandle& handle, const Acro::Math::Vector3& offset) noexcept 
-		{ 
+		inline Acro::Math::Vector3 GetOffset(const ShapeHandle& handle) const noexcept { assert(IsValid(handle)); return m_ShapeData.offsets[m_Sparse[handle.index]]; }
+		inline void SetOffset(const ShapeHandle& handle, const Acro::Math::Vector3& offset) noexcept
+		{
 			assert(IsValid(handle));
 			SetDirty(handle, 1);
-			m_ShapeData.offsets[m_Sparse[handle.index]] = offset; 
+			m_ShapeData.offsets[m_Sparse[handle.index]] = offset;
 		}
-		inline void SetExtent(const ShapeHandle& handle, const Acro::Math::Vector3& extent) noexcept 
-		{ 
-			assert(IsValid(handle)); 
+
+		inline Acro::Math::Vector3 GetExtent(const ShapeHandle& handle) const noexcept { assert(IsValid(handle)); return m_ShapeData.extents[m_Sparse[handle.index]]; }
+		inline void SetExtent(const ShapeHandle& handle, const Acro::Math::Vector3& extent) noexcept
+		{
+			assert(IsValid(handle));
 			SetDirty(handle, 1);
-			m_ShapeData.extents[m_Sparse[handle.index]] = extent; 
+			m_ShapeData.extents[m_Sparse[handle.index]] = extent;
 		}
+
+		inline float GetRadius(const ShapeHandle& handle) const noexcept { assert(IsValid(handle)); return m_ShapeData.radii[m_Sparse[handle.index]]; }
 		inline void SetRadius(const ShapeHandle& handle, float radius) noexcept 
 		{ 
 			assert(IsValid(handle)); 
 			SetDirty(handle, 1);
 			m_ShapeData.radii[m_Sparse[handle.index]] = radius; 
 		}
-		
 
-		[[nodiscard]] ShapeData& GetData() noexcept { return m_ShapeData; }
+		[[nodiscard]] Acro::Physics::ShapeData& GetData() noexcept { return m_ShapeData; }
 
 	private:
 		void DestroyShape(const ShapeHandle& handle) noexcept;
-
 		void CreateHandle(ShapeHandle& outShapeHandle, uint32_t& outDenseIndex) noexcept;
 
+		void SwapDenseData(size_t from, size_t to) noexcept;
+		void PopBackDenseData() noexcept;
 
-		ShapeData m_ShapeData; // dense
+		Acro::Physics::ShapeData m_ShapeData; // dense
 		std::vector<uint32_t> m_Sparse;
 		std::vector<uint32_t> m_DenseToHandle;
 		std::vector<uint32_t> m_RefCount;

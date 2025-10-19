@@ -1,10 +1,12 @@
-#include "Core/Integrator.h"
+#include "Physics/Integrator/Integrator.h"
+#include "Physics/Body/BodyManager.h"
+
 #include <iostream>
 
 using namespace Acro::Math;
-using namespace Acro::Core;
+using namespace Acro::Physics;
 
-void Integrator::Step(BodyManager& bodyManager, float deltaTime)
+void Integrator::Step(BodyManager& bodyManager, float deltaTime) noexcept
 {
 	size_t count = bodyManager.GetData().positions.size();
 	for (size_t i = 0; i < count; i++)
@@ -13,7 +15,7 @@ void Integrator::Step(BodyManager& bodyManager, float deltaTime)
 	}
 }
 
-void Integrator::IntegrateBody(BodyManager& bodyManager, size_t index, float deltaTime)
+void Integrator::IntegrateBody(BodyManager& bodyManager, size_t index, float deltaTime) noexcept
 {
 	auto& bodyData = bodyManager.GetData();
 	float invMass = bodyData.inverseMasses[index];
@@ -42,6 +44,7 @@ void Integrator::IntegrateBody(BodyManager& bodyManager, size_t index, float del
 	orientation *= deltaRot;
 	orientation.Normalize();
 
+	// mark body dirty
 	bodyData.dirtyFlags[index] = 1;
 
 }

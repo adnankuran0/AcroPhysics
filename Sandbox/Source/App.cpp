@@ -17,7 +17,7 @@
 
 
 using namespace Acro::Math;
-using namespace Acro::Core;
+using namespace Acro::Physics;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -37,7 +37,7 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 
-Acro::Rigidbody body(nullptr,nullptr,nullptr,Acro::Core::BodyHandle{});
+Acro::Rigidbody body(nullptr,nullptr,nullptr,BodyHandle{});
 
 std::unique_ptr<Acro::World> world;
 

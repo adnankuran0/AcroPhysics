@@ -2,27 +2,12 @@
 #define ACRO_BODY_DATA_H
 
 #include <vector>
+
 #include "Math/Vector3.h"
 #include "Math/Quaternion.h"
-#include "Core/Shape/ShapeManager.h"
+#include "Physics/Shape/ShapeManager.h"
 
-namespace Acro {
-
-struct BodyDescription
-{
-	Acro::Math::Vector3 position = Acro::Math::Vector3(0.0f);
-	Acro::Math::Vector3 linearVelocity = Acro::Math::Vector3(0.0f);
-	Acro::Math::Quaternion orientation = Acro::Math::Quaternion::Identity();
-	Acro::Math::Vector3 angularVelocity = Acro::Math::Vector3(0.0f);
-	Acro::Math::Vector3 forceAccumulation = Acro::Math::Vector3(0.0f);
-	float mass = 1.0f;
-};
-}
-
-
-namespace Acro::Core {
-
-struct ShapeHandle; // forward declaration
+namespace Acro::Physics {
 
 struct BodyData
 {
@@ -34,16 +19,13 @@ struct BodyData
 	std::vector<float> inverseMasses;
 	std::vector<uint8_t> dirtyFlags;
 
-	std::vector<Acro::Core::ShapeHandle> shapeBuffer;
+	std::vector<Acro::Physics::ShapeHandle> shapeBuffer;
 	std::vector<size_t> shapeOffsets;
 	std::vector<size_t> shapeCounts;
-
 
 	void Reserve(size_t capacity);
 	
 };
-
-
 
 }
 

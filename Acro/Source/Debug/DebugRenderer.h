@@ -18,22 +18,7 @@ public:
 	void DrawSphere(const Acro::Math::Vector3& pos, float radius, Acro::Math::Vector3 color, float duration = -1.0f, int segments = 32);
 
 	[[nodiscard]] const std::vector<Acro::Debug::DebugPrimitive>& GetPrimitives() const { return m_Primitives; }
-	void Clear(float dt) 
-	{ 
-		for (auto it = m_Primitives.begin(); it != m_Primitives.end();)
-		{
-			it->duration -= dt;
-
-			if (it->duration <= 0.0f)
-			{
-				it = m_Primitives.erase(it);
-			}
-			else
-			{
-				++it;
-			}
-		}
-	}
+	void Clear(float dt) noexcept;
 
 	bool drawAABBs = false;
 	bool drawShapes = false;

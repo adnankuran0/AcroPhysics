@@ -2,14 +2,14 @@
 #define ACRO_WORLD_H
 
 #include "Math/Vector3.h"
-#include "Core/Body/BodyManager.h"
-#include "Core/Shape/ShapeManager.h"
-#include "Core/Shape/ShapeInstanceManager.h"
-#include "Core/Integrator.h"
-#include "Core/Shape/Shape.h"
+#include "Physics/Body/BodyManager.h"
+#include "Physics/Shape/ShapeManager.h"
+#include "Physics/Shape/ShapeInstanceManager.h"
+#include "Physics/Integrator/Integrator.h"
+#include "Public/Shape.h"
 #include "Debug/DebugRenderer.h"
-#include "Core/Shape/ShapeInstance.h"
-#include "Core/Broadphase.h"
+#include "Public/ShapeInstance.h"
+#include "Physics/Pipeline/Broadphase.h"
 #include <vector>
 
 
@@ -29,7 +29,7 @@ public:
 	void Step(float deltaTime);
 
 	inline void SetGravity(const Acro::Math::Vector3& gravity) noexcept { m_Gravity = gravity; }
-	inline Acro::Math::Vector3 GetGravity() const noexcept { return m_Gravity; }
+	inline const Acro::Math::Vector3& GetGravity() const noexcept { return m_Gravity; }
 
 	Rigidbody CreateBody() noexcept; 
 	Rigidbody CreateBody(const BodyDescription& desc) noexcept; 
@@ -55,14 +55,14 @@ private:
 	bool m_IsPaused = true;
 
 	Acro::Math::Vector3 m_Gravity;
-	Acro::Core::Integrator m_Integrator;
-	Acro::Core::BodyManager m_BodyManager;
-	Acro::Core::ShapeManager m_ShapeManager;
-	Acro::Core::ShapeInstanceManager m_ShapeInstanceManager;
+	Acro::Physics::Integrator m_Integrator;
+	Acro::Physics::BodyManager m_BodyManager;
+	Acro::Physics::ShapeManager m_ShapeManager;
+	Acro::Physics::ShapeInstanceManager m_ShapeInstanceManager;
 
-	std::vector<std::pair<Acro::Core::ShapeInstanceHandle, Acro::Core::ShapeInstanceHandle>> m_BroadphaseBuffer;
+	std::vector<std::pair<Acro::Physics::ShapeInstanceHandle, Acro::Physics::ShapeInstanceHandle>> m_BroadphaseBuffer;
 
-	Acro::Core::Broadphase m_Broadphase;
+	Acro::Physics::Broadphase m_Broadphase;
 
 	Acro::Debug::DebugRenderer m_DebugRenderer;
 };

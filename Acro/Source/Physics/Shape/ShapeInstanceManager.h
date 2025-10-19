@@ -2,9 +2,11 @@
 #define ACRO_SHAPE_INSTANCE_MANAGER_H
 
 #include <cstdint>
-#include "Core/Shape/ShapeInstanceData.h"
+#include "Physics/Shape/ShapeInstanceData.h"
 
-namespace Acro::Core {
+namespace Acro::Physics {
+
+class ShapeManager; // forward declaration
 
 struct ShapeInstanceHandle
 {
@@ -22,7 +24,7 @@ struct ShapeInstanceHandle
 class ShapeInstanceManager
 {
 public:
-	ShapeInstanceHandle CreateShapeInstance(ShapeManager& shapeManager, const ShapeHandle& shapeHandle, const BodyHandle& bodyHandle);
+	ShapeInstanceHandle CreateShapeInstance(Acro::Physics::ShapeManager& shapeManager, const Acro::Physics::ShapeHandle& shapeHandle, const Acro::Physics::BodyHandle& bodyHandle);
 	void DestroyShapeInstance(const ShapeInstanceHandle& handle);
 
 	inline bool IsValid(const ShapeInstanceHandle& handle) const noexcept
@@ -31,7 +33,7 @@ public:
 		return m_Generations[handle.index] == handle.generation;
 	}
 
-	void UpdateWorldData(Acro::Core::BodyManager& bodyManager, Acro::Core::ShapeManager& shapeManager);
+	void UpdateWorldData(Acro::Physics::BodyManager& bodyManager, Acro::Physics::ShapeManager& shapeManager);
 	
 	inline Acro::Math::Vector3* GetWorldVertices(size_t denseIndex) noexcept
 	{
@@ -41,25 +43,25 @@ public:
 	{
 		return m_ShapeInstanceData.vertexCounts[denseIndex];
 	}
-	inline const Acro::Math::Matrix4& GetWorldTransform(const Acro::Core::ShapeInstanceHandle& handle) const noexcept { return m_ShapeInstanceData.worldTransforms[m_Sparse[handle.index]]; }
-	inline const Acro::Math::AABB& GetWorldAABB(const Acro::Core::ShapeInstanceHandle& handle) const noexcept { return m_ShapeInstanceData.worldAABBs[m_Sparse[handle.index]]; }
+	inline const Acro::Math::Matrix4& GetWorldTransform(const Acro::Physics::ShapeInstanceHandle& handle) const noexcept { return m_ShapeInstanceData.worldTransforms[m_Sparse[handle.index]]; }
+	inline const Acro::Math::AABB& GetWorldAABB(const Acro::Physics::ShapeInstanceHandle& handle) const noexcept { return m_ShapeInstanceData.worldAABBs[m_Sparse[handle.index]]; }
 
-	inline void SetCollisionFilter(const Acro::Core::ShapeInstanceHandle& handle, const Acro::CollisionFilter& filter) { m_ShapeInstanceData.filters[m_Sparse[handle.index]] = filter; }
+	inline void SetCollisionFilter(const Acro::Physics::ShapeInstanceHandle& handle, const Acro::CollisionFilter& filter) { m_ShapeInstanceData.filters[m_Sparse[handle.index]] = filter; }
 	inline CollisionFilter& GetCollisionFilter(const ShapeInstanceHandle& handle) noexcept { return m_ShapeInstanceData.filters[m_Sparse[handle.index]]; }
 
-	inline void EnableLayer(const Acro::Core::ShapeInstanceHandle& handle, uint32_t index) noexcept
+	inline void EnableLayer(const Acro::Physics::ShapeInstanceHandle& handle, uint32_t index) noexcept
 	{
 		CollisonLayer::AddLayer(GetCollisionFilter(handle).layers, index);
 	}
-	inline void DisableLayer(const Acro::Core::ShapeInstanceHandle& handle, uint32_t index) noexcept
+	inline void DisableLayer(const Acro::Physics::ShapeInstanceHandle& handle, uint32_t index) noexcept
 	{
 		CollisonLayer::RemoveLayer(GetCollisionFilter(handle).layers, index);
 	}
-	inline void EnableMask(const Acro::Core::ShapeInstanceHandle& handle, uint32_t index) noexcept
+	inline void EnableMask(const Acro::Physics::ShapeInstanceHandle& handle, uint32_t index) noexcept
 	{
 		CollisonLayer::AddLayer(GetCollisionFilter(handle).mask, index);
 	}
-	inline void DisableMask(const Acro::Core::ShapeInstanceHandle& handle, uint32_t index) noexcept
+	inline void DisableMask(const Acro::Physics::ShapeInstanceHandle& handle, uint32_t index) noexcept
 	{
 		CollisonLayer::RemoveLayer(GetCollisionFilter(handle).mask, index);
 	}
@@ -72,12 +74,15 @@ public:
 		return handle;
 	}
 
-	[[nodiscard]] inline ShapeInstanceData& GetData() noexcept { return m_ShapeInstanceData; }
+	[[nodiscard]] inline Acro::Physics::ShapeInstanceData& GetData() noexcept { return m_ShapeInstanceData; }
 
 private:
 	void CreateHandle(ShapeInstanceHandle& outHandle, uint32_t& outDenseIndex) noexcept;
+	void SwapDenseData(size_t from, size_t to) noexcept;
+	void PopBackDenseData(size_t vertexCount) noexcept;
 
-	ShapeInstanceData m_ShapeInstanceData; // dense
+
+	Acro::Physics::ShapeInstanceData m_ShapeInstanceData; // dense
 	std::vector<uint32_t> m_Sparse;
 	std::vector<uint32_t> m_DenseToHandle;
 	std::vector<uint32_t> m_Generations;

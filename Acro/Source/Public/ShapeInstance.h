@@ -1,14 +1,14 @@
 #ifndef ACRO_SHAPE_INSTANCE_H
 #define ACRO_SHAPE_INSTANCE_H
 
-#include "ShapeInstanceManager.h"
+#include "Physics/Shape/ShapeInstanceManager.h"
 
 namespace Acro{
 
 class ShapeInstance
 {
 public:
-	ShapeInstance(Acro::Core::ShapeInstanceManager* shapeInstanceManager, const Acro::Core::ShapeInstanceHandle& shapeInstanceHandle) :
+	ShapeInstance(Acro::Physics::ShapeInstanceManager* shapeInstanceManager, const Acro::Physics::ShapeInstanceHandle& shapeInstanceHandle) :
 		m_ShapeInstanceManager(shapeInstanceManager), m_Handle(shapeInstanceHandle) {}
 
 	inline bool IsValid() const noexcept { return m_ShapeInstanceManager && m_ShapeInstanceManager->IsValid(m_Handle); }
@@ -25,8 +25,8 @@ public:
 	inline void DisableMask(uint32_t index) noexcept { m_ShapeInstanceManager->DisableMask(m_Handle, index); }
 
 private:
-	Acro::Core::ShapeInstanceManager* m_ShapeInstanceManager;
-	Acro::Core::ShapeInstanceHandle m_Handle;
+	Acro::Physics::ShapeInstanceManager* m_ShapeInstanceManager;
+	Acro::Physics::ShapeInstanceHandle m_Handle;
 
 };
 

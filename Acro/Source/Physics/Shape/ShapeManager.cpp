@@ -1,7 +1,7 @@
-#include "Core/Shape/ShapeManager.h"
+#include "Physics/Shape/ShapeManager.h"
 #include <iostream>
 
-using namespace Acro::Core;
+using namespace Acro::Physics;
 using namespace Acro::Math;
 
 ShapeHandle ShapeManager::CreateBoxShape(const Vector3& extent, const Vector3& offset) noexcept
@@ -68,12 +68,7 @@ void ShapeManager::DestroyShape(const ShapeHandle& handle) noexcept
 
 	if (denseIndex != lastDense)
 	{
-		// Swap dense data
-		m_ShapeData.shapeTypes[denseIndex] = m_ShapeData.shapeTypes[lastDense];
-		m_ShapeData.offsets[denseIndex] = m_ShapeData.offsets[lastDense];
-		m_ShapeData.extents[denseIndex] = m_ShapeData.extents[lastDense];
-		m_ShapeData.radii[denseIndex] = m_ShapeData.radii[lastDense];
-		m_ShapeData.dirtyFlags[denseIndex] = m_ShapeData.dirtyFlags[lastDense];
+		SwapDenseData(lastDense, denseIndex);
 
 		// Update sparse 
 		uint32_t lastHandleIndex = m_DenseToHandle[lastDense];
@@ -82,19 +77,14 @@ void ShapeManager::DestroyShape(const ShapeHandle& handle) noexcept
 
 	}
 
-	// Pop back dense data
-	m_ShapeData.shapeTypes.pop_back();
-	m_ShapeData.offsets.pop_back();
-	m_ShapeData.extents.pop_back();
-	m_ShapeData.radii.pop_back();
-	m_ShapeData.dirtyFlags.pop_back();
-	m_DenseToHandle.pop_back();
+	PopBackDenseData();
+
 	m_RefCount[handle.index] = 0;
 	m_Generations[handle.index]++;
 	m_FreeHandles.push_back(handle);
 }
 
-void Acro::Core::ShapeManager::CreateHandle(ShapeHandle& outShapeHandle, uint32_t& outDenseIndex) noexcept
+void ShapeManager::CreateHandle(ShapeHandle& outShapeHandle, uint32_t& outDenseIndex) noexcept
 {
 	if (!m_FreeHandles.empty())
 	{
@@ -115,4 +105,23 @@ void Acro::Core::ShapeManager::CreateHandle(ShapeHandle& outShapeHandle, uint32_
 		m_Generations.push_back(0);
 		outDenseIndex = static_cast<uint32_t>(m_ShapeData.shapeTypes.size());
 	}
+}
+
+void ShapeManager::SwapDenseData(size_t from, size_t to) noexcept
+{
+	m_ShapeData.shapeTypes[to] = m_ShapeData.shapeTypes[from];
+	m_ShapeData.offsets[to] = m_ShapeData.offsets[from];
+	m_ShapeData.extents[to] = m_ShapeData.extents[from];
+	m_ShapeData.radii[to] = m_ShapeData.radii[from];
+	m_ShapeData.dirtyFlags[to] = m_ShapeData.dirtyFlags[from];
+}
+
+void ShapeManager::PopBackDenseData() noexcept
+{
+	m_ShapeData.shapeTypes.pop_back();
+	m_ShapeData.offsets.pop_back();
+	m_ShapeData.extents.pop_back();
+	m_ShapeData.radii.pop_back();
+	m_ShapeData.dirtyFlags.pop_back();
+	m_DenseToHandle.pop_back();
 }

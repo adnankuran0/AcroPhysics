@@ -1,0 +1,5 @@
+#ifndef ACRO_NARROWPHASE_H
+#define ACRO_NARROWPHASE_H
+
+
+#endif // !ACRO_NARROWPHASE_H

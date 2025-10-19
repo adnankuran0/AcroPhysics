@@ -4,16 +4,16 @@
 #include <iostream>
 
 
-using namespace Acro::Core;
 using namespace Acro::Math;
+using namespace Acro::Physics;
 
 
-ShapeInstanceHandle Acro::Core::ShapeInstanceManager::CreateShapeInstance(ShapeManager& shapeManager, const ShapeHandle& shapeHandle, const BodyHandle& bodyHandle)
+ShapeInstanceHandle ShapeInstanceManager::CreateShapeInstance(ShapeManager& shapeManager, const ShapeHandle& shapeHandle, const BodyHandle& bodyHandle)
 {
 	ShapeInstanceHandle handle;
-	uint32_t denseIndex;
+	uint32_t to;
 
-	CreateHandle(handle, denseIndex);
+	CreateHandle(handle, to);
 
 	auto& data = m_ShapeInstanceData;
 	data.shapes.push_back(shapeHandle); 
@@ -45,64 +45,48 @@ ShapeInstanceHandle Acro::Core::ShapeInstanceManager::CreateShapeInstance(ShapeM
 	return { handle.index,m_Generations[handle.index] };
 }
 
-void Acro::Core::ShapeInstanceManager::DestroyShapeInstance(const ShapeInstanceHandle& handle)
+void ShapeInstanceManager::DestroyShapeInstance(const ShapeInstanceHandle& handle)
 {
 	if (!IsValid(handle)) return;
 
-	uint32_t denseIndex = m_Sparse[handle.index];
-	uint32_t lastDense = static_cast<uint32_t>(m_ShapeInstanceData.shapes.size() - 1);
+	uint32_t to = m_Sparse[handle.index];
+	uint32_t from = static_cast<uint32_t>(m_ShapeInstanceData.shapes.size() - 1);
 
 	auto& data = m_ShapeInstanceData;
 
-	size_t offset = data.vertexOffsets[denseIndex];
-	size_t count = data.vertexCounts[denseIndex];
-	size_t lastOffset = data.vertexOffsets[lastDense];
-	size_t lastCount = data.vertexCounts[lastDense];
+	size_t offset = data.vertexOffsets[to];
+	size_t count = data.vertexCounts[to];
+	size_t lastOffset = data.vertexOffsets[from];
+	size_t lastCount = data.vertexCounts[from];
 
-	if (denseIndex != lastDense)
+	if (to != from)
 	{
-		// Swap dense data
-		data.shapes[denseIndex] =			data.shapes[lastDense];
-		data.bodies[denseIndex] =			data.bodies[lastDense];
-		data.worldTransforms[denseIndex] =  data.worldTransforms[lastDense];
-		data.worldAABBs[denseIndex] =		data.worldAABBs[lastDense];
-		data.filters[denseIndex] =			data.filters[lastDense];
+		SwapDenseData(lastCount, to);
 
 		// swap vertex buffer
 		for (size_t v = 0; v < lastCount; v++)
 		{
 			data.worldVertexBuffer[offset + v] = data.worldVertexBuffer[lastOffset + v];
 		}
-		data.vertexOffsets[denseIndex] = offset;
-		data.vertexCounts[denseIndex] = lastCount;
+		data.vertexOffsets[to] = offset;
+		data.vertexCounts[to] = lastCount;
 
 		// Update sparse 
-		uint32_t lastHandleIndex = m_DenseToHandle[lastDense];
-		m_Sparse[lastHandleIndex] = denseIndex;
-		m_DenseToHandle[denseIndex] = lastHandleIndex;
+		uint32_t lastHandleIndex = m_DenseToHandle[from];
+		m_Sparse[lastHandleIndex] = to;
+		m_DenseToHandle[to] = lastHandleIndex;
 
 	}
 	
-	
-	// Pop back dense data
-	data.shapes.pop_back();
-	data.bodies.pop_back();
-	data.worldTransforms.pop_back();
-	data.worldAABBs.pop_back();
-	data.filters.pop_back();
+	PopBackDenseData(count);
 
-	data.vertexOffsets.pop_back();
-	data.vertexCounts.pop_back();
-	data.worldVertexBuffer.resize(data.worldVertexBuffer.size() - count);
-
-	m_DenseToHandle.pop_back();
 	m_Generations[handle.index]++;
 	m_FreeHandles.push_back(handle);
 
 
 }
 
-void ShapeInstanceManager::UpdateWorldData(Acro::Core::BodyManager& bodyManager, Acro::Core::ShapeManager& shapeManager)
+void ShapeInstanceManager::UpdateWorldData(BodyManager& bodyManager, ShapeManager& shapeManager)
 {
 	auto& data = m_ShapeInstanceData;
 
@@ -169,13 +153,13 @@ void ShapeInstanceManager::UpdateWorldData(Acro::Core::BodyManager& bodyManager,
 	}
 }
 
-void Acro::Core::ShapeInstanceManager::CreateHandle(ShapeInstanceHandle& outHandle, uint32_t& outDenseIndex) noexcept
+void ShapeInstanceManager::CreateHandle(ShapeInstanceHandle& outHandle, uint32_t& outto) noexcept
 {
 	if (!m_FreeHandles.empty())
 	{
 		outHandle = m_FreeHandles.back();
 		m_FreeHandles.pop_back();
-		outDenseIndex = m_Sparse[outHandle.index]; 
+		outto = m_Sparse[outHandle.index]; 
 		m_Generations[outHandle.index]++;
 	}
 	else
@@ -185,6 +169,29 @@ void Acro::Core::ShapeInstanceManager::CreateHandle(ShapeInstanceHandle& outHand
 		outHandle.generation = 0;
 		m_Sparse.push_back(static_cast<uint32_t>(m_ShapeInstanceData.shapes.size()));
 		m_Generations.push_back(0);
-		outDenseIndex = static_cast<uint32_t>(m_ShapeInstanceData.shapes.size());
+		outto = static_cast<uint32_t>(m_ShapeInstanceData.shapes.size());
 	}
+}
+
+void ShapeInstanceManager::SwapDenseData(size_t from, size_t to) noexcept
+{
+	m_ShapeInstanceData.shapes[to] = m_ShapeInstanceData.shapes[from];
+	m_ShapeInstanceData.bodies[to] = m_ShapeInstanceData.bodies[from];
+	m_ShapeInstanceData.worldTransforms[to] = m_ShapeInstanceData.worldTransforms[from];
+	m_ShapeInstanceData.worldAABBs[to] = m_ShapeInstanceData.worldAABBs[from];
+	m_ShapeInstanceData.filters[to] = m_ShapeInstanceData.filters[from];
+}
+
+void ShapeInstanceManager::PopBackDenseData(size_t vertexCount) noexcept
+{
+	auto& data = m_ShapeInstanceData;
+	data.shapes.pop_back();
+	data.bodies.pop_back();
+	data.worldTransforms.pop_back();
+	data.worldAABBs.pop_back();
+	data.filters.pop_back();
+	data.vertexOffsets.pop_back();
+	data.vertexCounts.pop_back();
+	data.worldVertexBuffer.resize(data.worldVertexBuffer.size() - vertexCount);
+	m_DenseToHandle.pop_back();
 }
