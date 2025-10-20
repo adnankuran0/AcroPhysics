@@ -22,6 +22,7 @@ public:
 
 	bool drawAABBs = false;
 	bool drawShapes = false;
+	bool drawContactPoints = false;
 
 private:
 	std::vector<Acro::Debug::DebugPrimitive> m_Primitives;

@@ -10,6 +10,7 @@
 #include "Debug/DebugRenderer.h"
 #include "Public/ShapeInstance.h"
 #include "Physics/Pipeline/Broadphase.h"
+#include "Physics/Pipeline/Narrowphase.h"
 #include <vector>
 
 
@@ -61,8 +62,10 @@ private:
 	Acro::Physics::ShapeInstanceManager m_ShapeInstanceManager;
 
 	std::vector<std::pair<Acro::Physics::ShapeInstanceHandle, Acro::Physics::ShapeInstanceHandle>> m_BroadphaseBuffer;
+	std::vector<Acro::Physics::ContactManifold> m_ContactManifoldBuffer;
 
 	Acro::Physics::Broadphase m_Broadphase;
+	Acro::Physics::Narrowphase m_Narrowphase;
 
 	Acro::Debug::DebugRenderer m_DebugRenderer;
 };

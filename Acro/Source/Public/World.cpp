@@ -33,8 +33,15 @@ void World::Step(float deltaTime)
 				m_BroadphaseBuffer = m_Broadphase.Compute(&m_ShapeInstanceManager);
 			}
 
+			{
+				ProfilerScope narrowphaseScope("Narrowphase");
+				m_ContactManifoldBuffer = m_Narrowphase.Compute(m_ShapeManager, m_ShapeInstanceManager, m_BroadphaseBuffer);
+			}
+
+
+
 			Profiler::EndFrame();
-			Profiler::PrintSummary();
+			//Profiler::PrintSummary();
 
 			m_StepCount++;
 			m_DeltaAccumulator -= m_FixedDeltaTime;
@@ -85,7 +92,7 @@ ShapeInstance Acro::World::AttachShape(const Rigidbody& body , const Acro::Shape
 	assert(m_ShapeManager.IsValid(shape.m_Handle));
 	assert(!m_BodyManager.HasShape(body.m_BodyHandle, shape.m_Handle));
 
-	m_BodyManager.AttachShape(body.m_BodyHandle, body.m_ShapeHandle);
+	m_BodyManager.AttachShape(body.m_BodyHandle,shape.m_Handle);
 	m_ShapeManager.AddRef(body.m_ShapeHandle);
 	ShapeInstanceHandle shapeInstanceHandle = m_ShapeInstanceManager.CreateShapeInstance(m_ShapeManager, body.m_ShapeHandle, body.m_BodyHandle);
 
@@ -118,7 +125,22 @@ void Acro::World::DrawDebugShapes()
 {
 	auto& shapeInstanceData = m_ShapeInstanceManager.GetData();
 
-	
+	if (m_DebugRenderer.drawContactPoints)
+	{
+		Vector3 color = Vector3(1.0f, 1.0f, 0.0f);
+		for (auto& cp : m_ContactManifoldBuffer)
+		{
+			for (int i = 0; i < cp.count; i++)
+			{
+				const auto& pos = cp.points[i].position;
+				const auto& nor = cp.points[i].normal;
+
+				m_DebugRenderer.DrawPoint(pos, color, 1.0f);
+				m_DebugRenderer.DrawLine(pos, pos + nor * 0.5f, color, 1.0f);
+			}
+		}
+	}
+
 	if (m_DebugRenderer.drawAABBs)
 	{
 		for (auto& aabb : shapeInstanceData.worldAABBs)

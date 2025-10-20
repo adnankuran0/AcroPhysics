@@ -33,6 +33,8 @@ public:
 		return m_Generations[handle.index] == handle.generation;
 	}
 
+	inline size_t GetDenseIndex(const ShapeInstanceHandle& handle) const noexcept { return m_Sparse[handle.index]; }
+
 	void UpdateWorldData(Acro::Physics::BodyManager& bodyManager, Acro::Physics::ShapeManager& shapeManager);
 	
 	inline Acro::Math::Vector3* GetWorldVertices(size_t denseIndex) noexcept

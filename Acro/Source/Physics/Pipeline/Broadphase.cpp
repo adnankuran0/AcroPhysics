@@ -58,7 +58,10 @@ std::vector<Pair> Broadphase::Compute(ShapeInstanceManager* shapeInsanceManager)
 					
 					ShapeInstanceHandle ha = shapeInsanceManager->GetHandle(endpoint.index);
 					ShapeInstanceHandle hb = shapeInsanceManager->GetHandle(j);
-					out.emplace_back(ha,hb);
+					if (ha.index < hb.index)
+						out.emplace_back(ha, hb);
+					else
+						out.emplace_back(hb, ha);
 				}
 			}
 

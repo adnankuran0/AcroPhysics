@@ -45,6 +45,7 @@ int main(void)
 {
     bool stepPhysics = false;
     bool debugDraw = true;
+    bool drawContactPoints = false;
     bool drawAABBs = false;
     bool drawShapes = false;
 
@@ -68,6 +69,7 @@ int main(void)
     Cube cube;
     Cube cube2;
     Sphere sphere;
+    Sphere sphere2;
 
     world = std::make_unique<Acro::World>(Acro::Math::Vector3(0.0f,-9.8f,0.0f),60,8);
 
@@ -93,7 +95,7 @@ int main(void)
     sphereBody.AttachShape(sphereShape);
 
 
-    body.AttachShape(boxShape);
+    body.AttachShape(sphereShape);
     body2.AttachShape(boxShape);
 
 
@@ -116,6 +118,10 @@ int main(void)
             world->SetPaused(!stepPhysics);
         }
         ImGui::Checkbox("Debug draw", &debugDraw);
+        if (ImGui::Checkbox("Draw Contact Points", &drawContactPoints))
+        {
+            world->GetDebugRenderer().drawContactPoints  = drawContactPoints;
+        }
         if (ImGui::Checkbox("Draw AABBs", &drawAABBs))
         {
             world->GetDebugRenderer().drawAABBs = drawAABBs;
@@ -139,8 +145,9 @@ int main(void)
         body.SetOrientation(Quaternion(Vector3(1.0, 0.5, 0.0), 45.0f + static_cast<float>(glfwGetTime())));
         body.SetPosition(body.GetPosition() + Vector3(0.5f, 0.0f, 0.0f) * deltaTime);
 
-        cube.Draw(shader, body,view, proj, camera.Position);
+        //cube.Draw(shader, body,view, proj, camera.Position);
         cube2.Draw(shader, body2,view, proj, camera.Position);
+        sphere2.Draw(shader, body, view, proj, camera.Position);
         sphere.Draw(shader, sphereBody, view, proj, camera.Position);
 
         gui.Render();
