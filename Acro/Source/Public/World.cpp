@@ -7,7 +7,7 @@ using namespace Acro::Physics;
 using namespace Acro::Debug;
 using namespace Acro;
 
-void World::Step(float deltaTime)
+void World::Step(float deltaTime) noexcept
 {
 	if (!m_IsPaused)
 	{
@@ -36,6 +36,7 @@ void World::Step(float deltaTime)
 			{
 				ProfilerScope narrowphaseScope("Narrowphase");
 				m_ContactManifoldBuffer = m_Narrowphase.Compute(m_ShapeManager, m_ShapeInstanceManager, m_BroadphaseBuffer);
+				std::cout << "Contact count: " << m_ContactManifoldBuffer.size() << "\n";
 			}
 
 
@@ -108,7 +109,10 @@ void Acro::World::DetachShape(const Rigidbody& body, const Acro::Shape& shape)
 
 	m_BodyManager.DetachShape(body.m_BodyHandle,shape.m_Handle);
 	m_ShapeInstanceManager.DestroyShapeInstance(body.m_ShapeInstanceHandle);
-	m_ShapeManager.ReleaseRef(body.m_ShapeHandle);
+	
+	int shapeRefCount = m_ShapeManager.ReleaseRef(body.m_ShapeHandle);
+	if (shapeRefCount <= 0)
+		m_ShapeManager.DestroyShape(shape.m_Handle);
 
 }
 
@@ -135,8 +139,8 @@ void Acro::World::DrawDebugShapes()
 				const auto& pos = cp.points[i].position;
 				const auto& nor = cp.points[i].normal;
 
-				m_DebugRenderer.DrawPoint(pos, color, 1.0f);
-				m_DebugRenderer.DrawLine(pos, pos + nor * 0.5f, color, 1.0f);
+				m_DebugRenderer.DrawPoint(pos, color, 0.2f);
+				m_DebugRenderer.DrawLine(pos, pos + nor * 0.5f, color, 0.2f);
 			}
 		}
 	}

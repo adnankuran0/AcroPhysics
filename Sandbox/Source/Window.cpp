@@ -8,6 +8,7 @@ int Window::Init(const char* windowName,unsigned int screenWidth, unsigned int s
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_SAMPLES, 4);
 
     /* Create a windowed mode window and its OpenGL context */
     m_NativeWindow = glfwCreateWindow(screenWidth, screenHeight, windowName, NULL, NULL);
@@ -30,6 +31,7 @@ int Window::Init(const char* windowName,unsigned int screenWidth, unsigned int s
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_MULTISAMPLE);
     glCullFace(GL_BACK);
 
     printf("Loaded OpenGL %d.%d\n", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));

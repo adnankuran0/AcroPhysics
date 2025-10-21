@@ -27,7 +27,7 @@ public:
 
 	inline void SetPaused(bool isPaused) { m_IsPaused = isPaused; }
 
-	void Step(float deltaTime);
+	void Step(float deltaTime) noexcept;
 
 	inline void SetGravity(const Acro::Math::Vector3& gravity) noexcept { m_Gravity = gravity; }
 	inline const Acro::Math::Vector3& GetGravity() const noexcept { return m_Gravity; }
@@ -39,7 +39,6 @@ public:
 	Acro::BoxShape CreateBoxShape(const Acro::Math::Vector3& extent = Acro::Math::Vector3(1.0), const Acro::Math::Vector3& offset = Acro::Math::Vector3(0.0)) noexcept;
 	Acro::SphereShape CreateSphereShape(float radius = 1.0f, const Acro::Math::Vector3& offset = Acro::Math::Vector3(0.0)) noexcept;
 
-	// TODO: return ShapeInstance wrapper
 	Acro::ShapeInstance AttachShape(const Rigidbody& body, const Acro::Shape& shape);
 	void DetachShape(const Rigidbody& body, const Acro::Shape& shape);
 	void DetachShape(const Rigidbody& body);
@@ -66,7 +65,7 @@ private:
 
 	Acro::Physics::Broadphase m_Broadphase;
 	Acro::Physics::Narrowphase m_Narrowphase;
-
+	
 	Acro::Debug::DebugRenderer m_DebugRenderer;
 };
 

@@ -59,9 +59,10 @@ void ShapeInstanceManager::DestroyShapeInstance(const ShapeInstanceHandle& handl
 	size_t lastOffset = data.vertexOffsets[from];
 	size_t lastCount = data.vertexCounts[from];
 
+	SwapDenseData(lastCount, to);
+
 	if (to != from)
 	{
-		SwapDenseData(lastCount, to);
 
 		// swap vertex buffer
 		for (size_t v = 0; v < lastCount; v++)
@@ -71,17 +72,12 @@ void ShapeInstanceManager::DestroyShapeInstance(const ShapeInstanceHandle& handl
 		data.vertexOffsets[to] = offset;
 		data.vertexCounts[to] = lastCount;
 
-		// Update sparse 
-		uint32_t lastHandleIndex = m_DenseToHandle[from];
-		m_Sparse[lastHandleIndex] = to;
-		m_DenseToHandle[to] = lastHandleIndex;
+		DestroyHandle(handle,from,to);
 
 	}
 	
 	PopBackDenseData(count);
 
-	m_Generations[handle.index]++;
-	m_FreeHandles.push_back(handle);
 
 
 }
@@ -153,25 +149,7 @@ void ShapeInstanceManager::UpdateWorldData(BodyManager& bodyManager, ShapeManage
 	}
 }
 
-void ShapeInstanceManager::CreateHandle(ShapeInstanceHandle& outHandle, uint32_t& outto) noexcept
-{
-	if (!m_FreeHandles.empty())
-	{
-		outHandle = m_FreeHandles.back();
-		m_FreeHandles.pop_back();
-		outto = m_Sparse[outHandle.index]; 
-		m_Generations[outHandle.index]++;
-	}
-	else
-	{
-		// create new handle
-		outHandle.index = static_cast<uint32_t>(m_Sparse.size());
-		outHandle.generation = 0;
-		m_Sparse.push_back(static_cast<uint32_t>(m_ShapeInstanceData.shapes.size()));
-		m_Generations.push_back(0);
-		outto = static_cast<uint32_t>(m_ShapeInstanceData.shapes.size());
-	}
-}
+
 
 void ShapeInstanceManager::SwapDenseData(size_t from, size_t to) noexcept
 {

@@ -49,20 +49,13 @@ void BodyManager::DestroyBody(const BodyHandle& handle) noexcept
 	uint32_t denseIndex = m_Sparse[handle.index];
 	uint32_t lastDense = static_cast<uint32_t>(m_BodyData.positions.size() - 1);
 
-	if (denseIndex != lastDense)
-	{
-		SwapDenseData(lastDense, denseIndex);
+	SwapDenseData(lastDense, denseIndex);
 
-		// Update sparse 
-		uint32_t lastHandleIndex = m_DenseToHandle[lastDense];
-		m_Sparse[lastHandleIndex] = denseIndex;
-		m_DenseToHandle[denseIndex] = lastHandleIndex;
-	}
+	DestroyHandle(handle,lastDense,denseIndex);
 
 	PopBackDenseData();
 
-	m_Generations[handle.index]++;
-	m_FreeHandles.push_back(handle);
+
 }
 
 void BodyManager::AttachShape(const BodyHandle& bodyHandle, const ShapeHandle& shapeHandle)
@@ -189,28 +182,6 @@ void Acro::Physics::BodyManager::PopBackDenseData() noexcept
 	m_DenseToHandle.pop_back();
 }
 
-void BodyManager::CreateHandle(BodyHandle& outHandle, uint32_t& outDenseIndex) noexcept
-{
-	if (!m_FreeHandles.empty())
-	{
-		outHandle = m_FreeHandles.back();
-		m_FreeHandles.pop_back();
-		outDenseIndex = static_cast<uint32_t>(m_BodyData.positions.size());
-		m_Sparse[outHandle.index] = outDenseIndex;
-		m_Generations[outHandle.index]++;
-
-		outHandle.generation = m_Generations[outHandle.index];
-	}
-	else
-	{
-		// create new handle
-		outHandle.index = static_cast<uint32_t>(m_Sparse.size());
-		outHandle.generation = 0;
-		m_Sparse.push_back(static_cast<uint32_t>(m_BodyData.positions.size()));
-		m_Generations.push_back(0);
-		outDenseIndex = static_cast<uint32_t>(m_BodyData.positions.size());
-	}
-}
 
 
 

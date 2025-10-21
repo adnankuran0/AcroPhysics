@@ -38,26 +38,6 @@ ShapeHandle ShapeManager::CreateSphereShape(float radius, const Vector3& offset)
 	return { handle.index,m_Generations[handle.index] };
 }
 
-void ShapeManager::AddRef(const ShapeHandle& handle)
-{
-	if (!IsValid(handle)) return;
-
-	m_RefCount[handle.index]++;
-}
-
-void ShapeManager::ReleaseRef(const ShapeHandle& handle)
-{
-	if (!IsValid(handle)) return;
-	if (m_RefCount[handle.index] == 0) return;
-
-	m_RefCount[handle.index]--;
-
-	if (m_RefCount[handle.index] <= 0)
-	{
-		DestroyShape(handle);
-	}
-
-}
 
 void ShapeManager::DestroyShape(const ShapeHandle& handle) noexcept
 {
@@ -66,46 +46,16 @@ void ShapeManager::DestroyShape(const ShapeHandle& handle) noexcept
 	uint32_t denseIndex = m_Sparse[handle.index];
 	uint32_t lastDense = static_cast<uint32_t>(m_ShapeData.shapeTypes.size() - 1);
 
-	if (denseIndex != lastDense)
-	{
-		SwapDenseData(lastDense, denseIndex);
+	
+	SwapDenseData(lastDense, denseIndex);
 
-		// Update sparse 
-		uint32_t lastHandleIndex = m_DenseToHandle[lastDense];
-		m_Sparse[lastHandleIndex] = denseIndex;
-		m_DenseToHandle[denseIndex] = lastHandleIndex;
-
-	}
+	DestroyHandle(handle, lastDense, denseIndex);
 
 	PopBackDenseData();
 
-	m_RefCount[handle.index] = 0;
-	m_Generations[handle.index]++;
-	m_FreeHandles.push_back(handle);
+	
 }
 
-void ShapeManager::CreateHandle(ShapeHandle& outShapeHandle, uint32_t& outDenseIndex) noexcept
-{
-	if (!m_FreeHandles.empty())
-	{
-		outShapeHandle = m_FreeHandles.back();
-		m_FreeHandles.pop_back();
-		outDenseIndex = static_cast<uint32_t>(m_ShapeData.shapeTypes.size());
-		m_Sparse[outShapeHandle.index] = outDenseIndex;
-		m_RefCount[outShapeHandle.index] = 0;
-		m_Generations[outShapeHandle.index]++;
-	}
-	else
-	{
-		// create new handle
-		outShapeHandle.index = static_cast<uint32_t>(m_Sparse.size());
-		outShapeHandle.generation = 0;
-		m_Sparse.push_back(static_cast<uint32_t>(m_ShapeData.shapeTypes.size()));
-		m_RefCount.push_back(static_cast<uint32_t>(0));
-		m_Generations.push_back(0);
-		outDenseIndex = static_cast<uint32_t>(m_ShapeData.shapeTypes.size());
-	}
-}
 
 void ShapeManager::SwapDenseData(size_t from, size_t to) noexcept
 {

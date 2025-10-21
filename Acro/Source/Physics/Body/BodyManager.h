@@ -6,6 +6,7 @@
 
 #include "Public/BodyDescription.h"
 #include "Physics/Body/BodyData.h"
+#include "Core/HandlePool.h"
 
 namespace Acro::Physics {
 
@@ -23,7 +24,7 @@ struct BodyHandle
 
 };
 
-class BodyManager
+class BodyManager : public Acro::Core::HandlePool<BodyHandle>
 {
 public:
 	BodyManager() = default;
@@ -35,13 +36,6 @@ public:
 	BodyHandle CreateBody() noexcept ;
 	BodyHandle CreateBody(const BodyDescription& desc) noexcept;
 	void DestroyBody(const BodyHandle& handle) noexcept;
-
-	inline bool IsValid(const BodyHandle& handle) const noexcept
-	{
-		if (handle.index >= m_Generations.size()) return false;
-		return m_Generations[handle.index] == handle.generation && handle != BodyHandle::Null();
-	
-	}
 
 	inline bool IsDirty(const BodyHandle& handle) const noexcept { return m_BodyData.dirtyFlags[m_Sparse[handle.index]]; }
 	inline void SetDirty(const BodyHandle& handle, uint8_t isDirty) noexcept { m_BodyData.dirtyFlags[m_Sparse[handle.index]] = isDirty; }
@@ -123,13 +117,8 @@ private:
 	void PushData(const Acro::BodyDescription& desc) noexcept;
 	void SwapDenseData(size_t from, size_t to) noexcept;
 	void PopBackDenseData() noexcept;
-	void CreateHandle(BodyHandle& outHandle, uint32_t& outDenseIndex) noexcept;
 
 	BodyData m_BodyData; // dense
-	std::vector<uint32_t> m_Sparse;
-	std::vector<uint32_t> m_DenseToHandle;
-	std::vector<uint32_t> m_Generations;
-	std::vector<BodyHandle> m_FreeHandles;
 };
 
 }

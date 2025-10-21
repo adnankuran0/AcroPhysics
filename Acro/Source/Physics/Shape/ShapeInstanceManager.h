@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include "Physics/Shape/ShapeInstanceData.h"
+#include "Core/HandlePool.h"
 
 namespace Acro::Physics {
 
@@ -21,19 +22,13 @@ struct ShapeInstanceHandle
 	}
 };
 
-class ShapeInstanceManager
+class ShapeInstanceManager : public Acro::Core::HandlePool<ShapeInstanceHandle>
 {
 public:
 	ShapeInstanceHandle CreateShapeInstance(Acro::Physics::ShapeManager& shapeManager, const Acro::Physics::ShapeHandle& shapeHandle, const Acro::Physics::BodyHandle& bodyHandle);
 	void DestroyShapeInstance(const ShapeInstanceHandle& handle);
 
-	inline bool IsValid(const ShapeInstanceHandle& handle) const noexcept
-	{
-		if (handle.index >= m_Generations.size()) return false;
-		return m_Generations[handle.index] == handle.generation;
-	}
-
-	inline size_t GetDenseIndex(const ShapeInstanceHandle& handle) const noexcept { return m_Sparse[handle.index]; }
+	
 
 	void UpdateWorldData(Acro::Physics::BodyManager& bodyManager, Acro::Physics::ShapeManager& shapeManager);
 	
@@ -68,28 +63,14 @@ public:
 		CollisonLayer::RemoveLayer(GetCollisionFilter(handle).mask, index);
 	}
 
-	inline ShapeInstanceHandle GetHandle(uint32_t denseIndex)
-	{
-		ShapeInstanceHandle handle; 
-		handle.index = m_DenseToHandle[denseIndex];
-		handle.generation = m_Generations[denseIndex];
-		return handle;
-	}
-
 	[[nodiscard]] inline Acro::Physics::ShapeInstanceData& GetData() noexcept { return m_ShapeInstanceData; }
 
 private:
-	void CreateHandle(ShapeInstanceHandle& outHandle, uint32_t& outDenseIndex) noexcept;
 	void SwapDenseData(size_t from, size_t to) noexcept;
 	void PopBackDenseData(size_t vertexCount) noexcept;
 
 
 	Acro::Physics::ShapeInstanceData m_ShapeInstanceData; // dense
-	std::vector<uint32_t> m_Sparse;
-	std::vector<uint32_t> m_DenseToHandle;
-	std::vector<uint32_t> m_Generations;
-	std::vector<ShapeInstanceHandle> m_FreeHandles;
-
 };
 
 }

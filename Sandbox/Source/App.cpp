@@ -143,12 +143,13 @@ int main(void)
         skybox.Draw(skyboxShader, view, proj);
 
         body.SetOrientation(Quaternion(Vector3(1.0, 0.5, 0.0), 45.0f + static_cast<float>(glfwGetTime())));
-        body.SetPosition(body.GetPosition() + Vector3(0.5f, 0.0f, 0.0f) * deltaTime);
+        body.SetPosition(body.GetPosition() + Vector3(1.0f, 0.0f, 0.0f) * deltaTime);
 
         //cube.Draw(shader, body,view, proj, camera.Position);
-        cube2.Draw(shader, body2,view, proj, camera.Position);
-        sphere2.Draw(shader, body, view, proj, camera.Position);
-        sphere.Draw(shader, sphereBody, view, proj, camera.Position);
+        
+        //cube2.Draw(shader, body2,view, proj, camera.Position);
+        //sphere2.Draw(shader, body, view, proj, camera.Position);
+        //sphere.Draw(shader, sphereBody, view, proj, camera.Position);
 
         gui.Render();
 
