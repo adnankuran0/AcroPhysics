@@ -36,7 +36,7 @@ void World::Step(float deltaTime) noexcept
 			{
 				ProfilerScope narrowphaseScope("Narrowphase");
 				m_ContactManifoldBuffer = m_Narrowphase.Compute(m_ShapeManager, m_ShapeInstanceManager, m_BroadphaseBuffer);
-				std::cout << "Contact count: " << m_ContactManifoldBuffer.size() << "\n";
+				//std::cout << "Contact count: " << m_ContactManifoldBuffer.size() << "\n";
 			}
 
 
@@ -139,8 +139,8 @@ void Acro::World::DrawDebugShapes()
 				const auto& pos = cp.points[i].position;
 				const auto& nor = cp.points[i].normal;
 
-				m_DebugRenderer.DrawPoint(pos, color, 0.2f);
-				m_DebugRenderer.DrawLine(pos, pos + nor * 0.5f, color, 0.2f);
+				m_DebugRenderer.DrawPoint(pos, color, 0.5f);
+				m_DebugRenderer.DrawLine(pos, pos + nor * 0.5f, color, 0.5f);
 			}
 		}
 	}

@@ -20,7 +20,44 @@ public:
 
 	inline operator glm::vec3() const noexcept { return glm::vec3(x, y, z); }
 
+	inline float& operator[](int index) noexcept
+	{
+		switch (index)
+		{
+		case 0:
+			return x;
+			break;
+		case 1:
+			return y;
+			break;
+		case 2:
+			return z;
+			break;
+		default:
+			return x; 
+			break;
 
+		}
+	}
+	inline const float& operator[](int index) const noexcept
+	{
+		switch (index)
+		{
+		case 0:
+			return x;
+			break;
+		case 1:
+			return y;
+			break;
+		case 2:
+			return z;
+			break;
+		default:
+			return x;
+			break;
+
+		}
+	}
 
 	inline Vector3 operator+(const Vector3& other) const noexcept { return Vector3(x + other.x, y + other.y, z + other.z); }
 	inline Vector3& operator+=(const Vector3& other)
@@ -30,6 +67,7 @@ public:
 		z += other.z;
 		return *this;
 	}
+	inline Vector3 operator-() const noexcept { return Vector3(-x,-y,-z); }
 	inline Vector3 operator-(const Vector3& other) const noexcept { return Vector3(x - other.x, y - other.y, z - other.z); }
 	inline Vector3& operator-=(const Vector3& other) noexcept
 	{

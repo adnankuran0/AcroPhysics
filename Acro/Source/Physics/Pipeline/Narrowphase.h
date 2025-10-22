@@ -16,6 +16,7 @@ public:
 		const std::vector<std::pair<Acro::Physics::ShapeInstanceHandle, Acro::Physics::ShapeInstanceHandle>>& pairs);
 
 private:
+
 	bool SphereSphere(
 		const Acro::Physics::CollisionPair& pair,
 		Acro::Physics::ShapeManager& sm,
