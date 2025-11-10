@@ -31,6 +31,15 @@ ShapeInstanceHandle ShapeInstanceManager::CreateShapeInstance(ShapeManager& shap
 		case ShapeType::Box:
 			vertexCount = 8;
 			break;
+    case ShapeType::Null:
+      vertexCount = 0;
+      break;
+    case ShapeType::Sphere:
+      vertexCount = 0;
+      break;
+    default:
+      vertexCount = 0;
+      break;
 		}
 	}
 
@@ -141,6 +150,8 @@ void ShapeInstanceManager::UpdateWorldData(BodyManager& bodyManager, ShapeManage
 			data.worldAABBs[i] = AABB(min, max);
 			break;
 		}
+    case ShapeType::Null:
+      break;
 		}
 
 		bodyManager.SetDirty(body, 0);

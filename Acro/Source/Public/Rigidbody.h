@@ -30,7 +30,7 @@ public:
 	inline const Acro::Math::Quaternion& GetOrientation()           const noexcept { return m_BodyManager->GetOrientation(m_BodyHandle); }
 	inline const Acro::Math::Vector3& GetAngularVelocity()          const noexcept { return m_BodyManager->GetAngularVelocity(m_BodyHandle); }
 	inline const Acro::Math::Vector3& GetForceAccumulator()         const noexcept { return m_BodyManager->GetForceAccumulator(m_BodyHandle); }
-	inline const float& GetMass()				        const noexcept { return m_BodyManager->GetMass(m_BodyHandle); }
+	inline const float GetMass()				        const noexcept { return m_BodyManager->GetMass(m_BodyHandle); }
 
 	inline void SetPosition(const Acro::Math::Vector3& pos)				  noexcept { m_BodyManager->SetPosition(m_BodyHandle,pos); }
 	inline void SetLinearVelocity(const Acro::Math::Vector3& linVel)	  noexcept { m_BodyManager->SetLinearVelocity(m_BodyHandle, linVel); }

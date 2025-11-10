@@ -43,7 +43,7 @@ public:
 	void DetachShape(const Rigidbody& body, const Acro::Shape& shape);
 	void DetachShape(const Rigidbody& body);
 
-	inline [[nodiscard]] Acro::Debug::DebugRenderer& GetDebugRenderer() noexcept { return m_DebugRenderer; }
+[[nodiscard]] inline Acro::Debug::DebugRenderer& GetDebugRenderer() noexcept { return m_DebugRenderer; }
 
 private:
 	void DrawDebugShapes();

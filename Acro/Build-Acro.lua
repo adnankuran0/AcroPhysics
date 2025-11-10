@@ -1,5 +1,8 @@
 project "Acro"
    kind "StaticLib"
+  architecture "x86_64"
+  buildoptions { "-march=x86-64", "-mtune=generic" }
+
    language "C++"
    cppdialect "C++20"
    targetdir "Binaries/%{cfg.buildcfg}"

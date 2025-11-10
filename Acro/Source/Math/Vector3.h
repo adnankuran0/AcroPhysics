@@ -82,6 +82,7 @@ public:
 		x *= value;
 		y *= value;
 		z *= value;
+    return *this;
 	}
 
 	inline Vector3 operator*(float value) const noexcept { return Vector3(x * value, y * value, z * value); }

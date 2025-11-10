@@ -60,8 +60,8 @@ int main(void)
 
     Gui gui(window.GetNative());
 
-    Shader shader("D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Phong.vs", "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Phong.fs");
-    Shader skyboxShader("D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Skybox.vs", "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Skybox.fs");
+    Shader shader("/home/adnan/GitHub/AcroPhysics/Sandbox/Source/Shaders/Phong.vs","/home/adnan/GitHub/AcroPhysics/Sandbox/Source/Shaders/Phong.fs");
+    Shader skyboxShader("/home/adnan/GitHub/AcroPhysics/Sandbox/Source/Shaders/Skybox.vs","/home/adnan/GitHub/AcroPhysics/Sandbox/Source/Shaders/Skybox.fs");
 
     Skybox skybox;
     skybox.Init();
@@ -101,8 +101,8 @@ int main(void)
 
 
     DebugRendererGL debugRendererGL;
-    debugRendererGL.Init("D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Line.vs", "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Line.fs",
-        "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Point.vs", "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Point.fs");
+    debugRendererGL.Init("/home/adnan/GitHub/AcroPhysics/Sandbox/Source/Shaders/Line.vs", "/home/adnan/GitHub/AcroPhysics/Sandbox/Source/Shaders/Line.fs",
+        "/home/adnan/GitHub/AcroPhysics/Sandbox/Source/Shaders/Point.vs", "/home/adnan/GitHub/AcroPhysics/Sandbox/Source/Shaders/Point.fs");
 
 
     while (!window.ShouldClose())
