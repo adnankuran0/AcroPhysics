@@ -4,6 +4,7 @@
 #include <glad/gl.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {
@@ -108,14 +109,14 @@ public:
         updateCameraVectors();
     }
 
-    // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
+    // processes input received from a mouse scroll-wheel event. Only re    quires input on the vertical wheel-axis
     void ProcessMouseScroll(float yoffset)
     {
-        Zoom -= (float)yoffset;
-        if (Zoom < 1.0f)
-            Zoom = 1.0f;
-        if (Zoom > 45.0f)
-            Zoom = 45.0f;
+        MovementSpeed += (float)yoffset;
+        if (MovementSpeed < 1.0f)
+            MovementSpeed = 1.0f;
+        if (MovementSpeed > 45.0f)
+            MovementSpeed = 45.0f;
     }
 
 private:

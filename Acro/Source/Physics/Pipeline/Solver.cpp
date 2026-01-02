@@ -30,7 +30,7 @@ void Acro::Physics::Solver::Solve(
 
                 if (velocityNormal > 0.0f) continue;
 
-                float restitution = 0.9f;
+                float restitution = 0.5f;
 
                 float restitutionThreshold = 0.5f;
                 if (std::abs(velocityNormal) < restitutionThreshold)

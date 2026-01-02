@@ -10,12 +10,12 @@
 class Sphere
 {
 public:
-    Sphere(int nSlices = 16, int nStacks = 16, float radius = 0.5f) : m_Slices(nSlices), m_Stacks(nStacks), m_Radius(radius) 
+    Sphere(int nSlices = 16, int nStacks = 16, float radius = 0.5f) : m_Slices(nSlices), m_Stacks(nStacks), m_Radius(radius)
     {
         GenerateMesh();
         SetupBuffers();
     }
-    Sphere(const glm::vec3& pos,int nSlices = 16, int nStacks = 16, float radius = 0.5f) : m_Pos(pos), m_Slices(nSlices), m_Stacks(nStacks), m_Radius(radius)
+    Sphere(const glm::vec3& pos, int nSlices = 16, int nStacks = 16, float radius = 0.5f) : m_Pos(pos), m_Slices(nSlices), m_Stacks(nStacks), m_Radius(radius)
     {
         GenerateMesh();
         SetupBuffers();
@@ -40,7 +40,7 @@ public:
 
     ~Sphere()
     {
-        glDeleteVertexArrays(1,&m_VAO);
+        glDeleteVertexArrays(1, &m_VAO);
         glDeleteBuffers(1, &m_VBO);
     }
 
@@ -62,37 +62,49 @@ public:
         shader.setMat4("projection", projMat);
         shader.setVec3("objectColor", 1.0f, 1.0f, 1.0f);
         shader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-        shader.setVec3("lightPos", glm::vec3(0.5f, 6.0f, 2.0f));
+        shader.setVec3("lightDir", glm::vec3(-0.2f, -1.0f, -0.3f));
         shader.setVec3("viewPos", cameraPos);
+        shader.setInt("tex", 0);
 
         glBindVertexArray(m_VAO);
         glDrawArrays(GL_TRIANGLES, 0, m_VertexCount);
     }
 
-private:
+    struct VertexData {
+        glm::vec3 pos;
+        glm::vec2 uv;
+    };
 
-    void GenerateMesh() 
+    void GenerateMesh()
     {
         m_Vertices.clear();
 
-        glm::vec3 top(0.0f,m_Radius,0.0f);
+        glm::vec3 top(0.0f, m_Radius, 0.0f);
         glm::vec3 bottom(0.0f, -m_Radius, 0.0f);
 
-        std::vector<glm::vec3> verts;
-        verts.push_back(top);
+        std::vector<VertexData> verts;
+
+        verts.push_back({ top, glm::vec2(0.5f, 1.0f) });
+
         for (int stack = 1; stack < m_Stacks; stack++)
         {
             float phi = glm::pi<float>() * stack / m_Stacks;
+            float v = 1.0f - (float)stack / m_Stacks;
+
             for (int slice = 0; slice < m_Slices; slice++)
             {
                 float theta = 2.0f * glm::pi<float>() * slice / m_Slices;
+                float u = (float)slice / m_Slices;
+
                 float x = m_Radius * sin(phi) * cos(theta);
                 float y = m_Radius * cos(phi);
                 float z = m_Radius * sin(phi) * sin(theta);
-                verts.push_back(glm::vec3(x,y,z));
+
+                verts.push_back({ glm::vec3(x, y, z), glm::vec2(u, v) });
             }
-;        }
-        verts.push_back(bottom);
+        }
+
+        verts.push_back({ bottom, glm::vec2(0.5f, 0.0f) });
 
         // top triangles
         for (int i = 0; i < m_Slices; i++)
@@ -114,7 +126,7 @@ private:
             PushTriangle(verts[i2], verts[i1], verts[i0]);
         }
 
-        //middle quads
+        // middle quads
         for (int stack = 0; stack < m_Stacks - 2; stack++)
         {
             int start0 = 1 + stack * m_Slices;
@@ -123,7 +135,7 @@ private:
             {
                 int i0 = start0 + slice;
                 int i1 = start0 + (slice + 1) % m_Slices;
-                int i2 = start1+ (slice + 1) % m_Slices;
+                int i2 = start1 + (slice + 1) % m_Slices;
                 int i3 = start1 + slice;
 
                 PushTriangle(verts[i0], verts[i1], verts[i2]);
@@ -131,21 +143,27 @@ private:
             }
         }
 
-        m_VertexCount = static_cast<GLsizei>(m_Vertices.size() / 6);
+        m_VertexCount = static_cast<GLsizei>(m_Vertices.size() / 8);
     }
 
-    void PushTriangle(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2)
+    void PushTriangle(const VertexData& v0, const VertexData& v1, const VertexData& v2)
     {
-        auto pushVertex = [this](const glm::vec3& v)
+        auto pushVertex = [this](const glm::vec3& v, const glm::vec2& uv)
             {
                 glm::vec3 n = glm::normalize(v);
-                m_Vertices.push_back(v.x); m_Vertices.push_back(v.y); m_Vertices.push_back(v.z);
-                m_Vertices.push_back(n.x); m_Vertices.push_back(n.y); m_Vertices.push_back(n.z);
+                m_Vertices.push_back(v.x);
+                m_Vertices.push_back(v.y);
+                m_Vertices.push_back(v.z);
+                m_Vertices.push_back(n.x);
+                m_Vertices.push_back(n.y);
+                m_Vertices.push_back(n.z);
+                m_Vertices.push_back(uv.x);
+                m_Vertices.push_back(uv.y);
             };
 
-        pushVertex(v0);
-        pushVertex(v1);
-        pushVertex(v2);
+        pushVertex(v0.pos, v0.uv);
+        pushVertex(v1.pos, v1.uv);
+        pushVertex(v2.pos, v2.uv);
     }
 
     void SetupBuffers()
@@ -157,10 +175,12 @@ private:
         glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
         glBufferData(GL_ARRAY_BUFFER, m_Vertices.size() * sizeof(float), m_Vertices.data(), GL_STATIC_DRAW);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(2);
     }
 
     std::vector<float> m_Vertices;

@@ -44,7 +44,7 @@ void World::Step(float deltaTime) noexcept
 			}
 
 			Profiler::EndFrame();
-			Profiler::PrintSummary();
+			//Profiler::PrintSummary();
 
 			m_StepCount++;
 			m_DeltaAccumulator -= m_FixedDeltaTime;

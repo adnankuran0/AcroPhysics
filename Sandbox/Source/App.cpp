@@ -14,6 +14,7 @@
 #include "imgui.h"
 #include "DebugRenderer/DebugRendererGL.h"
 #include "Sphere.h"
+#include <Texture.h>
 
 
 using namespace Acro::Math;
@@ -67,15 +68,18 @@ int main(void)
     Skybox skybox;
     skybox.Init();
 
+    Texture crateTexture("D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Textures\\crate.png");
+
     Cube cube;
     Cube cube2;
     Sphere sphere;
     Sphere sphere2;
 
-    world = std::make_unique<Acro::World>(Acro::Math::Vector3(0.0f,-9.8f,0.0f),60,8);
+    world = std::make_unique<Acro::World>(Acro::Math::Vector3(0.0f,-9.8f,0.0f),144,8);
 
     Acro::BodyDescription groundDesc;
     groundDesc.position = Vector3(0.0f, -2.0f, 0.0f);
+    groundDesc.orientation = Quaternion(Vector3(1.0, 0.0, 0.0f), 0.25f);
     groundDesc.mass = 0.0f;
 
     Acro::Rigidbody groundBody = world->CreateBody(groundDesc);
@@ -87,8 +91,8 @@ int main(void)
  
     std::vector<Acro::Rigidbody> gridBodies;
 
-    const int rows = 4;
-    const int cols = 5;
+    const int rows = 6;
+    const int cols = 6;
     const float spacing = 2.0f;
 
     for (int x = 0; x < cols; x++)
@@ -145,6 +149,7 @@ int main(void)
         {
             world->GetDebugRenderer().drawShapes = drawShapes;
         }
+
         ImGui::Checkbox("Pause", &pause);
         
 
@@ -158,12 +163,13 @@ int main(void)
         glm::mat4 proj = camera.GetProjectionMatrix();
 
         skybox.Draw(skyboxShader, view, proj);
-
+        
         
         cube.SetScale(glm::vec3(20.0f, 0.2f, 20.0f));
         cube.Draw(shader, groundBody, view, proj, camera.Position);
         cube.SetScale(glm::vec3(1.0f));
 
+        crateTexture.Bind(0);
         for (auto& b : gridBodies)
         {
             if (b.GetShapeType() == Acro::ShapeType::Box)
