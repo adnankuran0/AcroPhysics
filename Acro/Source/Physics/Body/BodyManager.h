@@ -95,6 +95,13 @@ public:
 		if (invMass <= 0.0f) return 0.0f;
 		return 1.0f / invMass;
 	}
+
+	inline float GetInverseMass(const BodyHandle& handle) noexcept
+	{
+		assert(IsValid(handle));
+		return m_BodyData.inverseMasses[m_Sparse[handle.index]];
+	}
+
 	inline void SetMass(const BodyHandle& handle, float mass) noexcept
 	{
 		assert(IsValid(handle));

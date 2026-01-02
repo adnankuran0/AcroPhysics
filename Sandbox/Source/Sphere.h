@@ -62,7 +62,7 @@ public:
         shader.setMat4("projection", projMat);
         shader.setVec3("objectColor", 1.0f, 1.0f, 1.0f);
         shader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-        shader.setVec3("lightPos", glm::vec3(0.5f, 3.0f, 2.0f));
+        shader.setVec3("lightPos", glm::vec3(0.5f, 6.0f, 2.0f));
         shader.setVec3("viewPos", cameraPos);
 
         glBindVertexArray(m_VAO);

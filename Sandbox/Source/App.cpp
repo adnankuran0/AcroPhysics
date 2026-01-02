@@ -37,7 +37,6 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 
-Acro::Rigidbody body(nullptr,nullptr,nullptr,BodyHandle{});
 
 std::unique_ptr<Acro::World> world;
 
@@ -48,6 +47,7 @@ int main(void)
     bool drawContactPoints = false;
     bool drawAABBs = false;
     bool drawShapes = false;
+    bool pause = true;
 
 
     /* Initialize the library */
@@ -60,8 +60,9 @@ int main(void)
 
     Gui gui(window.GetNative());
 
-    Shader shader("/home/adnan/GitHub/AcroPhysics/Sandbox/Source/Shaders/Phong.vs","/home/adnan/GitHub/AcroPhysics/Sandbox/Source/Shaders/Phong.fs");
-    Shader skyboxShader("/home/adnan/GitHub/AcroPhysics/Sandbox/Source/Shaders/Skybox.vs","/home/adnan/GitHub/AcroPhysics/Sandbox/Source/Shaders/Skybox.fs");
+    Shader shader("D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Phong.vs", "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Phong.fs");
+
+    Shader skyboxShader("D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Skybox.vs", "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Skybox.fs");
 
     Skybox skybox;
     skybox.Init();
@@ -73,36 +74,50 @@ int main(void)
 
     world = std::make_unique<Acro::World>(Acro::Math::Vector3(0.0f,-9.8f,0.0f),60,8);
 
-    body = world->CreateBody();
-    body.SetMass(0.0f);
-    body.SetPosition({ -5.0f,0.0f,0.0f });
+    Acro::BodyDescription groundDesc;
+    groundDesc.position = Vector3(0.0f, -2.0f, 0.0f);
+    groundDesc.mass = 0.0f;
 
-    Acro::BoxShape boxShape = world->CreateBoxShape(Acro::Math::Vector3(0.5f, 0.5f, 0.5f));
-    Acro::BoxShape boxShape2 = world->CreateBoxShape(Acro::Math::Vector3(1.5f, 1.5f, 1.5f));
+    Acro::Rigidbody groundBody = world->CreateBody(groundDesc);
+    Acro::BoxShape groundShape = world->CreateBoxShape(Vector3(10.0f, 0.1f, 10.0f));
+    groundBody.AttachShape(groundShape);
 
-    Acro::BodyDescription desc;
-    desc.position = Vector3(2.0, 0.0, 0.0);
-    desc.mass = 0.0f; // static body
-    Acro::Rigidbody body2 = world->CreateBody(desc);
-
-
-
-    Acro::BodyDescription sphereDesc;
-    sphereDesc.position = Vector3(-2.0, 0.0, 0.0);
-    sphereDesc.mass = 0.0f;
-    Acro::Rigidbody sphereBody = world->CreateBody(sphereDesc);
+    Acro::BoxShape cubeShape = world->CreateBoxShape(Vector3(0.5f, 0.5f, 0.5f));
     Acro::SphereShape sphereShape = world->CreateSphereShape(0.5f);
-    sphereBody.AttachShape(sphereShape);
+ 
+    std::vector<Acro::Rigidbody> gridBodies;
 
+    const int rows = 4;
+    const int cols = 5;
+    const float spacing = 2.0f;
 
-    body.AttachShape(boxShape);
-    body2.AttachShape(boxShape);
+    for (int x = 0; x < cols; x++)
+    {
+        for (int z = 0; z < rows; z++)
+        {
+            float posX = -6.0f + x * spacing;
+            float posZ = -4.0f + z * spacing;
+            float height = 1.0f + (x + z) * 0.6f;
 
+            Acro::BodyDescription d;
+            d.position = Vector3(posX, height, posZ);
+            //d.orientation = Quaternion(Vector3(0.5f, 0.5f, 0.0f), 45.f);
+            d.mass = 1.0f;
 
+            Acro::Rigidbody body = world->CreateBody(d);
+
+            if ((x + z) % 2 == 0)
+                body.AttachShape(cubeShape);
+            else
+                body.AttachShape(sphereShape);
+
+            gridBodies.push_back(body);
+        }
+    }
 
     DebugRendererGL debugRendererGL;
-    debugRendererGL.Init("/home/adnan/GitHub/AcroPhysics/Sandbox/Source/Shaders/Line.vs", "/home/adnan/GitHub/AcroPhysics/Sandbox/Source/Shaders/Line.fs",
-        "/home/adnan/GitHub/AcroPhysics/Sandbox/Source/Shaders/Point.vs", "/home/adnan/GitHub/AcroPhysics/Sandbox/Source/Shaders/Point.fs");
+    debugRendererGL.Init("D:\\Github\\AcroPhysics\\Sandbox\\Source\\Shaders\\Line.vs", "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Line.fs",
+        "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Point.vs","D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Point.fs");
 
 
     while (!window.ShouldClose())
@@ -130,7 +145,9 @@ int main(void)
         {
             world->GetDebugRenderer().drawShapes = drawShapes;
         }
-            
+        ImGui::Checkbox("Pause", &pause);
+        
+
         world->Step(deltaTime);
 
         processInput(window.GetNative());
@@ -142,14 +159,19 @@ int main(void)
 
         skybox.Draw(skyboxShader, view, proj);
 
-        body.SetOrientation(Quaternion(Vector3(1.0, 0.5, 0.0), 45.0f + static_cast<float>(glfwGetTime())));
-        body.SetPosition(body.GetPosition() + Vector3(1.0f, 0.0f, 0.0f) * deltaTime);
-
-        cube.Draw(shader, body,view, proj, camera.Position);
         
-        cube2.Draw(shader, body2,view, proj, camera.Position);
-        //sphere2.Draw(shader, body, view, proj, camera.Position);
-        //sphere.Draw(shader, sphereBody, view, proj, camera.Position);
+        cube.SetScale(glm::vec3(20.0f, 0.2f, 20.0f));
+        cube.Draw(shader, groundBody, view, proj, camera.Position);
+        cube.SetScale(glm::vec3(1.0f));
+
+        for (auto& b : gridBodies)
+        {
+            if (b.GetShapeType() == Acro::ShapeType::Box)
+                cube.Draw(shader, b, view, proj, camera.Position);
+            else
+                sphere.Draw(shader, b, view, proj, camera.Position);
+        }
+       
 
         gui.Render();
 
@@ -236,7 +258,5 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 {
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
     {
-        body.ApplyForce(Acro::Math::Vector3(0.0f, 400.0f, 0.0f));
-        world->GetDebugRenderer().DrawLine(body.GetPosition(), body.GetPosition()  + Acro::Math::Vector3(0.0f, 2.0f, 0.0f ), {1.0f,0.0f,0.0f}, 1.0f);
     }
 }

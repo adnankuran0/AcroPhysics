@@ -39,6 +39,14 @@ public:
 	inline void ApplyForce(const Acro::Math::Vector3& force)			  noexcept { m_BodyManager->ApplyForce(m_BodyHandle,force); }
 	inline void SetMass(float mass)							  noexcept { m_BodyManager->SetMass(m_BodyHandle,mass); }
 
+	inline Acro::ShapeType GetShapeType() const noexcept
+	{
+		if (!m_ShapeManager || !m_ShapeManager->IsValid(m_ShapeHandle))
+			return Acro::ShapeType::Null;
+
+		return m_ShapeManager->GetShapeType(m_ShapeHandle);
+	}
+
 	Acro::ShapeInstance AttachShape(const Acro::Shape& shape) 
 	{ 
 		m_ShapeHandle = shape.m_Handle;

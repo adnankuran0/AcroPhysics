@@ -36,13 +36,15 @@ void World::Step(float deltaTime) noexcept
 			{
 				ProfilerScope narrowphaseScope("Narrowphase");
 				m_ContactManifoldBuffer = m_Narrowphase.Compute(m_ShapeManager, m_ShapeInstanceManager, m_BroadphaseBuffer);
-				//std::cout << "Contact count: " << m_ContactManifoldBuffer.size() << "\n";
 			}
 
-
+			{
+				ProfilerScope solverScope("Solver");
+				m_Solver.Solve(m_ContactManifoldBuffer, m_ShapeInstanceManager, m_BodyManager,m_FixedDeltaTime);
+			}
 
 			Profiler::EndFrame();
-			//Profiler::PrintSummary();
+			Profiler::PrintSummary();
 
 			m_StepCount++;
 			m_DeltaAccumulator -= m_FixedDeltaTime;
@@ -178,6 +180,7 @@ void Acro::World::DrawDebugShapes()
 				float radius = m_ShapeManager.GetRadius(shapeInstanceData.shapes[i]);
 				Vector3 worldPosition = shapeInstanceData.worldTransforms[i] * Vector3(0.0f);
 				m_DebugRenderer.DrawSphere(worldPosition, radius, Vector3(0.0f, 1.0f, 0.0f));
+
 			}
 		}
 	}

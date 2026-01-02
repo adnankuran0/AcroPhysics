@@ -81,15 +81,17 @@ public:
 
     void SetPosition(const glm::vec3& pos) { m_Pos = pos; }
     void SetRotation(const glm::quat& rot) { m_Rotation = rot; }
+    void SetScale(const glm::vec3& scale) { m_Scale = scale; }
 
-    void Draw(const Shader& shader, const Acro::Rigidbody& body,const glm::mat4& viewMat, const glm::mat4& projMat, const glm::vec3& cameraPos)
+    void Draw(const Shader& shader, const Acro::Rigidbody& body, const glm::mat4& viewMat, const glm::mat4& projMat, const glm::vec3& cameraPos)
     {
         SetPosition(body.GetPosition());
         SetRotation(body.GetOrientation());
 
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, m_Pos);
-        model *= glm::toMat4(m_Rotation); 
+        model *= glm::toMat4(m_Rotation);
+        model = glm::scale(model, m_Scale);
 
         shader.use();
         shader.setMat4("model", model);
@@ -97,7 +99,7 @@ public:
         shader.setMat4("projection", projMat);
         shader.setVec3("objectColor", 1.0f, 1.0f, 1.0f);
         shader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-        shader.setVec3("lightPos", glm::vec3(0.5f, 3.0f, 2.0f));
+        shader.setVec3("lightPos", glm::vec3(0.5f, 6.0f, 2.0f));
         shader.setVec3("viewPos", cameraPos);
 
         glBindVertexArray(m_VAO);
@@ -122,6 +124,7 @@ private:
 
     glm::vec3 m_Pos = glm::vec3(0.0f);
     glm::quat m_Rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+    glm::vec3 m_Scale = glm::vec3(1.0f);
     GLuint m_VAO = 0;
     GLuint m_VBO = 0;
 };

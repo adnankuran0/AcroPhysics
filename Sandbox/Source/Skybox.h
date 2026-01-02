@@ -10,12 +10,12 @@
 
 static std::vector<std::string> faces
 {
-    "/home/adnan/GitHub/AcroPhysics/Sandbox/Source/Textures/Skybox/right.jpg",
-    "/home/adnan/GitHub/AcroPhysics/Sandbox/Source/Textures/Skybox/left.jpg",
-    "/home/adnan/GitHub/AcroPhysics/Sandbox/Source/Textures/Skybox/top.jpg",
-    "/home/adnan/GitHub/AcroPhysics/Sandbox/Source/Textures/Skybox/bottom.jpg",
-    "/home/adnan/GitHub/AcroPhysics/Sandbox/Source/Textures/Skybox/front.jpg",
-    "/home/adnan/GitHub/AcroPhysics/Sandbox/Source/Textures/Skybox/back.jpg"
+    "D:\\Github\\AcroPhysics\\Sandbox\\Source\\Textures/Skybox/right.jpg",
+    "D:\\Github\\AcroPhysics\\Sandbox\\Source\\Textures/Skybox/left.jpg",
+    "D:\\Github\\AcroPhysics\\Sandbox\\Source\\Textures/Skybox/top.jpg",
+    "D:\\Github\\AcroPhysics\\Sandbox\\Source\\Textures/Skybox/bottom.jpg",
+    "D:\\Github\\AcroPhysics\\Sandbox\\Source\\Textures/Skybox/front.jpg",
+    "D:\\Github\\AcroPhysics\\Sandbox\\Source\\Textures/Skybox/back.jpg"
 };
 
 class Skybox

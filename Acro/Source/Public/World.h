@@ -11,6 +11,7 @@
 #include "Public/ShapeInstance.h"
 #include "Physics/Pipeline/Broadphase.h"
 #include "Physics/Pipeline/Narrowphase.h"
+#include "Physics/Pipeline/Solver.h"
 #include <vector>
 
 
@@ -65,6 +66,8 @@ private:
 
 	Acro::Physics::Broadphase m_Broadphase;
 	Acro::Physics::Narrowphase m_Narrowphase;
+	Acro::Physics::Solver m_Solver;
+
 	
 	Acro::Debug::DebugRenderer m_DebugRenderer;
 };

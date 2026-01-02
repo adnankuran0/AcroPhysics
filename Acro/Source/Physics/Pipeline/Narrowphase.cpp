@@ -182,7 +182,7 @@ bool Narrowphase::SphereBox(
         Vector3 localNormalEnd = Vector3::ZERO() + localNormal;
 
         normal = (worldBox * localNormalEnd - worldBox * Vector3::ZERO()).Normalized();
-        penetration = radius + minDist;
+        penetration = radius - minDist;
         contactPoint = worldBox * clampedLocalCenter; // closest face point
 
     }
@@ -246,9 +246,9 @@ bool Narrowphase::BoxBox(
         (worldA * Vector3(0.0f,0.0f,1.0f) - centerA).Normalize(),
     };
     Vector3 axesB[3] = {
-        (worldB * Vector3(1.0f,0.0f,0.0f) - centerA).Normalize(),
-        (worldB * Vector3(0.0f,1.0f,0.0f) - centerA).Normalize(),
-        (worldB * Vector3(0.0f,0.0f,1.0f) - centerA).Normalize(),
+        (worldB * Vector3(1.0f,0.0f,0.0f) - centerB).Normalize(),
+        (worldB * Vector3(0.0f,1.0f,0.0f) - centerB).Normalize(),
+        (worldB * Vector3(0.0f,0.0f,1.0f) - centerB).Normalize(),
     };
 
     Vector3 delta = centerB - centerA;
@@ -277,9 +277,9 @@ bool Narrowphase::BoxBox(
             extentA.z * std::abs(axesA[2].Dot(normalizedAxis));
 
         float projB =
-            extentB.x * std::abs(axesA[0].Dot(normalizedAxis)) +
-            extentB.y * std::abs(axesA[1].Dot(normalizedAxis)) +
-            extentB.z * std::abs(axesA[2].Dot(normalizedAxis));
+            extentB.x * std::abs(axesB[0].Dot(normalizedAxis)) +
+            extentB.y * std::abs(axesB[1].Dot(normalizedAxis)) +
+            extentB.z * std::abs(axesB[2].Dot(normalizedAxis));
 
         float distance = std::abs(delta.Dot(normalizedAxis));
 
@@ -324,7 +324,7 @@ bool Narrowphase::BoxBox(
         for (int j = 0; j < 3; j++)
         {
             Vector3 axis = axesA[i].Cross(axesB[j]);
-            if (!TestAxis(axesB[i], 2)) return false;
+            if (!TestAxis(axis, 2)) return false;
         }
     }
 
