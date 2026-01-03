@@ -1,15 +1,16 @@
 ﻿#include "Narrowphase.h"
 
 #include <algorithm>
+#include "Math/Constants.h"
 
 using namespace Acro::Physics;
 using namespace Acro::Math;
-using Pair = std::pair<Acro::Physics::ShapeInstanceHandle, Acro::Physics::ShapeInstanceHandle>;
+using Pair = std::pair<ShapeInstanceHandle, ShapeInstanceHandle>;
 
 
 std::vector<ContactManifold> Narrowphase::Compute(
-    Acro::Physics::ShapeManager& sm,
-    Acro::Physics::ShapeInstanceManager& sim, 
+    ShapeManager& sm,
+    ShapeInstanceManager& sim, 
     const std::vector<Pair>& pairs)
 {
     std::vector<ContactManifold> out;
@@ -64,7 +65,7 @@ std::vector<ContactManifold> Narrowphase::Compute(
 
 
 bool Narrowphase::SphereSphere(
-    const Acro::Physics::CollisionPair& pair,
+    const CollisionPair& pair,
     ShapeManager& sm, 
     ShapeInstanceManager& sim,
     ContactManifold& manifold)
@@ -85,7 +86,7 @@ bool Narrowphase::SphereSphere(
 
     float distance = delta.Length();
 
-    Vector3 normal = (distance > std::numeric_limits<float>::epsilon()) ? (delta * (1.0f / distance)) : Vector3(1.0f, 0.0f, 0.0f);
+    Vector3 normal = (distance > EPSILON) ? (delta * (1.0f / distance)) : Vector3(1.0f, 0.0f, 0.0f);
     float penetration = radius - distance;
 
     Vector3 point = centerA + normal * radiusA;
@@ -197,7 +198,7 @@ bool Narrowphase::SphereBox(
         if (distanceSq > radiusSq) return false;
 
         float distance = delta.Length();
-        if (distance > std::numeric_limits<float>::epsilon())
+        if (distance > EPSILON)
         {
             normal = delta * (1.0f / distance);
             
@@ -264,9 +265,9 @@ bool Narrowphase::BoxBox(
     Vector3 minAxis;
     int minAxisType = -1; // 0: A Face , 1: B Face , 2: edge-edge
 
-    auto TestAxis = [&](const Acro::Math::Vector3& axis, int axisType) {
+    auto TestAxis = [&](const Vector3& axis, int axisType) {
 
-        if (axis.Length2() < std::numeric_limits<float>::epsilon()) return true; // degen axis
+        if (axis.Length2() < EPSILON) return true; // degen axis
 
         Vector3 normalizedAxis = axis.Normalized();
 

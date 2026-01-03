@@ -79,12 +79,12 @@ void World::DestroyBody(const Rigidbody& body) noexcept
 }
 
 
-BoxShape World::CreateBoxShape(const Vector3& extent, const Acro::Math::Vector3& offset) noexcept
+BoxShape World::CreateBoxShape(const Vector3& extent, const Vector3& offset) noexcept
 {
 	return BoxShape(&m_ShapeManager,m_ShapeManager.CreateBoxShape(extent,offset));
 }
 
-SphereShape World::CreateSphereShape(float radius, const Acro::Math::Vector3& offset) noexcept
+SphereShape World::CreateSphereShape(float radius, const Vector3& offset) noexcept
 {
 	return SphereShape(&m_ShapeManager, m_ShapeManager.CreateSphereShape(radius,offset));
 }

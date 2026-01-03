@@ -154,7 +154,7 @@ void BodyManager::PushData(const Acro::BodyDescription& desc) noexcept
 	m_BodyData.shapeOffsets.push_back(0);
 }
 
-void Acro::Physics::BodyManager::SwapDenseData(size_t from, size_t to) noexcept
+void BodyManager::SwapDenseData(size_t from, size_t to) noexcept
 {
 	m_BodyData.positions[to] = m_BodyData.positions[from];
 	m_BodyData.linearVelocities[to] = m_BodyData.linearVelocities[from];
@@ -167,7 +167,7 @@ void Acro::Physics::BodyManager::SwapDenseData(size_t from, size_t to) noexcept
 	m_BodyData.shapeOffsets[to] = m_BodyData.shapeOffsets[from];
 }
 
-void Acro::Physics::BodyManager::PopBackDenseData() noexcept
+void BodyManager::PopBackDenseData() noexcept
 {
 	m_BodyData.positions.pop_back();
 	m_BodyData.linearVelocities.pop_back();

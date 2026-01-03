@@ -1,7 +1,9 @@
 #include "Math/Quaternion.h"
 #include "Math/Matrix4.h"
 
-Acro::Math::Matrix4 Acro::Math::Quaternion::ToMat4() const noexcept
+using namespace Acro::Math;
+
+Matrix4 Quaternion::ToMat4() const noexcept
 {
-	return Acro::Math::Matrix4(glm::toMat4(q)); 
+	return Matrix4(glm::toMat4(q)); 
 }

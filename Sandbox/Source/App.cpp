@@ -37,7 +37,13 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-
+struct BodyInitialState {
+    Vector3 position;
+    Quaternion orientation;
+};
+std::vector<BodyInitialState> initialStates;
+bool requestReset = false;
+std::vector<Acro::Rigidbody> gridBodies;
 
 std::unique_ptr<Acro::World> world;
 
@@ -79,7 +85,7 @@ int main(void)
 
     Acro::BodyDescription groundDesc;
     groundDesc.position = Vector3(0.0f, -2.0f, 0.0f);
-    groundDesc.orientation = Quaternion(Vector3(1.0, 0.0, 0.0f), 0.25f);
+    //groundDesc.orientation = Quaternion(Vector3(1.0, 0.0, 0.0f), 0.25f);
     groundDesc.mass = 0.0f;
 
     Acro::Rigidbody groundBody = world->CreateBody(groundDesc);
@@ -89,7 +95,6 @@ int main(void)
     Acro::BoxShape cubeShape = world->CreateBoxShape(Vector3(0.5f, 0.5f, 0.5f));
     Acro::SphereShape sphereShape = world->CreateSphereShape(0.5f);
  
-    std::vector<Acro::Rigidbody> gridBodies;
 
     const int rows = 6;
     const int cols = 6;
@@ -110,12 +115,14 @@ int main(void)
 
             Acro::Rigidbody body = world->CreateBody(d);
 
-            if ((x + z) % 2 == 0)
-                body.AttachShape(cubeShape);
-            else
-                body.AttachShape(sphereShape);
+            //if ((x + z) % 2 == 0)
+                //body.AttachShape(cubeShape);
+            //else
+            body.AttachShape(sphereShape);
 
             gridBodies.push_back(body);
+
+            initialStates.push_back({ d.position, d.orientation });
         }
     }
 
@@ -151,7 +158,28 @@ int main(void)
         }
 
         ImGui::Checkbox("Pause", &pause);
+
+        if (ImGui::Button("Reset") || requestReset)
+        {
+            requestReset = false;
+            stepPhysics = false;
+            world->SetPaused(true);
+
+            for (size_t i = 0; i < gridBodies.size(); i++)
+            {
+                gridBodies[i].SetPosition(initialStates[i].position);
+                gridBodies[i].SetOrientation(initialStates[i].orientation);
+                gridBodies[i].SetLinearVelocity(Vector3(0.0f, 0.0f, 0.0f));
+                gridBodies[i].SetAngularVelocity(Vector3(0.0f, 0.0f, 0.0f));
+            }
+
+            groundBody.SetOrientation(Quaternion(Vector3(1.0f, 0.0f, 0.0f), 0.0f));
+        }
+
+        if(!pause)
+            groundBody.SetOrientation(Quaternion(Vector3(1.0f, 0.0f, 0.0f),glfwGetTime()*0.5f));
         
+        //camera.Position = gridBodies[13].GetPosition();
 
         world->Step(deltaTime);
 
@@ -217,7 +245,18 @@ void processInput(GLFWwindow* window)
         camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
-}
+
+    Vector3 forward = Vector3(camera.Front.x, 0, camera.Front.z);
+    Vector3 right = Vector3(camera.Right.x, 0, camera.Right.z);
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+        gridBodies[13].ApplyForce(forward);
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+        gridBodies[13].ApplyForce(-forward);
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+        gridBodies[13].ApplyForce(right);
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+        gridBodies[13].ApplyForce(-right);
+}   
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {

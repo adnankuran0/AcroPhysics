@@ -5,7 +5,7 @@ using namespace Acro::Math;
 
 static const float PI_F = 3.14159265358979f;
 
-void DebugRenderer::DrawLine(const Acro::Math::Vector3& start, const Acro::Math::Vector3& end, const Acro::Math::Vector3 color, float duration)
+void DebugRenderer::DrawLine(const Vector3& start, const Vector3& end, const Vector3 color, float duration)
 {
 	DebugPrimitive line;
 	line.type = DebugPrimitiveType::Line;
@@ -15,7 +15,7 @@ void DebugRenderer::DrawLine(const Acro::Math::Vector3& start, const Acro::Math:
 	m_Primitives.push_back(line);
 }
 
-void DebugRenderer::DrawPoint(const Acro::Math::Vector3& pos, const Acro::Math::Vector3 color, float duration)
+void DebugRenderer::DrawPoint(const Vector3& pos, const Vector3 color, float duration)
 {
 	DebugPrimitive point;
 	point.type = DebugPrimitiveType::Point;
@@ -24,7 +24,7 @@ void DebugRenderer::DrawPoint(const Acro::Math::Vector3& pos, const Acro::Math::
 	m_Primitives.push_back(point);
 }
 
-void DebugRenderer::DrawTriangle(const Acro::Math::Vector3& pos1, Acro::Math::Vector3& pos2, Acro::Math::Vector3& pos3, Acro::Math::Vector3& color, float duration)
+void DebugRenderer::DrawTriangle(const Vector3& pos1, Vector3& pos2, Vector3& pos3, Vector3& color, float duration)
 {
 	m_Primitives.reserve(m_Primitives.size() + 3);
 	DrawLine(pos1, pos2, color, duration);
@@ -32,7 +32,7 @@ void DebugRenderer::DrawTriangle(const Acro::Math::Vector3& pos1, Acro::Math::Ve
 	DrawLine(pos1, pos3, color, duration);
 }
 
-void DebugRenderer::DrawAABB(Acro::Math::Vector3& min, Acro::Math::Vector3& max, Acro::Math::Vector3& color, float duration)
+void DebugRenderer::DrawAABB(Vector3& min, Vector3& max, Vector3& color, float duration)
 {
 	Vector3 v[8] = { {min.x,min.y,min.z},{max.x,min.y,min.z}, {max.x,max.y,min.z}, {min.x,max.y,min.z},
 					 {min.x,min.y,max.z},{max.x,min.y,max.z}, {max.x,max.y,max.z}, {min.x,max.y,max.z} };
@@ -53,7 +53,7 @@ void DebugRenderer::DrawAABB(Acro::Math::Vector3& min, Acro::Math::Vector3& max,
 	DrawLine(v[3], v[7], color, duration);
 }
 
-void Acro::Debug::DebugRenderer::DrawSphere(const Acro::Math::Vector3& pos, float radius, Acro::Math::Vector3 color, float duration, int segments)
+void DebugRenderer::DrawSphere(const Vector3& pos, float radius, Vector3 color, float duration, int segments)
 {
 	m_Primitives.reserve(m_Primitives.size() + segments * 3);
 
@@ -83,17 +83,19 @@ void Acro::Debug::DebugRenderer::DrawSphere(const Acro::Math::Vector3& pos, floa
 
 void DebugRenderer::Clear(float dt) noexcept
 {
-	for (auto it = m_Primitives.begin(); it != m_Primitives.end();)
+	size_t i = 0;
+	while (i < m_Primitives.size())
 	{
-		it->duration -= dt;
+		m_Primitives[i].duration -= dt;
 
-		if (it->duration <= 0.0f)
+		if (m_Primitives[i].duration <= 0.0f)
 		{
-			it = m_Primitives.erase(it);
+			m_Primitives[i] = m_Primitives.back();
+			m_Primitives.pop_back();
 		}
 		else
 		{
-			++it;
+			++i;
 		}
 	}
 }

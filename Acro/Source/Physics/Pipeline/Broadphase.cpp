@@ -3,6 +3,7 @@
 #include <algorithm>
 
 using namespace Acro::Physics;
+using namespace Acro::Math;
 
 using Pair = std::pair<ShapeInstanceHandle, ShapeInstanceHandle>;
 
