@@ -4,18 +4,20 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
-#include <Shader.h>
+#include <Render/Shader.h>
 #include <Camera.h>
 #include "Acro.h"
-#include "Cube.h"
+#include "Render/Cube.h"
 #include <memory>
 #define STB_IMAGE_IMPLEMENTATION
-#include "Skybox.h"
+#include "Render/Skybox.h"
 #include "imgui.h"
 #include "DebugRenderer/DebugRendererGL.h"
-#include "Sphere.h"
-#include <Texture.h>
-#include "InstancedRenderer.h"
+#include "Render/Sphere.h"
+#include "Render/Texture.h"
+#include "Render/InstancedRenderer.h"
+#include "Path.h"
+#include "DebugSettings.h"
 
 
 using namespace Acro::Math;
@@ -30,33 +32,23 @@ void processInput(GLFWwindow* window);
 #define SCR_WIDTH 1280
 #define SCR_HEIGHT 720
 
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
-float lastX = SCR_WIDTH / 2.0f;
-float lastY = SCR_HEIGHT / 2.0f;
-bool firstMouse = true;
+static Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
-float deltaTime = 0.0f;
-float lastFrame = 0.0f;
+static float deltaTime = 0.0f;
+static float lastFrame = 0.0f;
 
-struct BodyInitialState {
+static struct BodyInitialState {
     Vector3 position;
     Quaternion orientation;
 };
-std::vector<BodyInitialState> initialStates;
-bool requestReset = false;
-std::vector<Acro::Rigidbody> gridBodies;
-
-std::unique_ptr<Acro::World> world;
+static std::vector<BodyInitialState> initialStates;
+static bool requestReset = false;
+static std::vector<Acro::Rigidbody> gridBodies;
 
 int main(void)
 {
-    bool stepPhysics = false;
-    bool debugDraw = true;
-    bool drawContactPoints = false;
-    bool drawAABBs = false;
-    bool drawShapes = false;
-    bool pause = true;
-
+   
+    DebugSettings settings;
 
     /* Initialize the library */
     Window window;
@@ -68,13 +60,13 @@ int main(void)
 
     Gui gui(window.GetNative());
 
-    Shader shader("D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Phong.vs", "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Phong.fs");
-    Shader skyboxShader("D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Skybox.vs", "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Skybox.fs");
+    Shader shader("Phong.vs", "Phong.fs");
+    Shader skyboxShader("Skybox.vs", "Skybox.fs");
 
     Skybox skybox;
     skybox.Init();
 
-    Texture crateTexture("D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Textures\\crate.png");
+    Texture crateTexture("crate.png");
     crateTexture.Bind(0);
 
     Cube cubeMesh;
@@ -82,21 +74,18 @@ int main(void)
     InstancedRenderer cubeRenderer(cubeMesh,100);
     InstancedRenderer sphereRenderer(sphereMesh,100);
 
-
-    world = std::make_unique<Acro::World>(Acro::Math::Vector3(0.0f,-9.8f,0.0f),144,8);
+    Acro::World world = Acro::World(Acro::Math::Vector3(0.0f,-9.8f,0.0f),144,8);
 
     Acro::BodyDescription groundDesc;
     groundDesc.position = Vector3(0.0f, -2.0f, 0.0f);
-    //groundDesc.orientation = Quaternion(Vector3(1.0, 0.0, 0.0f), 0.25f);
     groundDesc.mass = 0.0f;
 
-    Acro::Rigidbody groundBody = world->CreateBody(groundDesc);
-    Acro::BoxShape groundShape = world->CreateBoxShape(Vector3(10.0f, 0.1f, 10.0f));
+    Acro::Rigidbody groundBody = world.CreateBody(groundDesc);
+    Acro::BoxShape groundShape = world.CreateBoxShape(Vector3(10.0f, 0.1f, 10.0f));
     groundBody.AttachShape(groundShape);
 
-    Acro::BoxShape cubeShape = world->CreateBoxShape(Vector3(0.5f, 0.5f, 0.5f));
-    Acro::SphereShape sphereShape = world->CreateSphereShape(0.5f);
- 
+    Acro::BoxShape cubeShape = world.CreateBoxShape(Vector3(0.5f, 0.5f, 0.5f));
+    Acro::SphereShape sphereShape = world.CreateSphereShape(0.5f);
 
     const int rows = 6;
     const int cols = 6;
@@ -112,10 +101,9 @@ int main(void)
 
             Acro::BodyDescription d;
             d.position = Vector3(posX, height, posZ);
-            //d.orientation = Quaternion(Vector3(0.5f, 0.5f, 0.0f), 45.f);
             d.mass = 1.0f;
 
-            Acro::Rigidbody body = world->CreateBody(d);
+            Acro::Rigidbody body = world.CreateBody(d);
 
             //if ((x + z) % 2 == 0)
                 //body.AttachShape(cubeShape);
@@ -129,8 +117,8 @@ int main(void)
     }
 
     DebugRendererGL debugRendererGL;
-    debugRendererGL.Init("D:\\Github\\AcroPhysics\\Sandbox\\Source\\Shaders\\Line.vs", "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Line.fs",
-        "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Point.vs","D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Point.fs");
+    debugRendererGL.Init("Line.vs", "Line.fs",
+        "Point.vs","Point.fs");
 
 
     while (!window.ShouldClose())
@@ -139,36 +127,21 @@ int main(void)
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+        processInput(window.GetNative());
+
         gui.NewFrame();
-
+        gui.Update(settings);
         
-
-        ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-        if(ImGui::Checkbox("Simulate physics", &stepPhysics))
-        {
-            world->SetPaused(!stepPhysics);
-        }
-        ImGui::Checkbox("Debug draw", &debugDraw);
-        if (ImGui::Checkbox("Draw Contact Points", &drawContactPoints))
-        {
-            world->GetDebugRenderer().drawContactPoints  = drawContactPoints;
-        }
-        if (ImGui::Checkbox("Draw AABBs", &drawAABBs))
-        {
-            world->GetDebugRenderer().drawAABBs = drawAABBs;
-        }
-        if (ImGui::Checkbox("Draw shapes", &drawShapes))
-        {
-            world->GetDebugRenderer().drawShapes = drawShapes;
-        }
-
-        ImGui::Checkbox("Pause", &pause);
+        world.SetPaused(!settings.stepPhysics);
+        world.GetDebugRenderer().drawContactPoints  = settings.drawContactPoints;
+        world.GetDebugRenderer().drawAABBs = settings.drawAABBs;
+        world.GetDebugRenderer().drawShapes = settings.drawShapes;
 
         if (ImGui::Button("Reset") || requestReset)
         {
             requestReset = false;
-            stepPhysics = false;
-            world->SetPaused(true);
+            settings.stepPhysics = false;
+            world.SetPaused(true);
 
             for (size_t i = 0; i < gridBodies.size(); i++)
             {
@@ -181,14 +154,10 @@ int main(void)
             groundBody.SetOrientation(Quaternion(Vector3(1.0f, 0.0f, 0.0f), 0.0f));
         }
 
-        if(!pause)
+        if(!settings.pause)
             groundBody.SetOrientation(Quaternion(Vector3(1.0f, 0.0f, 0.0f),glfwGetTime()*0.5f));
         
-        //camera.Position = gridBodies[13].GetPosition();
-
-        world->Step(deltaTime);
-
-        processInput(window.GetNative());
+        world.Step(deltaTime);
 
         window.Clear();
 
@@ -199,15 +168,12 @@ int main(void)
        
         shader.use();
 
+        // render ground
         cubeRenderer.Begin();
-
         glm::mat4 groundTransform(1.0f);
-        glm::vec3 groundPos = groundBody.GetPosition();
-        glm::quat groundRot = groundBody.GetOrientation();
-        groundTransform = glm::translate(groundTransform, groundPos);
-        groundTransform *= glm::toMat4(groundRot);
+        groundTransform = glm::translate(groundTransform, static_cast<glm::vec3>(groundBody.GetPosition()));
+        groundTransform *= glm::toMat4(static_cast<glm::quat>(groundBody.GetOrientation()));
         groundTransform = glm::scale(groundTransform, glm::vec3(20.0f, 0.2f, 20.0f));
-
         cubeRenderer.Submit(groundTransform);
         cubeRenderer.Draw(shader, view, proj, camera.Position);
 
@@ -217,10 +183,8 @@ int main(void)
         for (auto& b : gridBodies)
         {
             glm::mat4 model = glm::mat4(1.0f);
-            glm::vec3 pos = b.GetPosition();
-            glm::quat rot = b.GetOrientation();
-            model = glm::translate(model, pos);
-            model *= glm::toMat4(rot);
+            model = glm::translate(model, static_cast<glm::vec3>(b.GetPosition()));
+            model *= glm::toMat4(static_cast<glm::quat>(b.GetOrientation()));
 
             if (b.GetShapeType() == Acro::ShapeType::Box)
                 cubeRenderer.Submit(model);
@@ -234,12 +198,8 @@ int main(void)
 
         gui.Render();
 
-        
-
-        if (debugDraw)
-            debugRendererGL.Render(world->GetDebugRenderer(), view, proj,deltaTime);
-
-        
+        if (settings.debugDraw)
+            debugRendererGL.Render(world.GetDebugRenderer(), view, proj,deltaTime);
 
         /* Swap front and back buffers */
         window.SwapBuffers();
@@ -288,35 +248,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 {
-    if (!glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2))
-    {
-        firstMouse = true; 
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        return;
-    }
-
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-    float xpos = static_cast<float>(xposIn);
-    float ypos = static_cast<float>(yposIn);
-
-    if (firstMouse)
-    {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
-    }
-
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-
-    lastX = xpos;
-    lastY = ypos;
-
-    camera.ProcessMouseMovement(xoffset, yoffset);
+    camera.ProcessMouseMovement(window,xposIn, yposIn);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
@@ -326,7 +260,5 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
-    {
-    }
+   
 }

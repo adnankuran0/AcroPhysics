@@ -6,16 +6,17 @@
 #include <vector>
 #include <string>
 #include <stb_image.h>
-#include <Shader.h>
+#include "Render/Shader.h"
+#include "Path.h"
 
 static std::vector<std::string> faces
 {
-    "D:\\Github\\AcroPhysics\\Sandbox\\Source\\Textures/Skybox/right.jpg",
-    "D:\\Github\\AcroPhysics\\Sandbox\\Source\\Textures/Skybox/left.jpg",
-    "D:\\Github\\AcroPhysics\\Sandbox\\Source\\Textures/Skybox/top.jpg",
-    "D:\\Github\\AcroPhysics\\Sandbox\\Source\\Textures/Skybox/bottom.jpg",
-    "D:\\Github\\AcroPhysics\\Sandbox\\Source\\Textures/Skybox/front.jpg",
-    "D:\\Github\\AcroPhysics\\Sandbox\\Source\\Textures/Skybox/back.jpg"
+    "Skybox/right.jpg",
+    "Skybox/left.jpg",
+    "Skybox/top.jpg",
+    "Skybox/bottom.jpg",
+    "Skybox/front.jpg",
+    "Skybox/back.jpg"
 };
 
 class Skybox
@@ -122,7 +123,7 @@ private:
         int width, height, nrChannels;
         for (unsigned int i = 0; i < faces.size(); i++)
         {
-            unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+            unsigned char* data = stbi_load((Path::GetTexturesDir() / faces[i]).string().c_str(), &width, &height, &nrChannels, 0);
             if (data)
             {
                 glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,

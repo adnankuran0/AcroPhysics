@@ -22,6 +22,17 @@ void Gui::NewFrame()
     ImGui::NewFrame();
 }
 
+void Gui::Update(DebugSettings& settings)
+{
+    ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+    ImGui::Checkbox("Simulate physics", &settings.stepPhysics);
+    ImGui::Checkbox("Debug draw", &settings.debugDraw);
+    ImGui::Checkbox("Draw Contact Points", &settings.drawContactPoints);
+    ImGui::Checkbox("Draw AABBs", &settings.drawAABBs);
+    ImGui::Checkbox("Draw shapes", &settings.drawShapes);
+    ImGui::Checkbox("Pause", &settings.pause);
+}
+
 void Gui::Render()
 {
     ImGui::Render();

@@ -4,7 +4,7 @@
 class Texture
 {
 public:
-	Texture(const std::string& texturePath);
+	Texture(const char* texturePath);
 	void Bind(unsigned int slot);
 private:
 	unsigned int m_Texture{};

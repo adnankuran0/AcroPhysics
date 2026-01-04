@@ -4,7 +4,7 @@
 class Mesh
 {
 public:
-	GLsizei vertexCount;
+	GLsizei vertexCount = 0;
 	GLuint VAO = 0;
 	GLuint VBO = 0;
 private:

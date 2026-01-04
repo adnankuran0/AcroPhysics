@@ -2,7 +2,7 @@
 #include "Mesh.h"
 #include <vector>
 #include <glm/glm.hpp>
-#include <Shader.h>
+#include "Render/Shader.h"
 
 class InstancedRenderer
 {

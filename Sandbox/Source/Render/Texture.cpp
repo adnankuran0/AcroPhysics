@@ -1,10 +1,13 @@
 #include "Texture.h"
 #include <stb_image.h>
 #include <glad/gl.h>
+#include "Path.h"
 
-Texture::Texture(const std::string& texturePath)
+
+Texture::Texture(const char* textureFile)
 {
-    unsigned char* data = stbi_load(texturePath.c_str(), &width, &height, &nrChannels, 0);
+    std::filesystem::path texturePath = Path::GetTexturesDir() / textureFile;
+    unsigned char* data = stbi_load(texturePath.string().c_str(), &width, &height, &nrChannels, 0);
 
     glGenTextures(1, &m_Texture);
     glBindTexture(GL_TEXTURE_2D, m_Texture);

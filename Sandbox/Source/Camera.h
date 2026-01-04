@@ -49,7 +49,8 @@ public:
         Yaw = yaw;
         Pitch = pitch;
         updateCameraVectors();
-
+        float lastX = SCREEN_WIDTH / 2.0f;
+        float lastY = SCREEN_HEIGHT / 2.0f;
         m_Projection = glm::perspective(glm::radians(60.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
     }
     // constructor with scalar values
@@ -88,8 +89,33 @@ public:
     }
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-    void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true)
+    void ProcessMouseMovement(GLFWwindow* window, double xposIn, double yposIn, GLboolean constrainPitch = true)
     {
+        if (!glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2))
+        {
+            firstMouse = true;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            return;
+        }
+
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+        float xpos = static_cast<float>(xposIn);
+        float ypos = static_cast<float>(yposIn);
+
+        if (firstMouse)
+        {
+            lastX = xpos;
+            lastY = ypos;
+            firstMouse = false;
+        }
+
+        float xoffset = xpos - lastX;
+        float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+        lastX = xpos;
+        lastY = ypos;
+
         xoffset *= MouseSensitivity;
         yoffset *= MouseSensitivity;
 
@@ -135,5 +161,9 @@ private:
         Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
         Up = glm::normalize(glm::cross(Right, Front));
     }
+
+    float lastX{};
+    float lastY{};
+    bool firstMouse = true;
 };
 #endif
