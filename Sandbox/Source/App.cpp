@@ -18,6 +18,7 @@
 #include "Render/InstancedRenderer.h"
 #include "Path.h"
 #include "DebugSettings.h"
+#include "Timer.h"
 
 
 using namespace Acro::Math;
@@ -34,8 +35,7 @@ void processInput(GLFWwindow* window);
 
 static Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
-static float deltaTime = 0.0f;
-static float lastFrame = 0.0f;
+
 
 static struct BodyInitialState {
     Vector3 position;
@@ -123,9 +123,7 @@ int main(void)
 
     while (!window.ShouldClose())
     {
-        float currentFrame = static_cast<float>(glfwGetTime());
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
+        Timer::Update(glfwGetTime());
 
         processInput(window.GetNative());
 
@@ -157,7 +155,7 @@ int main(void)
         if(!settings.pause)
             groundBody.SetOrientation(Quaternion(Vector3(1.0f, 0.0f, 0.0f),glfwGetTime()*0.5f));
         
-        world.Step(deltaTime);
+        world.Step(Timer::deltaTime);
 
         window.Clear();
 
@@ -199,7 +197,7 @@ int main(void)
         gui.Render();
 
         if (settings.debugDraw)
-            debugRendererGL.Render(world.GetDebugRenderer(), view, proj,deltaTime);
+            debugRendererGL.Render(world.GetDebugRenderer(), view, proj, Timer::deltaTime);
 
         /* Swap front and back buffers */
         window.SwapBuffers();
@@ -223,13 +221,13 @@ void processInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
+        camera.ProcessKeyboard(FORWARD, Timer::deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
+        camera.ProcessKeyboard(BACKWARD, Timer::deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
+        camera.ProcessKeyboard(LEFT, Timer::deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
+        camera.ProcessKeyboard(RIGHT, Timer::deltaTime);
 
     Vector3 forward = Vector3(camera.Front.x, 0, camera.Front.z);
     Vector3 right = Vector3(camera.Right.x, 0, camera.Right.z);
