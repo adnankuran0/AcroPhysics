@@ -1,9 +1,8 @@
 #include "DebugRenderer.h"
+#include "Math/Constants.h"
 
 using namespace Acro::Debug;
 using namespace Acro::Math;
-
-static const float PI_F = 3.14159265358979f;
 
 void DebugRenderer::DrawLine(const Vector3& start, const Vector3& end, const Vector3 color, float duration)
 {
@@ -59,8 +58,8 @@ void DebugRenderer::DrawSphere(const Vector3& pos, float radius, Vector3 color, 
 
 	for (int i = 0; i < segments; i++)
 	{
-		float theta = i * 2.0f * PI_F / segments;
-		float nextTheta = ((i + 1) % segments) * 2.0f * PI_F / segments;
+		float theta = i * 2.0f * PI / segments;
+		float nextTheta = ((i + 1) % segments) * 2.0f * PI / segments;
 
 		// XZ plane
 		Vector3 p0(pos.x + radius * cos(theta), pos.y, pos.z + radius * sin(theta));

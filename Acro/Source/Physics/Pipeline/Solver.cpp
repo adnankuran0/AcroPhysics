@@ -56,6 +56,8 @@ void Solver::SolveFriction(
     Vector3 tangent = tangentVel / std::sqrt(lenSq);
 
     float jt = -rv.Dot(tangent) / invMassSum;
+
+    // TODO: physics material
     float mu = 0.5f;
     jt = std::clamp(jt, -normalImpulse * mu, normalImpulse * mu);
 
@@ -82,8 +84,10 @@ void Solver::SolveContactPoint(
     Vector3 rv = vB - vA;
 
     float vn = rv.Dot(point.normal);
+    // bodies are separating so no impulse needed
     if (vn > 0.0f) return;
 
+    // TODO: physics material
     float restitution = 0.5f;
     float restitutionThreshold = 0.5f;
     if (std::abs(vn) < restitutionThreshold) restitution = 0.0f;

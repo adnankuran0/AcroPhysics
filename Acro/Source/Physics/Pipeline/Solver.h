@@ -25,7 +25,6 @@ private:
 		float velocityNormal,
 		float invMassSum,
 		float restitution) noexcept;
-
 	void ApplyImpulse(
 		const Acro::Physics::BodyHandle& a,
 		const Acro::Physics::BodyHandle& b, 

@@ -6,8 +6,9 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <vector>
 #include <Acro.h>
+#include "Mesh.h"
 
-class Sphere
+class Sphere : public Mesh
 {
 public:
     Sphere(int nSlices = 16, int nStacks = 16, float radius = 0.5f) : m_Slices(nSlices), m_Stacks(nStacks), m_Radius(radius)
@@ -15,60 +16,29 @@ public:
         GenerateMesh();
         SetupBuffers();
     }
-    Sphere(const glm::vec3& pos, int nSlices = 16, int nStacks = 16, float radius = 0.5f) : m_Pos(pos), m_Slices(nSlices), m_Stacks(nStacks), m_Radius(radius)
-    {
-        GenerateMesh();
-        SetupBuffers();
-    }
-
+   
     Sphere(const Sphere&) = delete;
     Sphere& operator=(const Sphere&) = delete;
 
     Sphere(Sphere&& other) noexcept
     {
-        m_VAO = other.m_VAO;
-        m_VBO = other.m_VBO;
-        m_Pos = other.m_Pos;
-        m_Rotation = other.m_Rotation;
-        m_VertexCount = other.m_VertexCount;
+        VAO = other.VAO;
+        VBO = other.VBO;
+        vertexCount = other.vertexCount;
         m_Radius = other.m_Radius;
         m_Slices = other.m_Slices;
         m_Stacks = other.m_Stacks;
-        other.m_VAO = 0;
-        other.m_VBO = 0;
+        other.VAO = 0;
+        other.VBO = 0;
     }
 
     ~Sphere()
     {
-        glDeleteVertexArrays(1, &m_VAO);
-        glDeleteBuffers(1, &m_VBO);
+        glDeleteVertexArrays(1, &VAO);
+        glDeleteBuffers(1, &VBO);
     }
 
-    inline void SetPosition(const glm::vec3& pos) noexcept { m_Pos = pos; }
-    inline void SetRotation(const glm::quat& rot) noexcept { m_Rotation = rot; }
-
-    void Draw(const Shader& shader, const Acro::Rigidbody& body, const glm::mat4& viewMat, const glm::mat4& projMat, const glm::vec3& cameraPos)
-    {
-        SetPosition(body.GetPosition());
-        SetRotation(body.GetOrientation());
-
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, m_Pos);
-        model *= glm::toMat4(m_Rotation);
-
-        shader.use();
-        shader.setMat4("model", model);
-        shader.setMat4("view", viewMat);
-        shader.setMat4("projection", projMat);
-        shader.setVec3("objectColor", 1.0f, 1.0f, 1.0f);
-        shader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-        shader.setVec3("lightDir", glm::vec3(-0.2f, -1.0f, -0.3f));
-        shader.setVec3("viewPos", cameraPos);
-        shader.setInt("tex", 0);
-
-        glBindVertexArray(m_VAO);
-        glDrawArrays(GL_TRIANGLES, 0, m_VertexCount);
-    }
+private:
 
     struct VertexData {
         glm::vec3 pos;
@@ -143,7 +113,7 @@ public:
             }
         }
 
-        m_VertexCount = static_cast<GLsizei>(m_Vertices.size() / 8);
+        vertexCount = static_cast<GLsizei>(m_Vertices.size() / 8);
     }
 
     void PushTriangle(const VertexData& v0, const VertexData& v1, const VertexData& v2)
@@ -166,13 +136,14 @@ public:
         pushVertex(v2.pos, v2.uv);
     }
 
-    void SetupBuffers()
+    void SetupBuffers() override
     {
-        glGenVertexArrays(1, &m_VAO);
-        glGenBuffers(1, &m_VBO);
 
-        glBindVertexArray(m_VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+        glGenVertexArrays(1, &VAO);
+        glGenBuffers(1, &VBO);
+
+        glBindVertexArray(VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, m_Vertices.size() * sizeof(float), m_Vertices.data(), GL_STATIC_DRAW);
 
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
@@ -184,12 +155,6 @@ public:
     }
 
     std::vector<float> m_Vertices;
-    GLsizei m_VertexCount;
-
-    glm::vec3 m_Pos = glm::vec3(0.0f);
-    glm::quat m_Rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-    GLuint m_VAO = 0;
-    GLuint m_VBO = 0;
 
     int m_Slices;
     int m_Stacks;

@@ -15,6 +15,7 @@
 #include "DebugRenderer/DebugRendererGL.h"
 #include "Sphere.h"
 #include <Texture.h>
+#include "InstancedRenderer.h"
 
 
 using namespace Acro::Math;
@@ -68,18 +69,19 @@ int main(void)
     Gui gui(window.GetNative());
 
     Shader shader("D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Phong.vs", "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Phong.fs");
-
     Shader skyboxShader("D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Skybox.vs", "D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Shaders\\Skybox.fs");
 
     Skybox skybox;
     skybox.Init();
 
     Texture crateTexture("D:\\GitHub\\AcroPhysics\\Sandbox\\Source\\Textures\\crate.png");
+    crateTexture.Bind(0);
 
-    Cube cube;
-    Cube cube2;
-    Sphere sphere;
-    Sphere sphere2;
+    Cube cubeMesh;
+    Sphere sphereMesh;
+    InstancedRenderer cubeRenderer(cubeMesh,100);
+    InstancedRenderer sphereRenderer(sphereMesh,100);
+
 
     world = std::make_unique<Acro::World>(Acro::Math::Vector3(0.0f,-9.8f,0.0f),144,8);
 
@@ -118,7 +120,7 @@ int main(void)
             //if ((x + z) % 2 == 0)
                 //body.AttachShape(cubeShape);
             //else
-            body.AttachShape(sphereShape);
+            body.AttachShape(cubeShape);
 
             gridBodies.push_back(body);
 
@@ -138,6 +140,9 @@ int main(void)
         lastFrame = currentFrame;
 
         gui.NewFrame();
+
+        
+
         ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
         if(ImGui::Checkbox("Simulate physics", &stepPhysics))
         {
@@ -191,21 +196,41 @@ int main(void)
         glm::mat4 proj = camera.GetProjectionMatrix();
 
         skybox.Draw(skyboxShader, view, proj);
-        
-        
-        cube.SetScale(glm::vec3(20.0f, 0.2f, 20.0f));
-        cube.Draw(shader, groundBody, view, proj, camera.Position);
-        cube.SetScale(glm::vec3(1.0f));
+       
+        shader.use();
 
-        crateTexture.Bind(0);
+        cubeRenderer.Begin();
+
+        glm::mat4 groundTransform(1.0f);
+        glm::vec3 groundPos = groundBody.GetPosition();
+        glm::quat groundRot = groundBody.GetOrientation();
+        groundTransform = glm::translate(groundTransform, groundPos);
+        groundTransform *= glm::toMat4(groundRot);
+        groundTransform = glm::scale(groundTransform, glm::vec3(20.0f, 0.2f, 20.0f));
+
+        cubeRenderer.Submit(groundTransform);
+        cubeRenderer.Draw(shader, view, proj, camera.Position);
+
+        cubeRenderer.Begin();
+        sphereRenderer.Begin();
+
         for (auto& b : gridBodies)
         {
+            glm::mat4 model = glm::mat4(1.0f);
+            glm::vec3 pos = b.GetPosition();
+            glm::quat rot = b.GetOrientation();
+            model = glm::translate(model, pos);
+            model *= glm::toMat4(rot);
+
             if (b.GetShapeType() == Acro::ShapeType::Box)
-                cube.Draw(shader, b, view, proj, camera.Position);
+                cubeRenderer.Submit(model);
             else
-                sphere.Draw(shader, b, view, proj, camera.Position);
+                sphereRenderer.Submit(model);
         }
-       
+
+        crateTexture.Bind(0);
+        cubeRenderer.Draw(shader, view, proj, camera.Position);
+        sphereRenderer.Draw(shader, view, proj, camera.Position);
 
         gui.Render();
 

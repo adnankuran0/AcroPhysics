@@ -3,7 +3,7 @@
 namespace Acro::Math {
 
 constexpr float EPSILON = 1e-6f;
-constexpr float PI = 3.14159f;
+constexpr float PI = 3.14159265358979f;
 
 }
 
