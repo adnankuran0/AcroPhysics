@@ -21,7 +21,7 @@ project "Sandbox"
       "../Acro/Source",
       "../Vendor/GLAD/include",
       "../Vendor/GLFW/include",
-      "../Vendor/glm",
+      "../Vendor/glm/include",
       "../Vendor/stb_image",
       "../Vendor/ImGui"
    }
