@@ -6,6 +6,11 @@
 
 Texture::Texture(const char* textureFile)
 {
+    Init(textureFile);
+}
+
+void Texture::Init(const char* textureFile)
+{
     std::filesystem::path texturePath = Path::GetTexturesDir() / textureFile;
     unsigned char* data = stbi_load(texturePath.string().c_str(), &width, &height, &nrChannels, 0);
 

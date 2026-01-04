@@ -15,7 +15,7 @@ void World::Step(float deltaTime) noexcept
 
 		while (m_DeltaAccumulator >= m_FixedDeltaTime && m_StepCount < m_MaxSteps)
 		{
-			Profiler::BeginFrame();
+			//Profiler::BeginFrame();
 
 			{
 				ProfilerScope integratorScope("Integrator");
@@ -43,7 +43,7 @@ void World::Step(float deltaTime) noexcept
 				m_Solver.Solve(m_ContactManifoldBuffer, m_ShapeInstanceManager, m_BodyManager,m_FixedDeltaTime);
 			}
 
-			Profiler::EndFrame();
+			//Profiler::EndFrame();
 			//Profiler::PrintSummary();
 
 			m_StepCount++;

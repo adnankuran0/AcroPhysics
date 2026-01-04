@@ -81,3 +81,35 @@ void InstancedRenderer::Draw(const Shader& shader,const glm::mat4& view, const g
     );
     glBindVertexArray(0);
 }
+
+void InstancedRenderer::DrawDepth(const Shader& shader, const glm::mat4& lightSpace, GLuint depthBuffer, unsigned int textureSize) const
+{
+    if (m_Transforms.size() == 0)
+        return;
+    shader.use();
+    shader.setMat4("lightSpace", lightSpace);
+
+    glCullFace(GL_BACK);
+
+    glViewport(0, 0, textureSize, textureSize);
+    glBindFramebuffer(GL_FRAMEBUFFER, depthBuffer);
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_InstanceVBO);
+    glBufferSubData(
+        GL_ARRAY_BUFFER,
+        0,
+        m_Transforms.size() * sizeof(glm::mat4),
+        m_Transforms.data()
+    );
+
+    glBindVertexArray(m_Mesh->VAO);
+    glDrawArraysInstanced(
+        GL_TRIANGLES,
+        0,
+        m_Mesh->vertexCount,
+        m_Transforms.size()
+    );
+    glBindVertexArray(0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}

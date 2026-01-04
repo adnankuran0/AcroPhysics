@@ -34,7 +34,5 @@ int Window::Init(const char* windowName,unsigned int screenWidth, unsigned int s
     glEnable(GL_MULTISAMPLE);
     glCullFace(GL_BACK);
 
-    printf("Loaded OpenGL %d.%d\n", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
-
   return 1;
 }

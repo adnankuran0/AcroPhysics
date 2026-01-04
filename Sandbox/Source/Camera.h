@@ -17,7 +17,7 @@ enum Camera_Movement {
 // Default camera values
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
-const float SPEED = 2.5f;
+const float SPEED = 10.0f;
 const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 
@@ -39,6 +39,25 @@ public:
     float MovementSpeed;
     float MouseSensitivity;
     float Zoom;
+
+    Camera() = default;
+
+    void Init(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH,
+        unsigned int SCREEN_WIDTH = 1280, unsigned int SCREEN_HEIGHT = 720) 
+    {
+        Front = glm::vec3(0.0f, 0.0f, -1.0f);
+        MovementSpeed = SPEED;
+        MouseSensitivity = SENSITIVITY;
+        Zoom = ZOOM;
+        Position = position;
+        WorldUp = up;
+        Yaw = yaw;
+        Pitch = pitch;
+        updateCameraVectors();
+        float lastX = SCREEN_WIDTH / 2.0f;
+        float lastY = SCREEN_HEIGHT / 2.0f;
+        m_Projection = glm::perspective(glm::radians(60.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
+    }
 
     // constructor with vectors
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH, 
@@ -89,33 +108,8 @@ public:
     }
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-    void ProcessMouseMovement(GLFWwindow* window, double xposIn, double yposIn, GLboolean constrainPitch = true)
+    void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true)
     {
-        if (!glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2))
-        {
-            firstMouse = true;
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-            return;
-        }
-
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-        float xpos = static_cast<float>(xposIn);
-        float ypos = static_cast<float>(yposIn);
-
-        if (firstMouse)
-        {
-            lastX = xpos;
-            lastY = ypos;
-            firstMouse = false;
-        }
-
-        float xoffset = xpos - lastX;
-        float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-
-        lastX = xpos;
-        lastY = ypos;
-
         xoffset *= MouseSensitivity;
         yoffset *= MouseSensitivity;
 
@@ -162,8 +156,5 @@ private:
         Up = glm::normalize(glm::cross(Right, Front));
     }
 
-    float lastX{};
-    float lastY{};
-    bool firstMouse = true;
 };
 #endif

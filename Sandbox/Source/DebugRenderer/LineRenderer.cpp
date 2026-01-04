@@ -3,7 +3,7 @@
 #include <iostream>
 #include <Acro.h>
 
-LineRenderer::LineRenderer()
+void LineRenderer::Init()
 {
 	glGenVertexArrays(1, &m_VAO);
 	glGenBuffers(1, &m_VBO);

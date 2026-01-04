@@ -8,7 +8,9 @@
 class Gui
 {
 public:
+	Gui() = default;
 	Gui(GLFWwindow* window);
+	void Init(GLFWwindow* window);
 	void NewFrame();
 	void Update(DebugSettings& settings);
 	void Render();

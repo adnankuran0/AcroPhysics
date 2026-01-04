@@ -11,8 +11,13 @@
 class Sphere : public Mesh
 {
 public:
-    Sphere(int nSlices = 16, int nStacks = 16, float radius = 0.5f) : m_Slices(nSlices), m_Stacks(nStacks), m_Radius(radius)
+    Sphere() = default;
+
+    void Init(int nSlices = 16, int nStacks = 16, float radius = 0.5f)
     {
+        m_Slices = nSlices;
+        m_Stacks = nStacks;
+        m_Radius = radius;
         GenerateMesh();
         SetupBuffers();
     }

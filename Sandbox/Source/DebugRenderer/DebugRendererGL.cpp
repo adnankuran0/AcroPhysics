@@ -5,6 +5,8 @@ void DebugRendererGL::Init(const char* lineVert, const char* lineFrag,
 {
 	m_LineShader = std::make_unique<Shader>(lineVert, lineFrag);
 	m_PointShader = std::make_unique<Shader>(pointVert, pointFrag);
+	m_LineRenderer.Init();
+	m_PointRenderer.Init();
 }
 
 void DebugRendererGL::Render(Acro::Debug::DebugRenderer& debugRenderer, const glm::mat4 viewMat, const glm::mat4 projMat,float dt)

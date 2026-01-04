@@ -9,6 +9,8 @@
 
 namespace Acro {
 
+class World;
+
 class Rigidbody
 {
 public:
@@ -22,6 +24,8 @@ public:
 		m_ShapeManager = shapeManager;  
 		m_BodyHandle = handle; 
 	}
+
+	Rigidbody() = default;
 
 	inline bool IsValid() const noexcept { return m_BodyManager && m_ShapeManager && m_BodyManager->IsValid(m_BodyHandle); }
 
@@ -47,16 +51,9 @@ public:
 		return m_ShapeManager->GetShapeType(m_ShapeHandle);
 	}
 
-	Acro::ShapeInstance AttachShape(const Acro::Shape& shape) 
-	{ 
-		m_ShapeHandle = shape.m_Handle;
-		return m_World->AttachShape(*this,shape);
-	}
+	Acro::ShapeInstance AttachShape(const Acro::Shape& shape);
 
-	void DetachShape(const Acro::Shape& shape)
-	{
-		m_World->DetachShape(*this, shape);
-	}
+	void DetachShape(const Acro::Shape& shape);
 
 	
 private:

@@ -1,6 +1,6 @@
 #include "DebugRenderer/PointRenderer.h"
 
-PointRenderer::PointRenderer()
+void PointRenderer::Init()
 {
 	glGenVertexArrays(1, &m_VAO);
 	glGenBuffers(1, &m_VBO);

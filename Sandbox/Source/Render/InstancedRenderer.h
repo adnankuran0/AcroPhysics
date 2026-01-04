@@ -13,6 +13,7 @@ public:
     void Begin();
     void Submit(const glm::mat4& transform);
     void Draw(const Shader& shader, const glm::mat4& view, const glm::mat4& proj, const glm::vec3& cameraPos) const;
+    void DrawDepth(const Shader& shader, const glm::mat4& lightSpace, GLuint depthBuffer, unsigned int textureSize) const;
 
 private:
     const Mesh* m_Mesh = nullptr;

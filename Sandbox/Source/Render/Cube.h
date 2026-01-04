@@ -60,7 +60,11 @@ static constexpr float vertices[] = {
 class Cube : public Mesh
 {
 public:
-    Cube() { SetupBuffers(); }
+    Cube() = default;
+    void Init() 
+    {
+        SetupBuffers();
+    }
 
     Cube(const Cube&) = delete;
     Cube& operator=(const Cube&) = delete;

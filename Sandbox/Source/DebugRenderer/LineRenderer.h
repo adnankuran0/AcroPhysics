@@ -9,7 +9,8 @@
 class LineRenderer
 {
 public:
-	LineRenderer();
+	void Init();
+	LineRenderer() = default;
 	~LineRenderer();
 
 	inline void AddLine(const glm::vec3& start, const glm::vec3& end, const glm::vec3& color) noexcept

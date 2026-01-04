@@ -8,7 +8,8 @@
 class PointRenderer
 {
 public:
-	PointRenderer();
+	PointRenderer() = default;
+	void Init();
 	~PointRenderer();
 
 	inline void BeginBatch() noexcept { m_Vertices.clear(); }
