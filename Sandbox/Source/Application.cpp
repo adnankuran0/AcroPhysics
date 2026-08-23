@@ -36,7 +36,7 @@ Application::Application(const char* exePath) : camera(glm::vec3(0.0f, 5.0f, 20.
     shader.setMat4("lightSpace", shadowManager.GetLightSpaceMat());
     shader.setInt("shadowMap", 1);
    
-    world = std::make_unique<Acro::World>(Acro::Math::Vector3(0.0f, -9.8f, 0.0f), 144, 8);
+    world = std::make_unique<Acro::World>(Acro::Math::Vector3(0.0f, -9.8f, 0.0f), 60, 8);
 
     scene.Init(*world);
 
